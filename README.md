@@ -24,7 +24,7 @@ optional arguments:
   --db_user DB_USER, -u DB_USER
                         Username to connect to the database
   --db_password DB_PASSWORD, -p DB_PASSWORD
-                        Password to connect to the database. We STRONGLY RECOMMEND using .pgpass file. If you use .pgpass file, leave this command-line argument can be ignored.
+                        Password to connect to the database. We STRONGLY RECOMMEND using .pgpass file. If you use .pgpass file, this command-line argument can be ignored.
   --db_host DB_HOST     Host of the database
   --db_port DB_PORT     Port of the database
   --drop_existing, -x   Drop existing database if exists

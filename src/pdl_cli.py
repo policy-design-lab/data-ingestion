@@ -28,7 +28,7 @@ class PolicyDesignLabDataCLI:
                                  default='')
         self.parser.add_argument('--db_password', '-p', type=str, required=False,
                                  help='Password to connect to the database. We STRONGLY RECOMMEND using .pgpass file. '
-                                      'If you use .pgpass file, leave this command-line argument can be ignored.',
+                                      'If you use .pgpass file, this command-line argument can be ignored.',
                                  default='')
         self.parser.add_argument('--db_host', type=str, help='Host of the database', default='localhost')
         self.parser.add_argument('--db_port', type=int, help='Port of the database', default=5432)
