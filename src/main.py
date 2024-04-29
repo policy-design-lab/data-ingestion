@@ -51,3 +51,10 @@ if __name__ == '__main__':
                                   snap_monthly_participation_filename="snap_monthly_participation.csv",
                                   snap_cost_filename="snap_costs.csv")
     snap_data_parser.format_data()
+
+    # TODO: Parse data, and insert/update data
+    if cli.args.insert_data:
+        database.insert_data(title_i_data_parser.program_data)
+        database.insert_data(title_i_data_parser.dmc_data)
+        database.insert_data(title_i_data_parser.sada_data)
+    database.close()
