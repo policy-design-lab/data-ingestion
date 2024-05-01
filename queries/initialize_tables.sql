@@ -132,6 +132,7 @@ SELECT 'Tree Assistance Program (TAP)',
 FROM pdl.titles
 WHERE name = 'Title I: Commodities';
 
+
 -- Title: 1 - Subtitle A - ARC Program - Subprograms
 INSERT INTO pdl.sub_programs(program_id, name)
 SELECT id, 'Agriculture Risk Coverage County Option (ARC-CO)'
@@ -142,3 +143,9 @@ INSERT INTO pdl.sub_programs(program_id, name)
 SELECT id, 'Agriculture Risk Coverage Individual Coverage (ARC-IC)'
 FROM pdl.programs
 WHERE name = 'Agriculture Risk Coverage (ARC)';
+
+-- Supplemental Nutrition Assistance Program (SNAP)
+INSERT INTO pdl.programs(name, title_id)
+SELECT 'Supplemental Nutrition Assistance Program (SNAP)', id
+FROM pdl.titles
+WHERE name = 'Title IV: Nutrition';

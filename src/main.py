@@ -57,4 +57,5 @@ if __name__ == '__main__':
         database.insert_data(title_i_data_parser.program_data)
         database.insert_data(title_i_data_parser.dmc_data)
         database.insert_data(title_i_data_parser.sada_data)
+        database.insert_data(snap_data_parser.snap_data)
     database.close()
