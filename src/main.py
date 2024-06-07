@@ -10,13 +10,15 @@ if __name__ == '__main__':
     cli.print_args()
     database = PDLDatabase(cli.args.db_name, cli.args.db_user, cli.args.db_password, cli.args.db_host,
                            cli.args.db_port)
+    if not cli.args.create_database_schema:
+        database.connect()
     if cli.args.drop_existing:
         response = input(" Are you sure you want to drop the existing database? (y/n): ")
         if response.lower() == 'y':
             database.drop_database()
         else:
             print("Continuing without dropping the database")
-    if cli.args.create_database:
+    if cli.args.create_database_schema:
         database.create_database_and_schema()
     if cli.args.create_tables:
         database.create_tables()
@@ -42,13 +44,17 @@ if __name__ == '__main__':
                                       crp_csv_filename="CRP_total_compiled_August_24_2023.csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
-                                      eqip_csv_filename="eqip-category-update.csv",
-                                      csp_csv_filename="CSP.csv")
+                                      eqip_csv_filename="EQIP Farm Bill.csv",
+                                      csp_csv_filename="CSPcategoriesUPDATE.csv")
     title_ii_data_parser.format_data()
 
     # TODO: Parse data, and insert/update data
-    if cli.args.insert_data:
-        database.insert_data(title_i_data_parser.program_data)
-        database.insert_data(title_i_data_parser.dmc_data)
-        database.insert_data(title_i_data_parser.sada_data)
+    if cli.args.insert_update_data:
+        # Title I data ingestion
+        database.insert_update_data(title_i_data_parser.program_data)
+        database.insert_update_data(title_i_data_parser.dmc_data)
+        database.insert_update_data(title_i_data_parser.sada_data)
+
+        # Title II data ingestion
+        database.insert_update_data(title_ii_data_parser.program_data)
     database.close()

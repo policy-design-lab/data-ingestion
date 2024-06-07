@@ -1,4 +1,5 @@
 import logging
+import re
 
 import pandas as pd
 import psycopg2
@@ -15,9 +16,9 @@ class PDLDatabase:
         self.connection = None
         self.cursor = None
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.connect(db_name=db_name, db_user=db_user, db_password=db_password, db_host=db_host, db_port=db_port)
         self.create_tables_file = "../queries/create_tables.sql"
         self.initialize_tables_file = "../queries/initialize_tables.sql"
+        self.merged_practice_standards = "../data/common/merged_practice_standards.csv"
 
     def connect(self, db_name=None, db_user=None, db_password=None, db_host=None, db_port=None):
         try:
@@ -92,9 +93,22 @@ class PDLDatabase:
 
     def initialize_tables(self):
         self._execute_sql_file(self.initialize_tables_file)
+
+        # Initialize practice standards
+        with open(self.merged_practice_standards, 'r') as file:
+            data_frame = pd.read_csv(file)
+            sql_insert_query = ("INSERT INTO pdl.practices (code, name, display_name, source) VALUES (%s, %s, %s, %s) "
+                                "ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, display_name = EXCLUDED.display_name, source = EXCLUDED.source")
+
+            for index, row in data_frame.iterrows():
+                display_name = row['practice_name'] + " (" + row['practice_code'] + ")"
+                self.cursor.execute(sql_insert_query,
+                                    (row['practice_code'], row['practice_name'], display_name, row['source']))
+                self.connection.commit()
+
         self.logger.info("Tables initialized successfully")
 
-    def insert_data(self, data_frame):
+    def insert_update_data(self, data_frame):
         # Iterate through the Pandas data frame and insert/update data into the tables
         for index, row in data_frame.iterrows():
             if row['entity_type'] == 'subtitle':
@@ -120,19 +134,38 @@ class PDLDatabase:
                 sql_select_query = "SELECT id, title_id, subtitle_id FROM pdl.programs WHERE name = %s"
                 self.cursor.execute(sql_select_query, (row['entity_name'],))
                 result = self.cursor.fetchone()
+
+                practice_category_id = None
+                # Find practice_category_id from practice_categories table
+                if "practice_category" in row and not pd.isna(row["practice_category"]):
+                    sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s"
+                    self.cursor.execute(sql_select_query, (row['practice_category'],))
+                    practice_category_id = self.cursor.fetchone()[0]
+
                 if result:
                     program_id, title_id, subtitle_id = result
                     # Insert/update data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
+
+                    three_digit_practice_code = None
+                    if "practice_code" in row and not pd.isna(row["practice_code"]):
+                        print(row["practice_code"])
+                        if re.search(r'\d{3}', str(row["practice_code"])):
+                            three_digit_practice_code = re.search(r'\d{3}', str(row["practice_code"])).group()
+
                     self.cursor.execute(sql_insert_query,
-                                        (title_id, subtitle_id, program_id, None, row["state_code"], row['year'],
+                                        (title_id, subtitle_id, program_id, None, practice_category_id,
+                                         row["state_code"], row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
                                          row['base_acres'] if 'base_acres' in row and not pd.isna(
-                                             row['base_acres']) else None))
+                                             row['base_acres']) else None,
+                                         three_digit_practice_code,
+                                         str(row['practice_code']) if 'practice_code' in row and not pd.isna(
+                                             row['practice_code']) else None))
             elif row['entity_type'] == 'sub_program':
                 # Find the program id, title id, subtitle id, and sub_program id from joining sub_programs, programs, and titles
                 # tables

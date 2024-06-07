@@ -121,6 +121,8 @@ class DataParser:
                     "Pay_year": "year",
                     "State": "state_name",
                     "payments": "amount",
+                    "category_name": "practice_category",
+                    "StatutoryCategory": "practice_category"
 
                 },
                 "value_names_map": {
@@ -129,13 +131,31 @@ class DataParser:
                     "RCPP": "Regional Conservation Partnership Program (RCPP)",
                     "EQIP": "Environmental Quality Incentives Program (EQIP)",
                     "CSP": "Conservation Stewardship Program (CSP)",
-                    "Other 1 - planning": "Other planning",
-                    "Other 2 - improvement": "Other improvement",
-                    "Conservating planning assessment": "Conservation planning assessment",
-                    "Resource-conserving crop rotatation": "Resource-conserving crop rotation",
-                    "Land Management": "Land management",
-                    "Forest Management": "Land management",
-                    "Soil Remediation": "Soil remediation"
+                    "Land management": "Land Management",
+                    "Forest management": "Land Management",
+                    "Soil remediation": "Soil Remediation",
+                    "Other 2 - improvement": "Other Improvement",
+                    "Other 1 - planning": "Other Planning",
+                    "Conservating planning assessment": "Conservation Planning Assessment",
+                    "Resource-conserving crop rotatation": "Resource-conserving Crop Rotation",
+                    "Comprehensive Nutrient Mgt.": "Comprehensive Nutrient Management",
+                    "Soil testing": "Soil Testing",
+                    "Soil remediation (6(A)(vi)": "Soil Remediation",
+                    "other (6(B)(vi))": "Other Planning",
+                    "conservating planning assessment (6(B)Iiv))": "Conservation Planning Assessment",
+                    "Resource-conserving crop rotatation (6(B)(ii)": "Resource-conserving Crop Rotation",
+                    "Soil health (6(B)(iii))": "Soil Health",
+                    "Soil testing (6(A)(v))": "Soil Testing",
+                    "Vegetative (6(A)(iii)": "Vegetative",
+                    "Structural (6(A)(i))": "Structural",
+                    "Land Management (6(A)(ii))": "Land Management",
+                    "Forest management (6(A)(iv))": "Forest Management",
+                    "Vegetative (6(A)(iii))": "Vegetative",
+                    "Soil remediation (6(A)(vi))": "Soil Remediation",
+                    "Other (6(A)(vii))": "Other Improvement",
+                    "NIPF": "Non-industrial Private Forestland",
+                    "2014 Other Practices": "Other: Supplemental, Adjustment & Other",
+                    "Pastured Cropland": "Grassland"
                 }
             }
         }
@@ -201,7 +221,9 @@ class DataParser:
                              "Tree Assistance Program (TAP)"]:
             return "program"
         elif entity_name in ["Total Commodities Programs, Subtitle A", "Dairy Margin Coverage, Subtitle D",
-                             "Supplemental Agricultural Disaster Assistance, Subtitle E"]:
+                             "Supplemental Agricultural Disaster Assistance, Subtitle E",
+                             "Environmental Quality Incentives Program (EQIP)",
+                             "Conservation Stewardship Program (CSP)", ]:
             return "subtitle"
         else:
             return "unknown"
@@ -340,47 +362,6 @@ class DataParser:
             self.program_data = pd.merge(self.program_data, self.farm_payee_count_data,
                                          on=["state_code", "year", "entity_name", "entity_type"], how="left")
         elif self.title_name == "Title 2: Conservation":
-            # # Import CRP CSV files and convert to existing format
-            # crp_data = pd.read_csv(self.crp_csv_filepath)
-            # # Rename column names to make it more uniform
-            # crp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
-            #
-            # # Add entity type to crp_data
-            # crp_data = crp_data.assign(entity_type="program")
-            #
-            # # Add state code to crp_data using self.us_state_abbreviations
-            # crp_data = crp_data.assign(state_code=crp_data["state_name"].map(
-            #     {v: k for k, v in self.us_state_abbreviations.items()}))
-            #
-            # self.crp_data = crp_data
-            #
-            # # Import ACEP CSV files and convert to existing format
-            # acep_data = pd.read_csv(self.acep_csv_filepath)
-            # # Rename column names to make it more uniform
-            # acep_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
-            #
-            # # Add entity type to acep_data
-            # acep_data = acep_data.assign(entity_type="program")
-            #
-            # # Add state code to acep_data using self.us_state_abbreviations
-            # acep_data = acep_data.assign(state_code=acep_data["state_name"].map(
-            #     {v: k for k, v in self.us_state_abbreviations.items()}))
-            #
-            # self.acep_data = acep_data
-            #
-            # # Import RCPP CSV files and convert to existing format
-            # rcpp_data = pd.read_csv(self.rcpp_csv_filepath)
-            # # Rename column names to make it more uniform
-            # rcpp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
-            #
-            # # Add entity type to rcpp_data
-            # rcpp_data = rcpp_data.assign(entity_type="program")
-            #
-            # # Add state code to rcpp_data using self.us_state_abbreviations
-            # rcpp_data = rcpp_data.assign(state_code=rcpp_data["state_name"].map(
-            #     {v: k for k, v in self.us_state_abbreviations.items()}))
-            #
-            # self.rcpp_data = rcpp_data
 
             # Import EQIP CSV files and convert to existing format
             eqip_data = pd.read_csv(self.eqip_csv_filepath)
@@ -393,8 +374,17 @@ class DataParser:
             # Filter only relevant years data
             eqip_data = eqip_data[eqip_data["year"].between(self.start_year, self.end_year, inclusive="both")]
 
+            # Exclude amount values that are NaN
+            eqip_data = eqip_data[eqip_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            eqip_data = eqip_data[eqip_data["state_name"].isin(self.us_state_abbreviations.values())]
+
             # Add entity type to eqip
             eqip_data = eqip_data.assign(entity_type="program")
+
+            # Add entity_name to eqip
+            eqip_data = eqip_data.assign(entity_name="Environmental Quality Incentives Program (EQIP)")
 
             # Add state code to eqip using self.us_state_abbreviations
             eqip_data = eqip_data.assign(state_code=eqip_data["state_name"].map(
@@ -402,5 +392,35 @@ class DataParser:
 
             self.eqip_data = eqip_data
 
-            print("EQIP data")
-            print(self.eqip_data)
+            # Import CSP CSV files and convert to existing format
+            csp_data = pd.read_csv(self.csp_csv_filepath)
+            # Rename column names to make it more uniform
+            csp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Replace value names
+            csp_data = csp_data.replace(self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            csp_data = csp_data[csp_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            csp_data = csp_data[csp_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            csp_data = csp_data[csp_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to csp
+            csp_data = csp_data.assign(entity_type="program")
+
+            # Add entity_name to csp
+            csp_data = csp_data.assign(entity_name="Conservation Stewardship Program (CSP)")
+
+            # Add state code to csp using self.us_state_abbreviations
+            csp_data = csp_data.assign(state_code=csp_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            self.csp_data = csp_data
+
+            # TODO: Add ACEP, RCPP, and CRP data processing and update self.program_data
+
+            self.program_data = pd.concat([self.eqip_data, self.csp_data], ignore_index=True)
