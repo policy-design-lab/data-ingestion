@@ -133,6 +133,14 @@ if __name__ == '__main__':
                 {"practice_code": item_nrcs['practice_code'], "practice_name": item_nrcs['practice_name'],
                  "source": 'NRCS'})
 
+    # Add a few missing practice standards
+    merged_practice_standards_filtered.append(
+        {"practice_code": "OTP", "practice_name": "Other Payment", "source": "CSP"})
+    merged_practice_standards_filtered.append(
+        {"practice_code": "EUP", "practice_name": "Erroneous Underpayment", "source": "CSP"})
+    merged_practice_standards_filtered.append(
+        {"practice_code": "ERP", "practice_name": "Equitable Relief Payment", "source": "CSP"})
+
     nrcs_practice_standards.sort(key=lambda x: x[0])
     with open('../common/nrcs_practice_standards.csv', 'w') as f:
         writer = csv.writer(f)
