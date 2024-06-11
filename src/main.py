@@ -1,3 +1,4 @@
+import logging
 from data_parser import DataParser
 from pdl_cli import PolicyDesignLabDataCLI
 from pdl_database import PDLDatabase
@@ -6,6 +7,7 @@ from pdl_database import PDLDatabase
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
     cli = PolicyDesignLabDataCLI()
     cli.print_args()
     database = PDLDatabase(cli.args.db_name, cli.args.db_user, cli.args.db_password, cli.args.db_host,
@@ -51,10 +53,14 @@ if __name__ == '__main__':
     # TODO: Add feature to update data or insert data for specific programs.
     if cli.args.insert_data:
         # Title I data ingestion
+        logger.info("Starting Title I data ingestion...")
         database.insert_data(title_i_data_parser.program_data)
         database.insert_data(title_i_data_parser.dmc_data)
         database.insert_data(title_i_data_parser.sada_data)
+        logger.info("Title I data ingestion complete.")
 
         # Title II data ingestion
+        logger.info("Starting Title II data ingestion...")
         database.insert_data(title_ii_data_parser.program_data)
+        logger.info("Title II data ingestion complete.")
     database.close()
