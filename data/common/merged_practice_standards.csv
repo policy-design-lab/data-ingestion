@@ -243,3 +243,13 @@ practice_code,practice_name,source
 818,Water Conservation System,EQIP
 821,Low Tunnel Systems,EQIP
 823,Organic Management,EQIP
+AGLAND,Associated Ag Land,CSP
+CROP,Cropland Annual Payment,CSP
+FARM,Farmstead,CSP
+MINPAY,Minimum Payment Adjustment,EQIP
+NIPF,Non-Industrial Private Forest Land Annual Payment,CSP
+PAST,Pasture Annual Payment,CSP
+PCROP,Pastured Cropland Annual Payment,CSP
+RANGE,Rangeland Annual Payment,CSP
+RCCR,Supplemental Payment,CSP
+RCCR98,Supplemental Payment Improved,CSP

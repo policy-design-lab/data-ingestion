@@ -63,6 +63,10 @@ if __name__ == '__main__':
             if not found_code:
                 csp_practice_standards_with_three_digit_code.append(
                     {"practice_code": csp_practice_code, "practice_name": practice_name})
+        # Add other practice codes that does not contain three-digit codes, but are in all uppercase letters - e.g., NIPF, CROP, PCROP, etc.
+        elif practice_code.isupper():
+            csp_practice_standards_with_three_digit_code.append(
+                {"practice_code": practice_code, "practice_name": practice_name})
 
         for national_practice_code, national_practice_name, _ in nrcs_practice_standards:
             if practice_code.find(national_practice_code) != -1:
@@ -88,6 +92,10 @@ if __name__ == '__main__':
             if not found_code:
                 eqip_practice_standards_with_three_digit_code.append(
                     {"practice_code": eqip_practice_code, "practice_name": practice_name})
+        # Add other practice codes that does not contain three-digit codes, but are in all uppercase letters - e.g., NIPF, CROP, PCROP, etc.
+        elif practice_code.isupper():
+            eqip_practice_standards_with_three_digit_code.append(
+                {"practice_code": practice_code, "practice_name": practice_name})
 
         for national_practice_code, national_practice_name, _ in nrcs_practice_standards:
             if practice_code.find(national_practice_code) != -1:
