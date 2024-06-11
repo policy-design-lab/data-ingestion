@@ -149,11 +149,13 @@ class PDLDatabase:
                         "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
 
-                    three_digit_practice_code = None
+                    practice_code_filtered = None
                     if "practice_code" in row and not pd.isna(row["practice_code"]):
-                        print(row["practice_code"])
+                        # Filter practice codes to only include ones that contain a three-digit code or is contains all uppercase letters
                         if re.search(r'\d{3}', str(row["practice_code"])):
-                            three_digit_practice_code = re.search(r'\d{3}', str(row["practice_code"])).group()
+                            practice_code_filtered = re.search(r'\d{3}', str(row["practice_code"])).group()
+                        elif row["practice_code"].isupper():
+                            practice_code_filtered = row["practice_code"]
 
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, None, practice_category_id,
@@ -163,7 +165,7 @@ class PDLDatabase:
                                              row['recipient_count']) else None,
                                          row['base_acres'] if 'base_acres' in row and not pd.isna(
                                              row['base_acres']) else None,
-                                         three_digit_practice_code,
+                                         practice_code_filtered,
                                          str(row['practice_code']) if 'practice_code' in row and not pd.isna(
                                              row['practice_code']) else None))
             elif row['entity_type'] == 'sub_program':

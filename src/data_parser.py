@@ -369,7 +369,8 @@ class DataParser:
             eqip_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
 
             # Replace value names
-            eqip_data = eqip_data.replace(self.metadata[self.title_name]["value_names_map"])
+            eqip_data["practice_category"] = eqip_data["practice_category"].replace(
+                self.metadata[self.title_name]["value_names_map"])
 
             # Filter only relevant years data
             eqip_data = eqip_data[eqip_data["year"].between(self.start_year, self.end_year, inclusive="both")]
@@ -398,7 +399,8 @@ class DataParser:
             csp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
 
             # Replace value names
-            csp_data = csp_data.replace(self.metadata[self.title_name]["value_names_map"])
+            csp_data["practice_category"] = csp_data["practice_category"].replace(
+                self.metadata[self.title_name]["value_names_map"])
 
             # Filter only relevant years data
             csp_data = csp_data[csp_data["year"].between(self.start_year, self.end_year, inclusive="both")]
