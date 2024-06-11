@@ -109,8 +109,12 @@ class PDLDatabase:
         self.logger.info("Tables initialized successfully")
 
     def insert_data(self, data_frame):
+        total_rows = len(data_frame)
         # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
+            if index % 100 == 0:
+                self.logger.info(f"Inserting row {index} of {total_rows} into the database")
+
             if row['entity_type'] == 'subtitle':
                 # Find the title id, and the subtitle id from the subtitles table
                 sql_select_query = "SELECT title_id, id as subtitle_id FROM pdl.subtitles WHERE name = %s"
