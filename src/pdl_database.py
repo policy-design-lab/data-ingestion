@@ -108,8 +108,8 @@ class PDLDatabase:
 
         self.logger.info("Tables initialized successfully")
 
-    def insert_update_data(self, data_frame):
-        # Iterate through the Pandas data frame and insert/update data into the tables
+    def insert_data(self, data_frame):
+        # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
             if row['entity_type'] == 'subtitle':
                 # Find the title id, and the subtitle id from the subtitles table
@@ -118,7 +118,7 @@ class PDLDatabase:
                 result = self.cursor.fetchone()
                 if result:
                     title_id, subtitle_id = result
-                    # Insert/update data into the payments table
+                    # Insert data into the payments table
                     sql_insert_query = (
                         "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
@@ -144,7 +144,7 @@ class PDLDatabase:
 
                 if result:
                     program_id, title_id, subtitle_id = result
-                    # Insert/update data into the payments table
+                    # Insert data into the payments table
                     sql_insert_query = (
                         "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
@@ -174,7 +174,7 @@ class PDLDatabase:
                 result = self.cursor.fetchone()
                 if result:
                     program_id, title_id, subtitle_id, sub_program_id = result
-                    # Insert/update data into the payments table
+                    # Insert data into the payments table
                     sql_insert_query = (
                         "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")

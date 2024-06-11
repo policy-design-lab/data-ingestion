@@ -48,13 +48,13 @@ if __name__ == '__main__':
                                       csp_csv_filename="CSPcategoriesUPDATE.csv")
     title_ii_data_parser.format_data()
 
-    # TODO: Parse data, and insert/update data
-    if cli.args.insert_update_data:
+    # TODO: Add feature to update data or insert data for specific programs.
+    if cli.args.insert_data:
         # Title I data ingestion
-        database.insert_update_data(title_i_data_parser.program_data)
-        database.insert_update_data(title_i_data_parser.dmc_data)
-        database.insert_update_data(title_i_data_parser.sada_data)
+        database.insert_data(title_i_data_parser.program_data)
+        database.insert_data(title_i_data_parser.dmc_data)
+        database.insert_data(title_i_data_parser.sada_data)
 
         # Title II data ingestion
-        database.insert_update_data(title_ii_data_parser.program_data)
+        database.insert_data(title_ii_data_parser.program_data)
     database.close()

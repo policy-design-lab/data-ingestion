@@ -39,7 +39,7 @@ class PolicyDesignLabDataCLI:
         self.parser.add_argument('--create-database-schema', '-C', action='store_true',
                                  help='Construct database and/or schema', default=False)
         self.parser.add_argument('--init-tables', '-i', action='store_true', help='Initialize tables', default=False)
-        self.parser.add_argument('--insert-update-data', '-I', action='store_true', help='Insert/update data',
+        self.parser.add_argument('--insert-data', '-I', action='store_true', help='Insert data',
                                  default=False)
         self.args = self.parser.parse_args()
         return
