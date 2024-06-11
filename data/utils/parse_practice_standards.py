@@ -9,9 +9,9 @@ if __name__ == '__main__':
     eqip_practice_standards_with_code = []
     csp_missing_practice_standards = []
     eqip_missing_practice_standards = []
-    eqip_practice_standards_with_three_digit_code = []
-    csp_practice_standards_with_three_digit_code = []
-    merged_practice_standards_with_three_digit_code = []
+    eqip_practice_standards_filtered = []
+    csp_practice_standards_filtered = []
+    merged_practice_standards_filtered = []
     nrcs_practice_standards = []
     nrcs_practice_standards_dict_list = []
 
@@ -56,16 +56,16 @@ if __name__ == '__main__':
         if re.search(r'\d{3}', practice_code):
             csp_practice_code = re.search(r'\d{3}', practice_code).group()
             found_code = False
-            for item in csp_practice_standards_with_three_digit_code:
+            for item in csp_practice_standards_filtered:
                 if item['practice_code'] == csp_practice_code:
                     found_code = True
                     break
             if not found_code:
-                csp_practice_standards_with_three_digit_code.append(
+                csp_practice_standards_filtered.append(
                     {"practice_code": csp_practice_code, "practice_name": practice_name})
         # Add other practice codes that does not contain three-digit codes, but are in all uppercase letters - e.g., NIPF, CROP, PCROP, etc.
         elif practice_code.isupper():
-            csp_practice_standards_with_three_digit_code.append(
+            csp_practice_standards_filtered.append(
                 {"practice_code": practice_code, "practice_name": practice_name})
 
         for national_practice_code, national_practice_name, _ in nrcs_practice_standards:
@@ -85,16 +85,16 @@ if __name__ == '__main__':
         if re.search(r'\d{3}', practice_code):
             eqip_practice_code = re.search(r'\d{3}', practice_code).group()
             found_code = False
-            for item in eqip_practice_standards_with_three_digit_code:
+            for item in eqip_practice_standards_filtered:
                 if item['practice_code'] == eqip_practice_code:
                     found_code = True
                     break
             if not found_code:
-                eqip_practice_standards_with_three_digit_code.append(
+                eqip_practice_standards_filtered.append(
                     {"practice_code": eqip_practice_code, "practice_name": practice_name})
         # Add other practice codes that does not contain three-digit codes, but are in all uppercase letters - e.g., NIPF, CROP, PCROP, etc.
         elif practice_code.isupper():
-            eqip_practice_standards_with_three_digit_code.append(
+            eqip_practice_standards_filtered.append(
                 {"practice_code": practice_code, "practice_name": practice_name})
 
         for national_practice_code, national_practice_name, _ in nrcs_practice_standards:
@@ -107,29 +107,29 @@ if __name__ == '__main__':
             eqip_missing_practice_standards.append((practice_code, practice_name))
             print(f'Could not find {practice_code} in national practice standards')
 
-    # Merge eqip_practice_standards_with_three_digit_code and csp_practice_standards_with_three_digit_code while removing duplicates
-    merged_practice_standards_with_three_digit_code = deepcopy(eqip_practice_standards_with_three_digit_code)
-    for item in merged_practice_standards_with_three_digit_code:
+    # Merge eqip_practice_standards_filtered and csp_practice_standards_filtered while removing duplicates
+    merged_practice_standards_filtered = deepcopy(eqip_practice_standards_filtered)
+    for item in merged_practice_standards_filtered:
         item['source'] = 'EQIP'
-    for item_csp in csp_practice_standards_with_three_digit_code:
+    for item_csp in csp_practice_standards_filtered:
         found = False
-        for item_eqip in eqip_practice_standards_with_three_digit_code:
+        for item_eqip in eqip_practice_standards_filtered:
             if item_csp['practice_code'] == item_eqip['practice_code']:
                 found = True
                 break
         if not found:
-            merged_practice_standards_with_three_digit_code.append(
+            merged_practice_standards_filtered.append(
                 {"practice_code": item_csp['practice_code'], "practice_name": item_csp['practice_name'],
                  "source": 'CSP'})
 
     for item_nrcs in nrcs_practice_standards_dict_list:
         found = False
-        for item in merged_practice_standards_with_three_digit_code:
+        for item in merged_practice_standards_filtered:
             if item_nrcs['practice_code'] == item['practice_code']:
                 found = True
                 break
         if not found:
-            merged_practice_standards_with_three_digit_code.append(
+            merged_practice_standards_filtered.append(
                 {"practice_code": item_nrcs['practice_code'], "practice_name": item_nrcs['practice_name'],
                  "source": 'NRCS'})
 
@@ -175,20 +175,20 @@ if __name__ == '__main__':
     #     writer.writerow(['practice_code', 'practice_name', 'national_practice_code'])
     #     writer.writerows(eqip_practice_standards_with_code)
     #
-    # csp_practice_standards_with_three_digit_code.sort(key=lambda x: x['practice_code'])
-    # with open('csp_practice_standards_with_three_digit_code.csv', 'w') as f:
+    # csp_practice_standards_filtered.sort(key=lambda x: x['practice_code'])
+    # with open('csp_practice_standards.csv', 'w') as f:
     #     writer = csv.DictWriter(f, fieldnames=['practice_code', 'practice_name'])
     #     writer.writeheader()
-    #     writer.writerows(csp_practice_standards_with_three_digit_code)
+    #     writer.writerows(csp_practice_standards_filtered)
     #
-    # eqip_practice_standards_with_three_digit_code.sort(key=lambda x: x['practice_code'])
-    # with open('eqip_practice_standards_with_three_digit_code.csv', 'w') as f:
+    # eqip_practice_standards_filtered.sort(key=lambda x: x['practice_code'])
+    # with open('eqip_practice_standards.csv', 'w') as f:
     #     writer = csv.DictWriter(f, fieldnames=['practice_code', 'practice_name'])
     #     writer.writeheader()
-    #     writer.writerows(eqip_practice_standards_with_three_digit_code)
+    #     writer.writerows(eqip_practice_standards_filtered)
 
-    merged_practice_standards_with_three_digit_code.sort(key=lambda x: x['practice_code'])
+    merged_practice_standards_filtered.sort(key=lambda x: x['practice_code'])
     with open('../common/merged_practice_standards.csv', 'w') as f:
         writer = csv.DictWriter(f, fieldnames=['practice_code', 'practice_name', 'source'])
         writer.writeheader()
-        writer.writerows(merged_practice_standards_with_three_digit_code)
+        writer.writerows(merged_practice_standards_filtered)
