@@ -452,5 +452,3 @@ class DataParser:
             # perform left join on the base acres and farm payee count data
             self.snap_data = pd.merge(snap_cost_data_output, snap_mon_part_data_output,
                                       on=["state_code", "year", "entity_name", "entity_type"], how="left")
-            print("SNAP data")
-            print(self.snap_data)
