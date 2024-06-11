@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS pdl.payments
     payment               numeric(14, 2),
     recipient_count       bigint,
     base_acres            numeric(10, 2),
-    practice_code         smallint,
-    practice_code_variant character varying(100),
+    practice_code         character varying(20),
+    practice_code_variant character varying(20),
     CONSTRAINT pk_payments PRIMARY KEY (id),
     CONSTRAINT uc_payments UNIQUE (title_id, subtitle_id, program_id, sub_program_id, state_code, year)
 )
@@ -96,9 +96,9 @@ CREATE TABLE IF NOT EXISTS pdl.practice_categories
 
 CREATE TABLE IF NOT EXISTS pdl.practices
 (
-    code         character varying NOT NULL,
-    name         character varying NOT NULL,
-    display_name character varying,
+    code         character varying(20)  NOT NULL,
+    name         character varying(100) NOT NULL,
+    display_name character varying(100),
     source       character varying,
     CONSTRAINT pk_practices PRIMARY KEY (code)
 )
@@ -180,6 +180,12 @@ ALTER TABLE IF EXISTS pdl.payments
         ON DELETE NO ACTION
         NOT VALID;
 
+ALTER TABLE IF EXISTS pdl.payments
+    ADD CONSTRAINT fk_practice_code FOREIGN KEY (practice_code)
+        REFERENCES pdl.practices (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID;
 
 ALTER TABLE IF EXISTS pdl.subtitles
     ADD CONSTRAINT fk_titles_id FOREIGN KEY (title_id)
