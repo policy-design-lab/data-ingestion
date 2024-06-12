@@ -51,6 +51,13 @@ if __name__ == '__main__':
     title_ii_data_parser.format_data()
 
     # TODO: Add feature to update data or insert data for specific programs.
+    
+    snap_data_parser = DataParser(2018, 2022, "Supplemental Nutrition Assistance Program (SNAP)",
+                                  "../data/snap", "",
+                                  snap_monthly_participation_filename="snap_monthly_participation.csv",
+                                  snap_cost_filename="snap_costs.csv")
+    snap_data_parser.format_data()
+
     if cli.args.insert_data:
         # Title I data ingestion
         logger.info("Starting Title I data ingestion...")
@@ -63,4 +70,10 @@ if __name__ == '__main__':
         logger.info("Starting Title II data ingestion...")
         database.insert_data(title_ii_data_parser.program_data)
         logger.info("Title II data ingestion complete.")
+        
+        # Title IV data ingestion
+        logger.info("Starting Title IV data ingestion...")
+        database.insert_data(snap_data_parser.snap_data)
+        logger.info("Title IV data ingestion complete.")
+        
     database.close()
