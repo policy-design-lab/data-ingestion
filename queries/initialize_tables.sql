@@ -137,6 +137,7 @@ SELECT 'Tree Assistance Program (TAP)',
 FROM pdl.titles
 WHERE name = 'Title I: Commodities';
 
+
 -- Title: 1 - Subtitle A - ARC Program - Subprograms
 INSERT INTO pdl.sub_programs(program_id, name)
 SELECT id, 'Agriculture Risk Coverage County Option (ARC-CO)'
@@ -148,9 +149,7 @@ SELECT id, 'Agriculture Risk Coverage Individual Coverage (ARC-IC)'
 FROM pdl.programs
 WHERE name = 'Agriculture Risk Coverage (ARC)';
 
-
 -- Title: 2 - Programs
-
 INSERT INTO pdl.programs(title_id, name)
 SELECT id, 'Environmental Quality Incentives Program (EQIP)'
 FROM pdl.titles
@@ -175,7 +174,6 @@ INSERT INTO pdl.programs(title_id, name)
 SELECT id, 'Regional Conservation Partnership Program (RCPP)'
 FROM pdl.titles
 WHERE name = 'Title II: Conservation';
-
 
 -- EQIP Practice Categories
 WITH eqip_program_id AS (SELECT id
@@ -226,3 +224,9 @@ VALUES ('Cropland', 'Cropland', '2014 Practices', (SELECT id from csp_program_id
        ('Soil Testing', 'Soil testing', '2018 Practices', (SELECT id from csp_program_id), False),
        ('Other Improvement', 'Other improvement', '2018 Practices', (SELECT id from csp_program_id), FALSE),
        ('Miscellaneous', 'Miscellaneous', 'Miscellaneous Practices', (SELECT id from csp_program_id), FALSE);
+
+-- Supplemental Nutrition Assistance Program (SNAP)
+INSERT INTO pdl.programs(name, title_id)
+SELECT 'Supplemental Nutrition Assistance Program (SNAP)', id
+FROM pdl.titles
+WHERE name = 'Title IV: Nutrition';
