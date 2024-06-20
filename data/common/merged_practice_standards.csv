@@ -1,5 +1,9 @@
 practice_code,practice_name,source
 000,Grazing Bundle 2 - Range and Pasture,CSP
+1,Forest Bundle,CSP
+1 - Irrigated Cropland,MRBI Bundle,CSP
+1 - Organic,Pasture Bundle,CSP
+"1 - Precision Ag, No till",Crop Bundle,CSP
 101,CNMP Design and Implementation Activity,EQIP
 102,Comprehensive Nutrient Management Plan,EQIP
 104,Nutrient Management Plan - Written,EQIP
@@ -31,7 +35,14 @@ practice_code,practice_name,source
 163,Irrigation Water Management Design,EQIP
 164,Improved Management of Drainage Water Design,EQIP
 165,Forest Management Practice Design,EQIP
+18 - Precision Ag,Crop Bundle,CSP
+19 - Soil Health Precision Ag,Crop Bundle,CSP
 199,Conservation Plan,EQIP
+2,Range Bundle,CSP
+2 - Non-Irrigated Cropland,MRBI Bundle,CSP
+2 - Post-fire Management,Forest Bundle,CSP
+"2 - Precision Ag, Reduced till",Crop Bundle,CSP
+20 - Soil Health Assessment,Crop Bundle,CSP
 201,Edge-of-Field Water Quality Monitoring-Data Collection and Evaluation,EQIP
 202,Edge-of-Field Water Quality Monitoring-System Installation,EQIP
 207,Site Assessment and Soil Testing for Contaminants Activity,EQIP
@@ -41,7 +52,13 @@ practice_code,practice_name,source
 223,Forest Management Assessment,EQIP
 224,Aquifer Flow Test,EQIP
 228,Agricultural Energy Assessment,EQIP
+23 - Pheasant and quail habitat,Crop Bundle,CSP
+24 - Cropland Soil Health Management System,Crop Bundle,CSP
 297,Feral Swine Damage Assessment,EQIP
+3,Longleaf Pine Bundle,CSP
+3 - Non-Irrigated Cropland,MRBI Bundle,CSP
+"3 - Soil health rotation, No till",Crop Bundle,CSP
+3 -- Soil Health,Pasture Bundle,CSP
 300,Existing Activity Payment-Land Use,CSP
 309,Agrichemical Handling Facility,EQIP
 311,Alley Cropping,EQIP
@@ -107,6 +124,9 @@ practice_code,practice_name,source
 397,Aquaculture Pond,EQIP
 398,Fish Raceway or Tank,EQIP
 399,Fishpond Management,EQIP
+4,Longleaf Pine Bundle,CSP
+"4 - Cropland with Water Bodies, No till",MRBI Bundle,CSP
+"4 - Soil health rotation, Reduced till",Crop Bundle,CSP
 400,Bivalve Aquaculture Gear and Biofouling Control,EQIP
 402,Dam,EQIP
 410,Grade Stabilization Structure,EQIP
@@ -134,6 +154,7 @@ practice_code,practice_name,source
 472,Access Control,EQIP
 484,Mulching,EQIP
 490,Tree/Shrub Site Preparation,EQIP
+"5 - Soil Health Assessment, No till",Crop Bundle,CSP
 500,Obstruction Removal,EQIP
 511,Forage Harvest Management,EQIP
 512,Pasture and Hay Planting,EQIP
@@ -172,6 +193,9 @@ practice_code,practice_name,source
 591,Amendments for Treatment of Agricultural Waste,EQIP
 592,Feed Management,EQIP
 595,Pest Management Conservation System,EQIP
+6 - Pasture,Pasture Bundle,CSP
+6 - Pastureland,MRBI Bundle,CSP
+"6 - Soil Health Assessment, Reduced till",Crop Bundle,CSP
 600,Terrace,EQIP
 601,Vegetative Barrier,EQIP
 603,Herbaceous Wind Barriers,EQIP
@@ -213,6 +237,7 @@ practice_code,practice_name,source
 666,Forest Stand Improvement,EQIP
 670,Energy Efficient Lighting System,EQIP
 672,Energy Efficient Building Envelope,EQIP
+7 - Soil Health -Organic,Crop Bundle,CSP
 710,Agricultural Secondary Containment Facility,EQIP
 713,"Fueling Facility, Above Ground Storage",EQIP
 717,Livestock Shade Structure,EQIP
@@ -251,6 +276,7 @@ FARM,Farmstead,CSP
 MINPAY,Minimum Payment Adjustment,EQIP
 NIPF,Non-Industrial Private Forest Land Annual Payment,CSP
 OTP,Other Payment,CSP
+Organic,Crop Bundle  (21 - Crop Bundle,CSP
 PAST,Pasture Annual Payment,CSP
 PCROP,Pastured Cropland Annual Payment,CSP
 RANGE,Rangeland Annual Payment,CSP

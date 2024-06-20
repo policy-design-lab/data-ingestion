@@ -51,23 +51,23 @@ if __name__ == '__main__':
 
     # Check for match between CSP and NRCS practice standards
     for practice_code, practice_name in csp_practice_standards:
-        found = False
 
         if re.search(r'\d{3}', practice_code):
             csp_practice_code = re.search(r'\d{3}', practice_code).group()
-            found_code = False
-            for item in csp_practice_standards_filtered:
-                if item['practice_code'] == csp_practice_code:
-                    found_code = True
-                    break
-            if not found_code:
-                csp_practice_standards_filtered.append(
-                    {"practice_code": csp_practice_code, "practice_name": practice_name})
-        # Add other practice codes that does not contain three-digit codes, but are in all uppercase letters - e.g., NIPF, CROP, PCROP, etc.
-        elif practice_code.isupper():
-            csp_practice_standards_filtered.append(
-                {"practice_code": practice_code, "practice_name": practice_name})
+        # Add other practice codes that does not contain three-digit codes.
+        else:
+            csp_practice_code = practice_code
 
+        found_code = False
+        for item in csp_practice_standards_filtered:
+            if item['practice_code'] == csp_practice_code:
+                found_code = True
+                break
+        if not found_code:
+            csp_practice_standards_filtered.append(
+                {"practice_code": csp_practice_code, "practice_name": practice_name})
+
+        found = False
         for national_practice_code, national_practice_name, _ in nrcs_practice_standards:
             if practice_code.find(national_practice_code) != -1:
                 print(f'Found {national_practice_code} in {practice_code}')
@@ -80,23 +80,23 @@ if __name__ == '__main__':
 
     # Check for match between EQIP and NRCS practice standards
     for practice_code, practice_name in eqip_practice_standards:
-        found = False
 
         if re.search(r'\d{3}', practice_code):
             eqip_practice_code = re.search(r'\d{3}', practice_code).group()
-            found_code = False
-            for item in eqip_practice_standards_filtered:
-                if item['practice_code'] == eqip_practice_code:
-                    found_code = True
-                    break
-            if not found_code:
-                eqip_practice_standards_filtered.append(
-                    {"practice_code": eqip_practice_code, "practice_name": practice_name})
-        # Add other practice codes that does not contain three-digit codes, but are in all uppercase letters - e.g., NIPF, CROP, PCROP, etc.
-        elif practice_code.isupper():
-            eqip_practice_standards_filtered.append(
-                {"practice_code": practice_code, "practice_name": practice_name})
+        # Add other practice codes that does not contain three-digit codes.
+        else:
+            eqip_practice_code = practice_code
 
+        found_code = False
+        for item in eqip_practice_standards_filtered:
+            if item['practice_code'] == eqip_practice_code:
+                found_code = True
+                break
+        if not found_code:
+            eqip_practice_standards_filtered.append(
+                {"practice_code": eqip_practice_code, "practice_name": practice_name})
+
+        found = False
         for national_practice_code, national_practice_name, _ in nrcs_practice_standards:
             if practice_code.find(national_practice_code) != -1:
                 print(f'Found {national_practice_code} in {practice_code}')
