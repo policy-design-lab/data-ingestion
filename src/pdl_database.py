@@ -143,6 +143,7 @@ class PDLDatabase:
                 # Find practice_category_id from practice_categories table
                 if "practice_category" in row and not pd.isna(row["practice_category"]):
                     sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s"
+                    print(sql_select_query, row['practice_category'])
                     self.cursor.execute(sql_select_query, (row['practice_category'],))
                     practice_category_id = self.cursor.fetchone()[0]
 

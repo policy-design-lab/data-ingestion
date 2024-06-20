@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS pdl.payments
     payment               numeric(14, 2),
     recipient_count       bigint,
     base_acres            numeric(10, 2),
-    practice_code         character varying(20),
-    practice_code_variant character varying(20),
+    practice_code         character varying(100),
+    practice_code_variant character varying(100),
     CONSTRAINT pk_payments PRIMARY KEY (id),
     CONSTRAINT uc_payments UNIQUE (title_id, subtitle_id, program_id, sub_program_id, state_code, year)
 )
@@ -96,9 +96,9 @@ CREATE TABLE IF NOT EXISTS pdl.practice_categories
 
 CREATE TABLE IF NOT EXISTS pdl.practices
 (
-    code         character varying(20)  NOT NULL,
-    name         character varying(100) NOT NULL,
-    display_name character varying(100),
+    code         character varying(100) NOT NULL,
+    name         character varying(200) NOT NULL,
+    display_name character varying(200),
     source       character varying,
     CONSTRAINT pk_practices PRIMARY KEY (code)
 )

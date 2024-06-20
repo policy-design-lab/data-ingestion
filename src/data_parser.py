@@ -122,8 +122,9 @@ class DataParser:
                     "State": "state_name",
                     "payments": "amount",
                     "category_name": "practice_category",
-                    "StatutoryCategory": "practice_category"
-
+                    "StatutoryCategory": "practice_category",
+                    "practice_code": "practice_code_processed",
+                    "full_practice_code": "practice_code"
                 },
                 "value_names_map": {
                     "CRP": "Conservation Reserve Program (CRP)",
@@ -155,7 +156,33 @@ class DataParser:
                     "Other (6(A)(vii))": "Other Improvement",
                     "NIPF": "Non-industrial Private Forestland",
                     "2014 Other Practices": "Other: Supplemental, Adjustment & Other",
-                    "Pastured Cropland": "Grassland"
+                    "Pastured Cropland": "Grassland",
+                    "1": "Miscellaneous",
+                    "2": "Miscellaneous",
+                    "3": "Miscellaneous",
+                    "4": "Miscellaneous",
+                    "1 - Irrigated Cropland": "Miscellaneous",
+                    "1 - Organic": "Miscellaneous",
+                    "1 - Precision Ag, No till": "Miscellaneous",
+                    "18 - Precision Ag": "Miscellaneous",
+                    "19 - Soil Health Precision Ag": "Miscellaneous",
+                    "2 - Non-Irrigated Cropland ": "Miscellaneous",
+                    "2 - Post-fire Management": "Miscellaneous",
+                    "2 - Precision Ag, Reduced till": "Miscellaneous",
+                    "20 - Soil Health Assessment": "Miscellaneous",
+                    "23 - Pheasant and quail habitat": "Miscellaneous",
+                    "24 - Cropland Soil Health Management System": "Miscellaneous",
+                    "3 - Non-Irrigated Cropland ": "Miscellaneous",
+                    "3 - Soil health rotation, No till": "Miscellaneous",
+                    "3 -- Soil Health": "Miscellaneous",
+                    "4 - Cropland with Water Bodies, No till": "Miscellaneous",
+                    "4 - Soil health rotation, Reduced till": "Miscellaneous",
+                    "5 - Soil Health Assessment, No till": "Miscellaneous",
+                    "6 - Pasture": "Miscellaneous",
+                    "6 - Pastureland": "Miscellaneous",
+                    "6 - Soil Health Assessment, Reduced till": "Miscellaneous",
+                    "7 - Soil Health -Organic": "Miscellaneous",
+                    "Organic": "Miscellaneous"
                 }
             }
         }
@@ -365,8 +392,15 @@ class DataParser:
 
             # Import EQIP CSV files and convert to existing format
             eqip_data = pd.read_csv(self.eqip_csv_filepath)
+
+            # Remove leading and trailing whitespaces from column names
+            eqip_data.columns = eqip_data.columns.str.strip()
+
             # Rename column names to make it more uniform
             eqip_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from practice_code column
+            eqip_data["practice_code"] = eqip_data["practice_code"].str.strip()
 
             # Replace value names
             eqip_data["practice_category"] = eqip_data["practice_category"].replace(
@@ -395,8 +429,15 @@ class DataParser:
 
             # Import CSP CSV files and convert to existing format
             csp_data = pd.read_csv(self.csp_csv_filepath)
+
+            # Remove leading and trailing whitespaces from column names
+            csp_data.columns = csp_data.columns.str.strip()
+
             # Rename column names to make it more uniform
             csp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from practice_code column
+            csp_data["practice_code"] = csp_data["practice_code"].str.strip()
 
             # Replace value names
             csp_data["practice_category"] = csp_data["practice_category"].replace(

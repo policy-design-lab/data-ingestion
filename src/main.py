@@ -47,7 +47,7 @@ if __name__ == '__main__':
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
-                                      csp_csv_filename="CSPcategoriesUPDATE.csv")
+                                      csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
     # TODO: Add feature to update data or insert data for specific programs.

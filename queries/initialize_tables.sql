@@ -224,4 +224,5 @@ VALUES ('Cropland', 'Cropland', '2014 Practices', (SELECT id from csp_program_id
         FALSE),
        ('Bundles', 'Bundles', '2018 Practices', (SELECT id from csp_program_id), FALSE),
        ('Soil Testing', 'Soil testing', '2018 Practices', (SELECT id from csp_program_id), False),
-       ('Other Improvement', 'Other improvement', '2018 Practices', (SELECT id from csp_program_id), FALSE);
+       ('Other Improvement', 'Other improvement', '2018 Practices', (SELECT id from csp_program_id), FALSE),
+       ('Miscellaneous', 'Miscellaneous', 'Miscellaneous Practices', (SELECT id from csp_program_id), FALSE);
