@@ -143,7 +143,6 @@ class PDLDatabase:
                 # Find practice_category_id from practice_categories table
                 if "practice_category" in row and not pd.isna(row["practice_category"]):
                     sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s"
-                    print(sql_select_query, row['practice_category'])
                     self.cursor.execute(sql_select_query, (row['practice_category'],))
                     practice_category_id = self.cursor.fetchone()[0]
 
@@ -159,7 +158,7 @@ class PDLDatabase:
                         # Filter practice codes to only include ones that contain a three-digit code or is contains all uppercase letters
                         if re.search(r'\d{3}', str(row["practice_code"])):
                             practice_code_filtered = re.search(r'\d{3}', str(row["practice_code"])).group()
-                        elif row["practice_code"].isupper():
+                        else:
                             practice_code_filtered = row["practice_code"]
 
                     self.cursor.execute(sql_insert_query,
