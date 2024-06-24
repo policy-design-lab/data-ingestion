@@ -1,0 +1,166 @@
+practice_name,practice_unit,practice_code
+309,Agrichemical Handling Facility,No.
+311,Alley Cropping,Ac.
+313,Waste Storage Facility,No.
+314,Brush Management,Ac.
+315,Herbaceous Weed Treatment,Ac.
+316,Animal Mortality Facility,No.
+317,Composting Facility,No.
+318,Short Term Storage of Animal Waste and Byproducts,Cubic Yards
+319,On-Farm Secondary Containment Facility,No.
+320,Irrigation Canal or Lateral,Ft.
+324,Deep Tillage,Ac.
+325,High Tunnel System,Sq.Ft.
+326,Clearing and Snagging,Ft.
+327,Conservation Cover,Ac.
+328,Conservation Crop Rotation,Ac.
+329,"Residue and Tillage Management, No-Till",Ac.
+330,Contour Farming,Ac.
+331,Contour Orchard and Other Perennial Crops,Ac.
+332,Contour Buffer Strips,Ac.
+333,Amending Soil Properties with Gypsum Products,Ac.
+334,Controlled Traffic Farming,Ac.
+336,Soil Carbon Amendment,Ac.
+338,Prescribed Burning,Ac.
+340,Cover Crop,Ac.
+342,Critical Area Planting,Ac.
+345,"Residue and Tillage Management, Reduced Till",Ac.
+350,Sediment Basin,No.
+351,Well Decommissioning,No.
+353,Monitoring Well,No.
+355,Groundwater Testing,No.
+356,Dike and Levee,Ft.
+359,Waste Treatment Lagoon,No.
+360,Waste Facility Closure,No.
+362,Diversion,Ft.
+366,Anaerobic Digester,No.
+367,Roofs and Covers,No.
+368,Emergency Animal Mortality Management,No.
+371,Air Filtration and Scrubbing,No.
+372,Combustion System Improvement,No.
+373,Dust Control on Unpaved Roads and Surfaces,Sq. Ft.
+374,Energy Efficient Agricultural Operation,No.
+375,Dust Management for Pen Surfaces,Ac.
+376,Field Operations Emissions Reduction,Ac.
+378,Pond,No.
+379,Forest Farming,Ac.
+380,Windbreak/Shelterbelt Establishment and Renovation,Ft.
+381,Silvopasture,Ac.
+382,Fence,Ft.
+383,Fuel Break,Ac.
+384,"Dam, Diversion",No.
+384,Woody Residue Treatment,Ac.
+386,Field Border,Ac.
+388,Irrigation Field Ditch,Ft.
+390,Riparian Herbaceous Cover,Ac.
+391,Riparian Forest Buffer,Ac.
+393,Filter Strip,Ac.
+394,Firebreak,Ft.
+395,Stream Habitat Improvement and Management,Ac.
+396,Aquatic Organism Passage,Mi.
+397,Aquaculture Ponds,Ac.
+398,Fish Raceway or Tank,Ft. and Ft3
+399,Fishpond Management,Ac.
+400,Bivalve Aquaculture Gear and Biofouling Control,Ac.
+402,Dam,No.
+410,Grade Stabilization Structure,No.
+412,Grassed Waterway,Ac.
+420,Wildlife Habitat Planting,Ac.
+422,Hedgerow Planting,Ft.
+423,Hillside Ditch,Ft.
+428,Irrigation Ditch Lining,Ft.
+430,Irrigation Pipeline,Ft.
+432,Dry Hydrant,No.
+436,Irrigation Reservoir,Ac-Ft
+441,"Irrigation System, Microirrigation",Ac.
+442,Sprinkler System,Ac.
+443,"Irrigation System, Surface and Subsurface",Ac.
+447,Irrigation and Drainage Tailwater Recovery,No.
+449,Irrigation Water Management,Ac.
+450,Anionic Polyacrylamide (PAM) Application,Ac.
+453,"Land Reclamation, Landslide Treatment",No. and Ac
+457,Mine Shaft and Adit Closing,No.
+460,Land Clearing,Ac.
+462,Precision Land Forming and Smoothing,Ac.
+464,Irrigation Land Leveling,Ac.
+468,Lined Waterway or Outlet,Ft.
+472,Access Control,Ac.
+484,Mulching,Ac.
+490,Tree/Shrub Site Preparation,Ac.
+500,Obstruction Removal,Ac.
+511,Forage Harvest Management,Ac.
+512,Pasture and Hay Planting,Ac.
+516,Livestock Pipeline,Ft.
+520,Pond Sealing or Lining-Compacted Soil,Ft2
+521,Pond Sealing or Lining-Geomembrane or Geosynthetic Clay Liner,No.
+522,Pond Sealing or Lining-Concrete,Ft2
+527,Sinkhole Treatment,No.
+528,Prescribed Grazing,Ac.
+533,Pumping Plant,No.
+543,"Land Reclamation, Abandoned Mined Land",Ac.
+548,Grazing Land Mechanical Treatment,Ac.
+550,Range Planting,Ac.
+554,Drainage Water Management,Ac.
+555,Rock Wall Terrace,Ft.
+557,Row Arrangement,Ac.
+558,Roof Runoff Structure,No.
+560,Access Road,Ft.
+561,Heavy Use Area Protection,Sq. Ft.
+566,Recreation Land Improvement and Protection,Ac.
+570,Stormwater Runoff Control,Ac.
+572,Spoil Disposal,Ac.
+574,Spring Development,No.
+575,Trails and Walkways,Ft.
+576,Livestock Shelter Structure,No.
+578,Stream Crossing,No.
+580,Streambank and Shoreline Protection,Ft.
+582,Open Channel,Ft.
+584,Channel Bed Stabilization,Ft.
+585,Stripcropping,Ac.
+587,Structure for Water Control,No.
+588,Cross Wind Ridges,Ac.
+589c,Cross Wind Trap Strips,Ac.
+590,Nutrient Management,Ac.
+591,Amendments for Treatment of Agricultural Waste,au
+592,Feed Management,Au.
+595,Pest Management Conservation System,Ac.
+600,Terrace,Ft.
+601,Vegetative Barrier,Ft.
+603,Herbaceous Wind Barriers,Ft.
+604,Saturated Buffer,Ft.
+605,Denitrifying Bioreactor,No.
+606,Subsurface Drain,Ft.
+607,"Surface Drain, Field Ditch",Ft.
+608,"Surface Drain, Main or Lateral",Ft.
+609,Surface Roughening,Ac.
+610,Saline and Sodic Soil Management,Ac.
+612,Tree/Shrub Establishment,Ac.
+614,Watering Facility,No.
+620,Underground Outlet,Ft.
+627,"Wastewater Treatment, Milk House",No.
+629,Waste Treatment,No.
+630,Vertical Drain,No.
+632,Waste Separation Facility,No.
+633,Waste Recycling,No.
+634,Waste Transfer,No.
+635,Vegetated Treatment Area,Ac.
+636,Water Harvesting Catchment,No.
+638,Water and Sediment Control Basin,No.
+640,Waterspreading,Ac.
+642,Water Well,No.
+643,Restoration of Rare or Declining Natural Communities,Ac.
+644,Wetland Wildlife Habitat Management,Ac.
+645,Upland Wildlife Habitat Management,Ac.
+646,Shallow Water Development and Management,Ac.
+647,Early Successional Habitat Development/Management,Ac.
+649,Structures for Wildlife,No.
+654,Road/Trail/Landing Closure and Treatment,Ft.
+655,Forest Trails and Landings,Ac.
+656,Constructed Wetland,Ac.
+657,Wetland Restoration,Ac.
+658,Wetland Creation,Ac.
+659,Wetland Enhancement,Ac.
+660,Tree/Shrub Pruning,Ac.
+666,Forest Stand Improvement,Ac.
+670,Energy Efficient Lighting System,No.
+672,Energy Efficient Building Envelope,No.

@@ -36,7 +36,8 @@ class PolicyDesignLabDataCLI:
                                  help='Drop existing database if exists', default=False)
         self.parser.add_argument('--log_level', '-l', type=str, help='Log level', default='INFO')
         self.parser.add_argument('--create-tables', '-c', action='store_true', help='Create tables', default=False)
-        self.parser.add_argument('--create-database', '-C', action='store_true', help='Create database', default=False)
+        self.parser.add_argument('--create-database-schema', '-C', action='store_true',
+                                 help='Construct database and/or schema', default=False)
         self.parser.add_argument('--init-tables', '-i', action='store_true', help='Initialize tables', default=False)
         self.parser.add_argument('--insert-data', '-I', action='store_true', help='Insert data',
                                  default=False)

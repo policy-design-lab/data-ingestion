@@ -1,0 +1,551 @@
+practice_code,practice_name
+1,Forest Bundle
+1,Longleaf Pine Bundle
+1,Buffer Bundle
+1 - Irrigated Cropland,MRBI Bundle
+1 - Organic,Pasture Bundle
+"1 - Precision Ag, No till",Crop Bundle
+18 - Precision Ag,Crop Bundle
+19 - Soil Health Precision Ag,Crop Bundle
+2,Range Bundle
+2,Longleaf Pine Bundle
+2,Pasture Bundle
+2,Ogallala Bundle
+2,Buffer Bundle
+2 - Non-Irrigated Cropland,MRBI Bundle
+2 - Post-fire Management,Forest Bundle
+"2 - Precision Ag, Reduced till",Crop Bundle
+20 - Soil Health Assessment,Crop Bundle
+23 - Pheasant and quail habitat,Crop Bundle
+24 - Cropland Soil Health Management System,Crop Bundle
+3,Longleaf Pine Bundle
+3,Forest Bundle
+3 - Non-Irrigated Cropland,MRBI Bundle
+"3 - Soil health rotation, No till",Crop Bundle
+3 -- Soil Health,Pasture Bundle
+311,Alley Cropping
+314,Brush Management
+315,Herbaceous Weed Treatment
+319,On-Farm Secondary Containment Facility
+324,Deep Tillage
+327,Conservation Cover
+328,Conservation Crop Rotation
+329,"Residue and Tillage Management, No Till"
+333,Amending Soil Properties with Gypsum Products
+334,Controlled Traffic Farming
+338,Prescribed Burning
+340,Cover Crop
+342,Critical Area Planting
+345,"Residue and Tillage Management, Reduced Till"
+373,Dust Control on Unpaved Roads and Surfaces
+374,Energy Efficient Agricultural Operation
+376,Field Operations Emissions Reduction
+378,Pond
+380,Windbreak/Shelterbelt Establishment and Renovation
+381,Silvopasture
+382,Fence
+383,Fuel Break
+384,Woody Residue Treatment
+386,Field Border
+390,Riparian Herbaceous Cover
+391,Riparian Forest Buffer
+393,Filter Strip
+394,Firebreak
+395,Stream Habitat Improvement and Management
+399,Fishpond Management
+4,Longleaf Pine Bundle
+"4 - Cropland with Water Bodies, No till",MRBI Bundle
+"4 - Soil health rotation, Reduced till",Crop Bundle
+410,Grade Stabilization Structure
+412,Grassed Waterway
+420,Wildlife Habitat Planting
+422,Hedgerow Planting
+430,Irrigation Pipeline
+441,"Irrigation System, Microirrigation"
+442,Sprinkler System
+443,"Irrigation System, Surface and Subsurface"
+449,Irrigation Water Management
+462,Precision Land Forming and Smoothing
+464,Irrigation Land Leveling
+466,Land Smoothing
+472,Access Control
+484,Mulching
+490,Tree/Shrub Site Preparation
+"5 - Soil Health Assessment, No till",Crop Bundle
+511,Forage Harvest Management
+512,Pasture and Hay Planting
+516,Livestock Pipeline
+528,Prescribed Grazing
+533,Pumping Plant
+550,Range Planting
+554,Drainage Water Management
+558,Roof Runoff Structure
+561,Heavy Use Area Protection
+570,Stormwater Runoff Control
+574,Spring Development
+576,Livestock Shelter Structure
+578,Stream Crossing
+580,Streambank and Shoreline Protection
+587,Structure for Water Control
+590,Nutrient Management
+595,Pest Management Conservation System
+6 - Pasture,Pasture Bundle
+6 - Pastureland,MRBI Bundle
+"6 - Soil Health Assessment, Reduced till",Crop Bundle
+606,Subsurface Drain
+610,Salinity and Sodic Soil Management
+612,Tree/Shrub Establishment
+614,Watering Facility
+620,Underground Outlet
+643,Restoration of Rare or Declining Natural Communities
+644,Wetland Wildlife Habitat Management
+645,Upland Wildlife Habitat Management
+646,Shallow Water Development and Management
+647,Early Successional Habitat Development-Mgt
+649,Structures for Wildlife
+650,Windbreak/Shelterbelt Renovation
+654,Road/Trail/Landing Closure and Treatment
+655,Forest Trails and Landings
+660,Tree-Shrub Pruning
+666,Forest Stand Improvement
+7 - Soil Health -Organic,Crop Bundle
+AGLAND,Associated Ag Land
+B000CPL10,YEAR 1 Irrigated Cropland (MRBI/Ogallala)
+B000CPL11,YEAR 2+ Irrigated Cropland (MRBI/Ogallala)
+B000CPL12,Non-Irrigated Precision Ag (MRBI)
+B000CPL13,Non-Irrigated Cropland (MRBI)
+B000CPL14,YEAR 1 Irrigated Precision Ag Cropland (MRBI)
+B000CPL15,YEAR 2+ Irrigated Precision Ag Cropland (MRBI)
+B000CPL16,Non-Irrigated Cropland with Water Bodies (MRBI)
+B000CPL25,Climate Smart Advanced Soil Health
+B000GRZ1,Grazing Bundle 1 - Range and Pasture
+B000GRZ2,Grazing Bundle 2 - Range and Pasture
+B000GRZ3,Grazing Bundle 3 - Range and Pasture
+B000GRZ4,Grazing Bundle 4 - Range and Pasture
+B000GRZ5,Grazing Bundle 5 - Range and Pasture
+B000PST5,Pasture Bundle 5
+B000RNG4,Range Bundle 4
+B000WLW,Working Lands for Wildlife Bundle
+CROP,Cropland Annual Payment
+E199A,Comprehensive Conservation Plan
+E300EAP1,Existing Activity Payment-Land Use
+E300EAP2,Existing Activity Payment-Resource Concern
+E314133Z,Brush management for improved structure and composition
+E314134Z,Brush management that maintains or enhances wildlife or fish habitat
+E314A,Brush management to improve wildlife habitat
+E315132Z,Herbaceous weed control for desired plant communities/habitats consistent with the ecological site
+E315133Z,Herbaceous weed control (inadequate structure and comp) for desired plant communities/habitats
+E315134Z,Herbaceous weed control (plant pest pressures) for desired plant communities/habitats
+E315A,Herbaceous weed treatment to create plant communities consistent with the ecological site
+E327136Z1,Conservation cover to provide food habitat for pollinators and beneficial insects
+E327136Z2,Establish Monarch butterfly habitat
+E327137Z,Conservation cover to provide cover and shelter habitat for pollinators and beneficial insects
+E327139Z,Conservation cover to provide habitat continuity for pollinators and beneficial insects
+E327A,Conservation cover for pollinators and beneficial insects
+E327B,Establish Monarch butterfly habitat
+E328101I,Improved resource conserving crop rotation to reduce water erosion
+E328101R,Resource conserving crop rotation to reduce water erosion
+E328101Z,Conservation crop rotation on recently converted CRP grass/legume cover for water erosion
+E328102I,Improved resource conserving crop rotation to reduce wind erosion
+E328102R,Resource conserving crop rotation to reduce wind erosion
+E328102Z,Conservation crop rotation on recently converted CRP grass/legume cover for wind erosion
+E328106I,Improved resource conserving crop rotation for soil organic matter improvement
+E328106R,Resource conserving crop rotation for soil organic matter improvement
+E328106Z1,Soil health crop rotation
+E328106Z2,Modifications to improve soil health and increase soil organic matter
+E328106Z3,Conservation crop rotation on recently converted CRP grass/legume cover for SOM improvement
+E328107I,Improved resource conserving crop rotation to improve soil compaction
+E328107R,Resource conserving crop rotation to improve soil compaction
+E328109Z,Conservation crop rotation to reduce the concentration of salts
+E328134I,Improved resource conserving crop rotation to relieve plant pest pressure
+E328134R,Resource conserving crop rotation to relieve plant pest pressure
+E328136Z,Leave standing grain crops unharvested to benefit wildlife food sources
+E328136Z2,Improved crop rotation to provide benefits to pollinators
+E328137Z,Leave standing grain crops unharvested to benefit wildlife cover and shelter
+E328A,Resource conserving crop rotation
+E328B,Improved resource conserving crop rotation
+E328C,Conservation crop rotation on recently converted CRP grass/legume cover
+E328D,Leave standing grain crops unharvested to benefit wildlife
+E328E,Soil health crop rotation
+E328F,Modifications to improve soil health and increase soil organic matter
+E328G,Crop rotation on recently converted CRP grass/legume cover for soil organic matter improvement
+E328H,Conservation crop rotation to reduce the concentration of salts
+E328I,Forage harvest to reduce water quality impacts by utilization of excess soil nutrients
+E328J,Improved crop rotation to provide benefits to pollinators
+E328K,Multiple crop types to benefit wildlife
+E328L,Leaving tall crop residue for wildlife
+E328M,Diversify crop rotation with canola or sunflower to provide benefits to pollinators
+E328N,Intercropping to Improve Soil Health
+E328O,Perennial Grain Conservation Crop Rotation
+E328P,Low Nitrogen Requirement Annual Crop Rotation
+E329101Z,No till to reduce water erosion
+E329102Z,No till system to reduce wind erosion
+E329106Z,No till system to increase soil health and soil organic matter content
+E329114Z,No till to increase plant-available moisture: irrigation water
+E329115Z,No till to increase plant-available moisture: moisture management
+E329128Z,No till to reduce tillage induced particulate matter
+E329144Z,No till to reduce energy
+E329A,No till to reduce soil erosion
+E329B,No till to reduce tillage induced particulate matter
+E329C,No till to increase plant-available moisture
+E329D,No till system to increase soil health and soil organic matter content
+E329E,No till to reduce energy
+E333118Z,Apply gypsum products to improve surface WQ quality by reducing dissolved P conc in surface runoff
+E333119Z,Apply gypsum products to improve surface WQ by reducing dissolved P conc in subsurface drainage
+E333122Z,"Apply gypsum to improve WQ, contaminants transported from manure/biosolid application-surface water"
+E334107Z,Controlled traffic farming to reduce compaction
+E334A,Controlled traffic farming to reduce compaction
+E338134Z,Strategic patch burning for grazing distribution/wildlife habitat (undesirable plant pressure)
+E338135Z,"Strategically planned, patch burning for grazing distribution and wildlife habitat (fuel loading)"
+E338136Z,Short-interval burns to promote a healthy herbaceous plant community for wildlife food
+E338137Z1,Sequential patch burning
+E338137Z2,Short-interval burn
+E338140Z,Short-interval prescribed burning to promote a healthy herbaceous plant community
+E338A,"Strategically planned, patch burning for grazing distribution and wildlife habitat"
+E338B,Short-interval burns to promote a healthy herbaceous plant community
+E338C,Sequential patch burning
+E340101Z,Cover crop to reduce water erosion
+E340102Z,Cover crop to reduce wind erosion
+E340106Z1,Intensive cover cropping to increase soil health and soil organic matter content
+E340106Z2,Use of multi-species cover crops to improve soil health and increase soil organic matter
+E340106Z3,Intensive cover cropping (orchard/vineyard floor) to increase soil health and SOM content
+E340106Z4,Use of SHA to assist with development of cover crop mix to improve soil health and increase SOM
+E340107Z,Cover crop to minimize soil compaction
+E340118Z,Cover crop to reduce water quality degradation by utilizing excess soil nutrients-surface water
+E340119Z,Cover crop to reduce water quality degradation by utilizing excess soil nutrients-ground water
+E340134Z,Cover crop to suppress excessive weed pressures and break pest cycles
+E340A,Cover crop to reduce soil erosion
+E340B,Intensive cover cropping to increase soil health and soil organic matter content
+E340C,Use of multi-species cover crops to improve soil health and increase soil organic matter
+E340D,Intensive orchard/vineyard floor cover cropping to increase soil health
+E340E,Use of soil health assessment to assist with development of cover crop mix to improve soil health
+E340F,Cover crop to minimize soil compaction
+E340G,Cover crop to reduce water quality degradation by utilizing excess soil nutrients
+E340H,Cover crop to suppress excessive weed pressures and break pest cycles
+E340I,Using cover crops for biological strip till
+E345101Z,Reduced tillage to reduce water erosion
+E345102Z,Reduced tillage to reduce wind erosion
+E345106Z,Reduced tillage  to increase soil health and soil organic matter content
+E345114Z,Reduced tillage to increase plant-available moisture: irrigation water
+E345115Z,Reduced tillage to increase plant-available moisture: moisture management
+E345128Z,Reduced tillage to reduce tillage induced particulate matter
+E345144Z,Reduced tillage to reduce energy use
+E345A,Reduced tillage to reduce soil erosion
+E345B,Reduced tillage to reduce tillage induced particulate matter
+E345C,Reduced tillage to increase plant-available moisture
+E345D,Reduced tillage to increase soil health and soil organic matter content
+E345E,Reduced tillage to reduce energy use
+E373A,Dust suppressant re-application for stabilization
+E374144Z1,Install variable frequency drive(s) on pump(s)
+E374144Z2,Switch fuel source for pump motor(s)
+E374A,Install variable frequency drive(s) on pump(s)
+E374B,Switch fuel source for pump motor(s)
+E376128Z,Modify field operations to reduce particulate matter
+E376A,Modify field operations to reduce particulate matter
+E381133Z,Silvopasture for wildlife habitat (structure and composition)
+E381137Z,Silvopasture for wildlife habitat (cover and shelter)
+E381A,Silvopasture to improve wildlife habitat
+E382136Z,Incorporating wildlife friendly fencing for connectivity of wildlife food resources
+E382A,Incorporating wildlife friendly fencing for connectivity of wildlife food resources
+E382B,Installing electrical fence offsets and wire for cross-fencing to improve grazing management
+E383135Z,Grazing-maintained fuel break to reduce the risk of fire
+E383A,Grazing-maintained fuel break to reduce the risk of fire
+E384135Z,Biochar production from woody residue
+E384A,Biochar production from woody residue
+E386101Z,Enhanced field borders to reduce water induced erosion along the edge(s) of a field
+E386102Z,Enhanced field borders to reduce wind induced erosion along the windward side(s) of a field
+E386106Z,Enhanced field borders to increase carbon storage along the edge(s) of the field
+E386128Z,Enhanced field borders to decrease particulate emissions along the edge(s) of the field
+E386136Z,Enhanced field border to provide wildlife food for pollinators along the edge(s) of a field
+E386137Z,Enhanced field border to provide wildlife cover or shelter along the edge(s) of a field
+E386139Z,Enhanced field border to provide wildlife habitat continuity along the edge(s) of a field
+E386A,Enhanced field borders to reduce soil erosion along the edge(s) of a field
+E386B,Enhanced field borders to increase carbon storage along the edge(s) of the field
+E386C,Enhanced field borders to decrease particulate emissions along the edge(s) of the field
+E386D,Enhanced field borders to increase food for pollinators along the edge(s) of a field
+E386E,Enhanced field borders to increase wildlife food and habitat along the edge(s) of a field
+E390118Z,Increase riparian herbaceous cover width for nutrient reduction
+E390126Z,Increase riparian herbaceous cover width to reduce sediment loading
+E390136Z,Increase riparian herbaceous cover width to enhance wildlife habitat
+E390A,Increase riparian herbaceous cover width for sediment and nutrient reduction
+E390B,Increase riparian herbaceous cover width to enhance wildlife habitat
+E391118Z,Increase riparian forest buffer width for nutrient reduction
+E391126Z,Increase riparian forest buffer width to reduce sediment loading
+E391127Z,Increase stream shading for stream temperature reduction
+E391136Z,Increase riparian forest buffer width to enhance wildlife habitat
+E391A,Increase riparian forest buffer width for sediment and nutrient reduction
+E391B,Increase stream shading for stream temperature reduction
+E391C,Increase riparian forest buffer width to enhance wildlife habitat
+E393118Z,Extend existing filter strip to reduce excess nutrients in surface water
+E393122Z,Extend existing filter strip to reduce excess pathogens and chemicals in surface water
+E393126Z,Extend existing filter strip to reduce excess sediment in surface water
+E393A,Extend existing filter strip to reduce water quality impacts
+E395137X,Stream habitat improvement through placement of woody biomass
+E395A,Stream habitat improvement through placement of woody biomass
+E399137X,Fishpond management for native aquatic and terrestrial species
+E399A,Fishpond management for native aquatic and terrestrial species
+E412A,Enhance a grassed waterway
+E420A,Establish pollinator habitat
+E420B,Establish monarch butterfly habitat
+E447A,Advanced Tailwater Recovery
+E449114Z1,"Advanced IWM--Soil moisture is monitored, recorded, and used in decision making"
+E449114Z2,"Advanced IWM--Weather is monitored, recorded and used in decision making"
+E449114Z3,Complete pumping plant eval for all pumps on a farm to determine the VFD potential
+E449114Z4,Intermittent flooding of rice fields
+E449114Z5,Complete pumping plant evaluation for all existing pumps on a farm.
+E449114Z6,"Automated Intermittent flood irrigation of rice fields, Year 2-5"
+E449114Z7,"Advanced Automated IWM - Year 2-5, Soil moisture is monitored, recorded and used in decision making"
+E449114Z8,"Advanced Automated IWM - Year 1 - Equipment and soil moisture is monitored, recorded and used in dec"
+E449144Z,Complete pumping plant evaluation for all pumps on a farm.
+E449A,Complete pumping plant evaluation for water savings
+E449B,Alternated Wetting and Drying (AWD) of rice fields
+E449C,"Advanced Automated IWM - Year 2-5, soil moisture monitoring"
+E449D,"Advanced Automated IWM - Year 1, Equipment and soil moisture or water level monitoring"
+E449E,Convert from Cascade to Furrow Irrigated Rice Production � reduce irrigation water consumption
+E449F,"Intermediate IWM - Year 1, Equipment with Soil or Water Level monitoring"
+E449G,"Intermediate IWM - Years 2-5, Soil or Water Level monitoring"
+E449H,"Intermediate IWM - Years 2 -5, using soil moisture or water level monitoring"
+E449I,Sprinkler Irrigation Equipment Retrofit
+E449J,Intermediate IWM � 20% Reducing Water Usage
+E472118Z,Manage livestock access to streams/ditches/other waterbodies to reduce nutrients in surface water
+E472122Z,Manage livestock access to streams/ditches/other waterbodies to reduce pathogens in surface water
+E472A,Manage livestock access to waterbodies to reduce nutrients or pathogens to surface water
+E484106Z,Mulching to improve soil health
+E484A,Mulching to improve soil health
+E484B,Reduce particulate matter emissions by using orchard or vineyard generated woody materials as mulch
+E484C,Mulching with natural materials in specialty crops for weed control
+E511137Z1,Harvest of crops (hay or small grains) using measures that allow desired species to flush or escape
+E511137Z2,Forage harvest management that helps maintain or improve wildlife habitat (cover and shelter)
+E511139Z1,Enhanced wildlife habitat on expired grass/legume covered CRP acres
+E511139Z2,Forage harvest management that helps maintain wildlife habitat continuity (space)
+E511A,Harvest of crops (hay or small grains) using measures that allow desired species to flush or escape
+E511B,"Forage harvest management that helps maintain wildlife habitat cover, shelter or continuity"
+E511C,Forage testing for improved harvesting methods and hay quality
+E511D,Forage Harvest Management to Improve Terrestrial Habitat for Wildlife during Over-Winter Periods
+E512101Z1,Cropland conversion to grass-based agriculture to reduce water erosion
+E512101Z2,Forage and biomass planting for water erosion to improve soil health
+E512102Z,Cropland conversion to grass-based agriculture to reduce wind erosion
+E512106Z1,Cropland conversion to grass-based agriculture for soil organic matter improvement
+E512106Z2,Forage plantings that can help increase organic matter in depleted soils
+E512126Z,Cropland conversion to grass-based agriculture to reduce sediment loading
+E512132Z1,Forage and biomass planting that produces feedstock for biofuels or energy production
+E512132Z2,Native grasses or legumes in forage base to improve plant productivity and health
+E512133Z1,Native grasses or legumes in forage base to improve plant community structure and composition
+E512133Z2,Forage plantings that enhance bird habitat (structure and composition)
+E512136Z1,Establish pollinator and/or beneficial insect food habitat
+E512136Z2,Native grass or legumes in forage base to provide wildlife food
+E512137Z,Forage plantings that enhance bird habitat (cover and shelter)
+E512138Z,Establish wildlife corridors to enhance access to water
+E512139Z1,Establish wildlife corridors to provide habitat continuity
+E512139Z2,Establish pollinator and/or beneficial insect habitat continuity (space)
+E512139Z3,Establish Monarch butterfly habitat in pastures
+E512140Z,Native grasses or legumes in forage base
+E512A,Cropland conversion to grass-based agriculture to reduce soil erosion
+E512B,Forage and biomass planting to reduce soil erosion or increase organic matter to build soil health
+E512C,Cropland conversion to grass for soil organic matter improvement
+E512D,Forage plantings that help increase organic matter in depleted soils
+E512E,Forage and biomass planting that produces feedstock for biofuels or energy production.
+E512F,Establishing native grass or legumes in forage base to improve the plant community
+E512G,Native grasses or legumes in forage base
+E512H,Forage plantings that enhance bird habitat cover and shelter or structure and composition
+E512I,Establish pollinator and/or beneficial insect and/or monarch habitat
+E512J,Establish wildlife corridors to provide habitat continuity or access to water
+E512K,Establishing Native Species into Forage to Improve Diversity for both Livestock and Wildlife
+E512L,Diversifying Forage Base with Interseeding Forbs and Legumes to Increase Pasture Quality
+E512M,Forage Plantings that Improve Wildlife Habitat Cover and Shelter or Structure and Composition
+E528101Z,Improved grazing management for water erosion through monitoring activities
+E528102Z,Improved grazing management for wind erosion through monitoring activities
+E528104Z,Grazing management that protects sensitive areas from gully erosion
+E528105Z,Prescribed grazing that improves or maintains riparian and watershed function-erosion
+E528107Z1,Improved grazing management for soil compaction through monitoring activities
+E528107Z2,Improved grazing management for soil compaction on rangeland through monitoring activities
+E528118Z1,Prescribed grazing that maintains/improves riparian/watershed function impairment from nutrients
+E528118Z2,Grazing management that protects sensitive areas-surface water from nutrients
+E528119Z,Grazing management that protects sensitive areas-ground water from nutrients
+E528122Z,Prescribed grazing that maintains/improves riparian/watershed function-pathogens/chemicals
+E528126Z,Prescribed grazing that maintains/improves riparian/watershed function-min sediment in surface water
+E528127Z,Prescribed grazing that improves or maintains riparian/watershed function-elevated water temperature
+E528132Z1,Improved grazing mgmt for plant productivity/health through monitoring
+E528132Z2,Stockpiling cool season forage to improve plant productivity and health
+E528132Z3,Improved grazing management for plant productivity/health through monitoring
+E528133Z1,Stockpiling cool season forage to improve structure and composition.
+E528133Z2,Grazing management for improving quantity/quality of plant structure/composition for wildlife
+E528133Z3,Improved grazing management for plant structure and composition through monitoring activities
+E528134Z,Improved grazing management that reduces undesirable plant pest pressure through monitoring
+E528136Z1,Grazing management for improving quantity and quality of food for wildlife
+E528136Z2,Incorporating wildlife refuge areas in contingency plans for wildlife food
+E528136Z3,Grazing management that improves Monarch butterfly habitat
+E528137Z1,Grazing management for improving quantity and quality of cover and shelter for wildlife
+E528137Z2,Incorporating wildlife refuge areas in contingency plans for prescribed grazing-cover/shelter
+E528138Z,Incorporating wildlife refuge areas in contingency plans for prescribed grazing-water access
+E528140Z1,Maintaining quantity and quality of forage for animal health and productivity
+E528140Z2,Incorporating wildlife refuge areas in contingency plans for livestock feed and forage
+E528A,Maintaining quantity and quality of forage for animal health and productivity
+E528B,Grazing management that improves monarch butterfly habitat
+E528C,Incorporating wildlife refuge areas in contingency plans for wildlife.
+E528D,Grazing management for improving quantity and quality of food or cover and shelter for wildlife
+E528E,Improved grazing management for enhanced plant structure and composition for wildlife
+E528F,Stockpiling cool season forage to improve structure and composition or plant productivity and health
+E528G,Improved grazing management on pasture for plant productivity and health with monitoring activities
+E528H,Prescribed grazing to improve/maintain riparian and watershed function-elevated water temperature
+E528I,Grazing management that protects sensitive areas -surface or ground water from nutrients
+E528J,Prescribed grazing on pastureland that improves riparian and watershed function
+E528K,Improved grazing management for soil compaction on pasture through monitoring activities
+E528L,Prescribed grazing that improves or maintains riparian and watershed function-erosion
+E528M,Grazing management that protects sensitive areas from gully erosion
+E528N,Improved grazing management through monitoring activities
+E528O,Clipping mature forages to set back vegetative growth for improved forage quality
+E528P,Implementing Bale or Swath Grazing to increase organic matter and reduce nutrients in surface water
+E528Q,Use of body condition scoring for livestock on a monthly basis to keep track of herd health
+E528R,Management Intensive Rotational Grazing
+E528S,Soil Health Improvements on Pasture
+E533A,Advanced Pumping Plant Automation
+E533B,Complete pumping plant evaluation for energy savings
+E533C,Install VFDs on pumping plants
+E550106Z,Range planting for increasing/maintaining organic matter
+E550136Z,"Range planting for improving forage, browse, or cover for wildlife"
+E550A,Range planting for increasing/maintaining organic matter
+E550B,"Range planting for improving forage, browse, or cover for wildlife"
+E554118Z3,Installation of end of pipe or ditch treatment for nitrogen
+E554138X,Extend the periods of soil saturation or shallow ponding for wildlife
+E570A,Enhanced rain garden for wildlife
+E578139X,Stream crossing elimination
+E578A,Stream crossing elimination
+E580105Z,Stream corridor bank stability improvement
+E580137Z,Stream corridor bank vegetation improvement
+E580A,Stream corridor bank stability improvement
+E580B,Stream corridor bank vegetation improvement
+E590118X,Reduce risks of nutrient losses to surface water by utilizing precision ag technologies
+E590118Z,Improving nutrient uptake efficiency and reducing risk of nutrient losses to surface water
+E590119X,Reduce risks of nutrient losses to ground water by utilizing precision agriculture technologies to p
+E590119Z,Improving nutrient uptake efficiency and reducing risk of nutrient losses to groundwater
+E590130Z,Improving nutrient uptake efficiency and reducing risks to air quality - emissions of GHGs
+E590A,Improving nutrient uptake efficiency and reducing risk of nutrient losses
+E590B,Reduce risks of nutrient loss to surface water by utilizing precision agriculture technologies
+E590C,Improving nutrient uptake efficiency and reducing risk of nutrient losses on pasture
+E590D,Reduce nutrient loss by increasing setback awareness via precision technology for water quality
+E595116X,Reduce risk of pesticides in surface water by utilizing precision pesticide application techniques
+E595116Z,Reduce risk of pesticides in surface water by utilizing IPM PAMS techniques
+E595116Z2,Reducing routine neonicotinoid seed treatments on corn and soybean crops.
+E595129Z,Reduce ozone precursor emissions related to pesticides by utilizing IPM PAMS techniques
+E595136X,Increase the size requirement of refuges planted to slow pest resistance to Bt crops
+E595137Z,Eliminate use of chemical treatments to control pests and increase dung beetle populations
+E595A,Reduce risk of pesticides in surface water by utilizing precision pesticide application techniques
+E595B,Reduce risk of pesticides in water and air by utilizing IPM PAMS techniques
+E595D,Increase the size requirement of refuges planted to slow pest resistance to Bt crops
+E595E,Eliminate use of chemical treatments to control pests and to increase the presence of dung beetles
+E595F,Improving Soil Organism Habitat on Agricultural Land
+E595G,Reduced resistance risk by utilizing PAMS techniques
+E612101Z,Cropland conversion to trees or shrubs for long term water erosion control
+E612102Z,Cropland conversion to trees or shrubs for long term wind erosion control
+E612126Z,Cropland conversion to trees or shrubs for long term improvement of water quality
+E612130Z,Planting for high carbon sequestration rate
+E612132Z,Establishing tree/shrub species to restore native plant communities
+E612133X1,Adding food-producing trees and shrubs to existing plantings
+E612133X2,Cultural plantings
+E612133X3,Sugarbush management
+E612136Z,Tree/shrub planting for wildlife food
+E612137Z,Tree/shrub planting for wildlife cover
+E612A,Cropland conversion to trees or shrubs for long term improvement of water quality
+E612B,Planting for high carbon sequestration rate
+E612C,Establishing tree/shrub species to restore native plant communities
+E612D,Adding food-producing trees and shrubs to existing plantings
+E612E,Cultural plantings
+E612F,Sugarbush management
+E612G,Tree/shrub planting for wildlife food
+E643A,Restoration of sensitive coastal vegetative communities
+E643B,Restoration and management of rare or declining habitat
+E643C,Restore glade habitat to benefit threatened and endangered species and state species of concern
+E644136Z,Managing Flood-Irrigated Landscapes for Wildlife
+E644A,Managing Flood-Irrigated Landscapes for Wildlife
+E645137Z,Reduction of attractants to human-subsidized predators in sensitive wildlife species habitat
+E645A,Reduction of attractants to human-subsidized predators in sensitive wildlife species habitat
+E645B,Manage existing shrub thickets to provide adequate shelter for wildlife
+E645C,Edge feathering for wildlife cover
+E645D,Wildlife Habitat Management Plan for Upland Landscapes
+E646136Z1,Close structures to capture/retain rainfall to improve food for waterfowl/wading birds during winter
+E646136Z2,Extend retention of rainfall to provide food for late winter habitat
+E646136Z3,"Shorebird habitat, late season shallow water with manipulation to improve food sources"
+E646136Z4,"Shorebird habitat, extended late season shallow water with manipulation to improve food sources"
+E646137X,"Renovate small, shallow pothole and playa sites which may seasonally hold water"
+E646137Z1,Close structures to capture and retain rainfall to improve cover and shelter for birds during winter
+E646137Z2,Extend retention of captured rainfall to provide enhanced cover and shelter for late winter habitat
+E646137Z3,"Shorebird habitat, late season shallow water with manipulation to improve cover and shelter"
+E646138Z1,Close structures to capture and retain rainfall to provide water for birds during winter
+E646138Z2,Extend retention of captured rainfall to provide late winter water habitat
+E646138Z3,"Shorebird habitat, late season shallow water with manipulation"
+E646139Z1,Close structures to capture and retain rainfall for birds to improve habitat continuity
+E646139Z2,Extend retention of captured rainfall to provide habitat continuity during late winter
+E646139Z3,"Shorebird habitat, late season shallow water with manipulation to enhance habitat continuity"
+E646A,Close structures to capture and retain rainfall for waterfowl and wading bird winter habitat
+E646B,Extend retention of captured rainfall for migratory waterfowl and wading bird late winter habitat
+E646C,Manipulate vegetation and maintain closed structures for shorebirds mid-summer habitat
+E646D,Manipulate vegetation and maintain closed structures for shorebird late summer habitat
+E647136Z1,Manipulate vegetation on fields where rainfall is to be captured and retained-food
+E647136Z2,Provide early successional habitat between first rice crop and ratoon crop-food
+E647136Z3,Establish and maintenance of moist soil vegetation on cropland edges to increase wildlife food
+E647137Z1,Manipulate vegetation on fields where rainfall is to be captured and retained-cover/shelter
+E647137Z2,Establish and maintenance of moist soil vegetation on cropland edges to increase cover/shelter
+E647139Z1,"Establish/maintain habitat continuity, naturally occurring vegetation in ditches/ditch bank borders"
+E647139Z2,Provide early successional habitat between first rice crop and ratoon crop-continuity
+E647A,Manipulate vegetation on fields with captured rainfall for waterfowl & wading bird winter habitat
+E647B,Provide early successional shorebird habitat between first crop and ratoon crop
+E647C,Maintain most soil vegetation on cropland edges to enhance waterfowl and shorebird habitat
+E647D,Establish and maintain early successional habitat in ditches and bank borders
+E666106Z1,Implementing sustainable practices for pine straw raking
+E666106Z2,Maintaining and improving forest soil quality
+E666107Z,Maintaining and improving forest soil quality by limiting compaction
+E666115Z1,Converting loblolly and slash pine plantations to longleaf pine to retain soil moisture
+E666115Z2,Enhance development of the forest understory to improve site moisture
+E666118Z,Enhance development of the forest understory to capture nutrients in surface water
+E666119Z,Enhance development of the forest understory to capture nutrients -ground water
+E666130Z,Increase on-site carbon storage
+E666132Z1,Crop tree management for mast production
+E666132Z2,Reduce forest stand density to improve a degraded plant community
+E666132Z3,Facilitating oak forest regeneration
+E666133X,Forest Stand Improvement to rehabilitate degraded hardwood stands
+E666133Z1,Creating structural diversity with patch openings
+E666133Z2,Converting loblolly and slash pine plantations to longleaf pine with FSI and prescribed burning
+E666134Z,Enhance development of the forest understory to create conditions resistant to pests
+E666135Z1,Reduce height of the forest understory to limit wildfire risk
+E666135Z2,Reduce forest density and manage understory along  roads to limit wildfire risk
+E666135Z3,Maintaining structural diversity in dry Western forests
+E666136Z1,Reduce forest density and manage understory along  roads to improve wildlife food sources
+E666136Z2,Reduce forest stand density to improve wildlife food sources
+E666136Z3,Create patch openings to enhance wildlife food sources and availability
+E666137Z1,"Snags, den trees, and coarse woody debris for wildlife habitat"
+E666137Z2,Summer roosting habitat for native forest-dwelling bat species
+E666137Z3,Increase diversity in pine plantation monocultures
+E666137Z4,Converting loblolly and slash pine plantations to longleaf pine to enhance wildlife habitat
+E666137Z6,Create patch openings to enhance wildlife cover and shelter
+E666137Z7,Enhance development of the forest understory to provide wildlife cover and shelter
+E666137Z8,Forest songbird habitat maintenance
+E666A,Maintaining and improving forest soil quality
+E666B,Converting loblolly and slash pine plantations to longleaf pine
+E666C,Implementing sustainable practices for pine straw raking
+E666D,Forest management to enhance understory vegetation
+E666E,Reduce height of the forest understory to limit wildfire risk
+E666F,Reduce forest stand density to create open stand structure
+E666G,Reduce forest density and manage understory along roads to limit wildfire risk and improve habitat
+E666H,Increase on-site carbon storage
+E666I,Crop tree management for mast production
+E666J,Facilitating oak forest regeneration
+E666K,Creating structural diversity with patch openings
+E666L,Forest Stand Improvement to rehabilitate degraded hardwood stands
+E666M,Maintaining structural diversity in dry Western forests
+E666N,Creating structural diversity in dry Western forests
+E666O,"Snags, den trees, and coarse woody debris for wildlife habitat"
+E666P,Summer roosting habitat for native forest-dwelling bat species
+E666Q,Increase diversity in pine plantation monocultures
+E666R,Forest songbird habitat preservation
+E666S,Facilitating longleaf pine establishment
+FARM,Farmstead
+MINPAY,Minimum Payment Adjustment
+NIPF,Non-Industrial Private Forest Land Annual Payment
+Organic,Crop Bundle  (21 - Crop Bundle
+Organic,Crop Bundle  (22 - Erosion Bundle
+PAST,Pasture Annual Payment
+PCROP,Pastured Cropland Annual Payment
+RANGE,Rangeland Annual Payment
+RCCR,Supplemental Payment
+RCCR98,Supplemental Payment Improved
