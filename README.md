@@ -12,8 +12,8 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
-usage: main.py [-h] --db_name DB_NAME [--db_user DB_USER] [--db_password DB_PASSWORD] [--db_host DB_HOST] [--db_port DB_PORT] [--drop_existing] [--log_level LOG_LEVEL] [--create-tables] [--create-database-schema] [--init-tables]
-               [--insert-data]
+usage: main.py [-h] --db_name DB_NAME [--db_user DB_USER] [--db_password DB_PASSWORD] [--db_host DB_HOST] [--db_port DB_PORT] [--drop_existing] [--log_level LOG_LEVEL] [--create-tables] [--create-database-schema]
+               [--init-tables] [--insert-data]
 
 Create a PostgreSQL database and tables, and insert/update data into the tables.
 
