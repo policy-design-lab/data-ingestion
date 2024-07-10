@@ -23,9 +23,18 @@ class PDLDatabase:
     def connect(self, db_name=None, db_user=None, db_password=None, db_host=None, db_port=None):
         try:
             if db_name is not None:
-                self.connection = psycopg2.connect(user=db_user, host=db_host, port=db_port, database=db_name)
+                # Use password if provided through command line argument
+                if db_password is not None:
+                    self.connection = psycopg2.connect(user=db_user, password=db_password, host=db_host, port=db_port,
+                                                       database=db_name)
+                else:
+                    self.connection = psycopg2.connect(user=db_user, host=db_host, port=db_port, database=db_name)
             else:
-                self.connection = psycopg2.connect(user=db_user, host=db_host, port=db_port)
+                # Use password if provided through command line argument
+                if db_password is not None:
+                    self.connection = psycopg2.connect(user=db_user, password=db_password, host=db_host, port=db_port)
+                else:
+                    self.connection = psycopg2.connect(user=db_user, host=db_host, port=db_port)
             self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             self.cursor = self.connection.cursor()
             self.logger.info(self.connection.get_dsn_parameters())
