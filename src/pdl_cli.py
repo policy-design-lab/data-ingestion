@@ -29,15 +29,17 @@ class PolicyDesignLabDataCLI:
         self.parser.add_argument('--db_password', '-p', type=str, required=False,
                                  help='Password to connect to the database. We STRONGLY RECOMMEND using .pgpass file. '
                                       'If you use .pgpass file, this command-line argument can be ignored.',
-                                 default='')
+                                 default=None)
         self.parser.add_argument('--db_host', type=str, help='Host of the database', default='localhost')
         self.parser.add_argument('--db_port', type=int, help='Port of the database', default=5432)
         self.parser.add_argument('--drop_existing', '-x', action='store_true',
                                  help='Drop existing database if exists', default=False)
         self.parser.add_argument('--log_level', '-l', type=str, help='Log level', default='INFO')
         self.parser.add_argument('--create-tables', '-c', action='store_true', help='Create tables', default=False)
-        self.parser.add_argument('--create-database-schema', '-C', action='store_true',
-                                 help='Construct database and/or schema', default=False)
+        self.parser.add_argument('--create-database', '-C', action='store_true',
+                                 help='Construct database if it does not exist.', default=False)
+        self.parser.add_argument('--create-schema', '-S', action='store_true',
+                                 help='Create schema if it does not exist.', default=False)
         self.parser.add_argument('--init-tables', '-i', action='store_true', help='Initialize tables', default=False)
         self.parser.add_argument('--insert-data', '-I', action='store_true', help='Insert data',
                                  default=False)

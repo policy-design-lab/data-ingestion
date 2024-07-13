@@ -50,8 +50,9 @@ class PDLDatabase:
         self.close()
         self.logger.info(f"Database {self.db_name} dropped successfully")
 
-    def create_database_and_schema(self):
-        self.connect(db_user=self.db_user, db_password=self.db_password, db_host=self.db_host, db_port=self.db_port)
+    def create_database(self):
+        self.connect(db_name="postgres", db_user=self.db_user, db_password=self.db_password, db_host=self.db_host,
+                     db_port=self.db_port)
         # create database if not exists
         self.cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{self.db_name}'")
         exists = self.cursor.fetchone()
@@ -67,6 +68,7 @@ class PDLDatabase:
         # connect to the database
         self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host)
 
+    def create_schema(self):
         # create schema
         self.cursor.execute(f"CREATE SCHEMA IF NOT EXISTS pdl")
         self.connection.commit()
