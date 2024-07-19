@@ -181,21 +181,21 @@ WITH eqip_program_id AS (SELECT id
                          WHERE name = 'Environmental Quality Incentives Program (EQIP)')
 INSERT
 INTO pdl.practice_categories(name, display_name, category_grouping, program_id, is_statutory_category)
-VALUES ('Land Management', 'Land management', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
-       ('Forest Management', 'Forest management', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
-       ('Structural', 'Structural', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
-       ('Soil Remediation', 'Soil remediation', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
-       ('Vegetative', 'Vegetative', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
-       ('Other Improvement', 'Other improvement', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
-       ('Soil Testing', 'Soil testing', '(6)(A) Improvements', (SELECT id from eqip_program_id), TRUE),
+VALUES ('Land Management', 'Land management', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Forest Management', 'Forest management', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Structural', 'Structural', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Soil Remediation', 'Soil remediation', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Vegetative', 'Vegetative', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Other Improvement', 'Other improvement', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Soil Testing', 'Soil testing', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
 
-       ('Conservation Planning Assessment', 'Conservation planning assessment', '(6)(B) Planning',
+       ('Conservation Planning Assessment', 'Conservation planning assessment', '(6)(B) Practices',
         (SELECT id from eqip_program_id), TRUE),
-       ('Other Planning', 'Other planning', '(6)(B) Planning', (SELECT id from eqip_program_id), TRUE),
-       ('Resource-conserving Crop Rotation', 'Resource-conserving crop rotation', '(6)(B) Planning',
+       ('Other Planning', 'Other planning', '(6)(B) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Resource-conserving Crop Rotation', 'Resource-conserving crop rotation', '(6)(B) Practices',
         (SELECT id from eqip_program_id), TRUE),
-       ('Soil Health', 'Soil health', '(6)(B) Planning', (SELECT id from eqip_program_id), TRUE),
-       ('Comprehensive Nutrient Management', 'Comprehensive nutrient mgmt.', '(6)(B) Planning',
+       ('Soil Health', 'Soil health', '(6)(B) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Comprehensive Nutrient Management', 'Comprehensive nutrient mgmt.', '(6)(B) Practices',
         (SELECT id from eqip_program_id), TRUE);
 
 
