@@ -195,7 +195,7 @@ VALUES ('Land Management', 'Land management', '(6)(A) Practices', (SELECT id fro
        ('Resource-conserving Crop Rotation', 'Resource-conserving crop rotation', '(6)(B) Practices',
         (SELECT id from eqip_program_id), TRUE),
        ('Soil Health', 'Soil health', '(6)(B) Practices', (SELECT id from eqip_program_id), TRUE),
-       ('Comprehensive Nutrient Management', 'Comprehensive nutrient mgmt.', '(6)(B) Practices',
+       ('Comprehensive Nutrient Management', 'Comprehensive Nutrient Mgt.', '(6)(B) Practices',
         (SELECT id from eqip_program_id), TRUE);
 
 
