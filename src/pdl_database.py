@@ -150,15 +150,16 @@ class PDLDatabase:
                 self.cursor.execute(sql_select_query, (row['entity_name'],))
                 result = self.cursor.fetchone()
 
-                practice_category_id = None
-                # Find practice_category_id from practice_categories table
-                if "practice_category" in row and not pd.isna(row["practice_category"]):
-                    sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s"
-                    self.cursor.execute(sql_select_query, (row['practice_category'],))
-                    practice_category_id = self.cursor.fetchone()[0]
-
                 if result:
                     program_id, title_id, subtitle_id = result
+
+                    practice_category_id = None
+                    # Find practice_category_id from practice_categories table
+                    if "practice_category" in row and not pd.isna(row["practice_category"]):
+                        sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s AND program_id = %s"
+                        self.cursor.execute(sql_select_query, (row['practice_category'], program_id))
+                        practice_category_id = self.cursor.fetchone()[0]
+                        
                     # Insert data into the payments table
                     sql_insert_query = (
                         "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
