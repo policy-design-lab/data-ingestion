@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import json
 
 
 class DataParser:
@@ -137,6 +138,15 @@ class DataParser:
                     "Forest Management": "Land management",
                     "Soil Remediation": "Soil remediation"
                 }
+            },
+            "Supplemental Nutrition Assistance Program (SNAP)": {
+                "column_names_map": {
+                    "payments": "amount",
+                    "count": "recipient_count",
+                    "state": "state_name",
+                    "State": "state_name",
+                    "program": "entity_name"
+                }
             }
         }
 
@@ -183,7 +193,9 @@ class DataParser:
         elif self.title_name == "Crop Insurance":
             pass
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
-            pass
+            self.snap_data = None
+            self.snap_mon_part_filepath = str(os.path.join(data_folder, kwargs["snap_monthly_participation_filename"]))
+            self.snap_cost_filepath = str(os.path.join(data_folder, kwargs["snap_cost_filename"]))
 
     @staticmethod
     def __find_entity_type(entity_name):
@@ -198,7 +210,7 @@ class DataParser:
         elif entity_name in ["Price Loss Coverage (PLC)",
                              "Emergency Assistance for Livestock, Honey Bees, and Farm-Raised Fish Program (ELAP)",
                              "Livestock Forage Program (LFP)", "Livestock Indemnity Payments (LIP)",
-                             "Tree Assistance Program (TAP)"]:
+                             "Tree Assistance Program (TAP)", "Supplemental Nutrition Assistance Program (SNAP)"]:
             return "program"
         elif entity_name in ["Total Commodities Programs, Subtitle A", "Dairy Margin Coverage, Subtitle D",
                              "Supplemental Agricultural Disaster Assistance, Subtitle E"]:
@@ -404,3 +416,39 @@ class DataParser:
 
             print("EQIP data")
             print(self.eqip_data)
+        elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
+            # Import SNAP Cost CSV file
+            snap_cost_data = pd.read_csv(self.snap_cost_filepath)
+
+            snap_mon_part_data = pd.read_csv(self.snap_mon_part_filepath)
+
+            # Filter columns from start year to end year along with the 'state' column
+            snap_cost_data = snap_cost_data[['State'] + [col for col in snap_cost_data.columns if
+                                                 col != 'State' and col != 'Total' and self.start_year <= int(
+                                                     col) <= self.end_year]]
+
+            snap_mon_part_data = snap_mon_part_data[['State'] + [col for col in snap_mon_part_data.columns if
+                                                 col != 'State' and col != 'Avg.' and self.start_year <= int(
+                                                     col) <= self.end_year]]
+
+            # Rename column names to make it more uniform
+            snap_cost_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            snap_mon_part_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # change state name to full name
+            snap_cost_data["state_name"] = snap_cost_data["state_name"].map(self.us_state_abbreviations)
+            snap_mon_part_data["state_name"] = snap_mon_part_data["state_name"].map(self.us_state_abbreviations)
+
+            # restructure the data frame
+            snap_cost_data_output = \
+                self.__convert_to_new_data_frame(
+                    snap_cost_data, "Supplemental Nutrition Assistance Program (SNAP)", "Total Payment")
+
+            snap_mon_part_data_output = \
+                self.__convert_to_new_data_frame(
+                    snap_mon_part_data, "Supplemental Nutrition Assistance Program (SNAP)", "Payee Count")
+
+            # perform left join on the base acres and farm payee count data
+            self.snap_data = pd.merge(snap_cost_data_output, snap_mon_part_data_output,
+                                      on=["state_code", "year", "entity_name", "entity_type"], how="left")
