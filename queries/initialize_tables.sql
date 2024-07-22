@@ -206,7 +206,7 @@ WITH csp_program_id AS (SELECT id
 INSERT
 INTO pdl.practice_categories(name, display_name, category_grouping, program_id, is_statutory_category)
 VALUES ('Cropland', 'Cropland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
-       ('Grassland', 'Cropland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
+       ('Grassland', 'Grassland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
        ('Rangeland', 'Rangeland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
        ('Pastureland', 'Pastureland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
        ('Non-industrial Private Forestland', 'Non-industrial private forestland', '2014 Eligible Land',
