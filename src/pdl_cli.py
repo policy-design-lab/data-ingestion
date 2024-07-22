@@ -1,5 +1,6 @@
 import argparse
 import logging
+from config import VERSION
 
 
 class PolicyDesignLabDataCLI:
@@ -43,6 +44,8 @@ class PolicyDesignLabDataCLI:
         self.parser.add_argument('--init-tables', '-i', action='store_true', help='Initialize tables', default=False)
         self.parser.add_argument('--insert-data', '-I', action='store_true', help='Insert data',
                                  default=False)
+        # Version
+        self.parser.add_argument('--version', action='version', version='PDL Data Ingestion CLI ' + VERSION)
         self.args = self.parser.parse_args()
         return
 
