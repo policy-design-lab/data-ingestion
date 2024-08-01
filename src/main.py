@@ -1,3 +1,4 @@
+import logging
 from data_parser import DataParser
 from pdl_cli import PolicyDesignLabDataCLI
 from pdl_database import PDLDatabase
@@ -6,10 +7,15 @@ from pdl_database import PDLDatabase
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
     cli = PolicyDesignLabDataCLI()
     cli.print_args()
     database = PDLDatabase(cli.args.db_name, cli.args.db_user, cli.args.db_password, cli.args.db_host,
                            cli.args.db_port)
+    # Connect to the database if not creating a new database
+    if not cli.args.create_database:
+        database.connect(database.db_name, database.db_user, database.db_password, database.db_host, database.db_port)
+    # Drop the existing database based on the user input
     if cli.args.drop_existing:
         response = input(" Are you sure you want to drop the existing database? (y/n): ")
         if response.lower() == 'y':
@@ -17,7 +23,9 @@ if __name__ == '__main__':
         else:
             print("Continuing without dropping the database")
     if cli.args.create_database:
-        database.create_database_and_schema()
+        database.create_database()
+    if cli.args.create_schema:
+        database.create_schema()
     if cli.args.create_tables:
         database.create_tables()
     if cli.args.init_tables:
@@ -42,9 +50,11 @@ if __name__ == '__main__':
                                       crp_csv_filename="CRP_total_compiled_August_24_2023.csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
-                                      eqip_csv_filename="eqip-category-update.csv",
-                                      csp_csv_filename="CSP.csv")
+                                      eqip_csv_filename="EQIP Farm Bill.csv",
+                                      csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
+
+    # TODO: Add feature to update data or insert data for specific programs.
 
     snap_data_parser = DataParser(2018, 2022, "Supplemental Nutrition Assistance Program (SNAP)",
                                   "../data/snap", "",
@@ -52,10 +62,22 @@ if __name__ == '__main__':
                                   snap_cost_filename="snap_costs.csv")
     snap_data_parser.format_data()
 
-    # TODO: Parse data, and insert/update data
     if cli.args.insert_data:
+        # Title I data ingestion
+        logger.info("Starting Title I data ingestion...")
         database.insert_data(title_i_data_parser.program_data)
         database.insert_data(title_i_data_parser.dmc_data)
         database.insert_data(title_i_data_parser.sada_data)
+        logger.info("Title I data ingestion complete.")
+
+        # Title II data ingestion
+        logger.info("Starting Title II data ingestion...")
+        database.insert_data(title_ii_data_parser.program_data)
+        logger.info("Title II data ingestion complete.")
+
+        # Title IV data ingestion
+        logger.info("Starting Title IV data ingestion...")
         database.insert_data(snap_data_parser.snap_data)
+        logger.info("Title IV data ingestion complete.")
+
     database.close()
