@@ -141,6 +141,7 @@ class DataParser:
                     "Conservating planning assessment": "Conservation Planning Assessment",
                     "Resource-conserving crop rotatation": "Resource-conserving Crop Rotation",
                     "Comprehensive Nutrient Mgt.": "Comprehensive Nutrient Management",
+                    "Comprehensive Nutrient Mgt. (6(B)(i))": "Comprehensive Nutrient Management",
                     "Soil testing": "Soil Testing",
                     "Soil remediation (6(A)(vi)": "Soil Remediation",
                     "other (6(B)(vi))": "Other Planning",
@@ -488,12 +489,12 @@ class DataParser:
 
             # Filter columns from start year to end year along with the 'state' column
             snap_cost_data = snap_cost_data[['State'] + [col for col in snap_cost_data.columns if
-                                                 col != 'State' and col != 'Total' and self.start_year <= int(
-                                                     col) <= self.end_year]]
+                                                         col != 'State' and col != 'Total' and self.start_year <= int(
+                                                             col) <= self.end_year]]
 
             snap_mon_part_data = snap_mon_part_data[['State'] + [col for col in snap_mon_part_data.columns if
-                                                 col != 'State' and col != 'Avg.' and self.start_year <= int(
-                                                     col) <= self.end_year]]
+                                                                 col != 'State' and col != 'Avg.' and self.start_year <= int(
+                                                                     col) <= self.end_year]]
 
             # Rename column names to make it more uniform
             snap_cost_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
