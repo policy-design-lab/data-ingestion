@@ -159,7 +159,7 @@ class PDLDatabase:
                         sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s AND program_id = %s"
                         self.cursor.execute(sql_select_query, (row['practice_category'], program_id))
                         practice_category_id = self.cursor.fetchone()[0]
-                        
+
                     # Insert data into the payments table
                     sql_insert_query = (
                         "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
@@ -167,7 +167,7 @@ class PDLDatabase:
 
                     practice_code_filtered = None
                     if "practice_code" in row and not pd.isna(row["practice_code"]):
-                        # Filter practice codes to only include ones that contain a three-digit code or is contains all uppercase letters
+                        # If practice code contain a three-digit code, extract that. Otherwise, use the entire string
                         if re.search(r'\d{3}', str(row["practice_code"])):
                             practice_code_filtered = re.search(r'\d{3}', str(row["practice_code"])).group()
                         else:
