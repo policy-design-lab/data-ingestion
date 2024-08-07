@@ -64,6 +64,8 @@ class DataParser:
             'WI': 'Wisconsin',
             'WY': 'Wyoming'
         }
+
+        # Main program category specific file paths
         self.metadata = {
             "Title 1: Commodities": {
                 "column_names_map": {
@@ -141,6 +143,7 @@ class DataParser:
                     "Conservating planning assessment": "Conservation Planning Assessment",
                     "Resource-conserving crop rotatation": "Resource-conserving Crop Rotation",
                     "Comprehensive Nutrient Mgt.": "Comprehensive Nutrient Management",
+                    "Comprehensive Nutrient Mgt. (6(B)(i))": "Comprehensive Nutrient Management",
                     "Soil testing": "Soil Testing",
                     "Soil remediation (6(A)(vi)": "Soil Remediation",
                     "other (6(B)(vi))": "Other Planning",
@@ -154,36 +157,11 @@ class DataParser:
                     "Forest management (6(A)(iv))": "Forest Management",
                     "Vegetative (6(A)(iii))": "Vegetative",
                     "Soil remediation (6(A)(vi))": "Soil Remediation",
-                    "Other (6(A)(vii))": "Other Improvement",
-                    "NIPF": "Non-industrial Private Forestland",
-                    "2014 Other Practices": "Other: Supplemental, Adjustment & Other",
+                    "Other (6(A)(vii))": "Other Improvements",
+                    "NIPF": "Non-Industrial Private Forestland",
                     "Pastured Cropland": "Grassland",
-                    "1": "Miscellaneous",
-                    "2": "Miscellaneous",
-                    "3": "Miscellaneous",
-                    "4": "Miscellaneous",
-                    "1 - Irrigated Cropland": "Miscellaneous",
-                    "1 - Organic": "Miscellaneous",
-                    "1 - Precision Ag, No till": "Miscellaneous",
-                    "18 - Precision Ag": "Miscellaneous",
-                    "19 - Soil Health Precision Ag": "Miscellaneous",
-                    "2 - Non-Irrigated Cropland ": "Miscellaneous",
-                    "2 - Post-fire Management": "Miscellaneous",
-                    "2 - Precision Ag, Reduced till": "Miscellaneous",
-                    "20 - Soil Health Assessment": "Miscellaneous",
-                    "23 - Pheasant and quail habitat": "Miscellaneous",
-                    "24 - Cropland Soil Health Management System": "Miscellaneous",
-                    "3 - Non-Irrigated Cropland ": "Miscellaneous",
-                    "3 - Soil health rotation, No till": "Miscellaneous",
-                    "3 -- Soil Health": "Miscellaneous",
-                    "4 - Cropland with Water Bodies, No till": "Miscellaneous",
-                    "4 - Soil health rotation, Reduced till": "Miscellaneous",
-                    "5 - Soil Health Assessment, No till": "Miscellaneous",
-                    "6 - Pasture": "Miscellaneous",
-                    "6 - Pastureland": "Miscellaneous",
-                    "6 - Soil Health Assessment, Reduced till": "Miscellaneous",
-                    "7 - Soil Health -Organic": "Miscellaneous",
-                    "Organic": "Miscellaneous"
+                    "2014 Other Practices": "Miscellaneous",
+                    # "Existing Activity Payments": "Miscellaneous",
                 }
             },
             "Supplemental Nutrition Assistance Program (SNAP)": {
@@ -196,8 +174,6 @@ class DataParser:
                 }
             }
         }
-
-        # Main program category specific file paths
         if self.title_name == "Title 1: Commodities":
             self.base_acres_data = None
             self.farm_payee_count_data = None
@@ -488,12 +464,12 @@ class DataParser:
 
             # Filter columns from start year to end year along with the 'state' column
             snap_cost_data = snap_cost_data[['State'] + [col for col in snap_cost_data.columns if
-                                                 col != 'State' and col != 'Total' and self.start_year <= int(
-                                                     col) <= self.end_year]]
+                                                         col != 'State' and col != 'Total' and self.start_year <= int(
+                                                             col) <= self.end_year]]
 
             snap_mon_part_data = snap_mon_part_data[['State'] + [col for col in snap_mon_part_data.columns if
-                                                 col != 'State' and col != 'Avg.' and self.start_year <= int(
-                                                     col) <= self.end_year]]
+                                                                 col != 'State' and col != 'Avg.' and self.start_year <= int(
+                                                                     col) <= self.end_year]]
 
             # Rename column names to make it more uniform
             snap_cost_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
