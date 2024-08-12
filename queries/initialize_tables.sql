@@ -186,7 +186,7 @@ VALUES ('Land Management', 'Land management', '(6)(A) Practices', (SELECT id fro
        ('Structural', 'Structural', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
        ('Soil Remediation', 'Soil remediation', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
        ('Vegetative', 'Vegetative', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
-       ('Other Improvement', 'Other improvement', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
+       ('Other Improvements', 'Other improvements', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
        ('Soil Testing', 'Soil testing', '(6)(A) Practices', (SELECT id from eqip_program_id), TRUE),
 
        ('Conservation Planning Assessment', 'Conservation planning assessment', '(6)(B) Practices',
@@ -209,21 +209,23 @@ VALUES ('Cropland', 'Cropland', '2014 Eligible Land', (SELECT id from csp_progra
        ('Grassland', 'Grassland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
        ('Rangeland', 'Rangeland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
        ('Pastureland', 'Pastureland', '2014 Eligible Land', (SELECT id from csp_program_id), FALSE),
-       ('Non-industrial Private Forestland', 'Non-industrial private forestland', '2014 Eligible Land',
+       ('Non-Industrial Private Forestland', 'Non-Industrial Private Forestland (NIPF)', '2014 Eligible Land',
         (SELECT id from csp_program_id), FALSE),
-       ('Other: Supplemental, Adjustment & Other', 'Other: supplemental, adjustment & other', '2014 Eligible Land',
-        (SELECT id from csp_program_id), FALSE),
-       ('Structural', 'Structural', '2018 Practices', (SELECT id from csp_program_id), FALSE),
-       ('Vegetative', 'Vegetative', '2018 Practices', (SELECT id from csp_program_id), FALSE),
+
        ('Land Management', 'Land management', '2018 Practices', (SELECT id from csp_program_id), FALSE),
        ('Forest Management', 'Forest management', '2018 Practices', (SELECT id from csp_program_id), FALSE),
+       ('Structural', 'Structural', '2018 Practices', (SELECT id from csp_program_id), FALSE),
        ('Soil Remediation', 'Soil remediation', '2018 Practices', (SELECT id from csp_program_id), FALSE),
+       -- Check if Existing Activity Payments need to be added as separate category or included in the miscellaneous category
        ('Existing Activity Payments', 'Existing activity payments', '2018 Practices', (SELECT id from csp_program_id),
         FALSE),
-       ('Bundles', 'Bundles', '2018 Practices', (SELECT id from csp_program_id), FALSE),
+       ('Vegetative', 'Vegetative', '2018 Practices', (SELECT id from csp_program_id), FALSE),
        ('Soil Testing', 'Soil testing', '2018 Practices', (SELECT id from csp_program_id), False),
-       ('Other Improvement', 'Other improvement', '2018 Practices', (SELECT id from csp_program_id), FALSE),
-       ('Miscellaneous', 'Miscellaneous', 'Miscellaneous Practices', (SELECT id from csp_program_id), FALSE);
+       ('Other Improvements', 'Other improvements', '2018 Practices', (SELECT id from csp_program_id), FALSE),
+
+       ('Bundles', 'Bundles', 'Other CSP', (SELECT id from csp_program_id), FALSE),
+       ('Miscellaneous', 'Miscellaneous', 'Other CSP', (SELECT id from csp_program_id), FALSE),
+       ('(6)(B) Planning', '(6)(B) Planning', 'Other CSP', (SELECT id from csp_program_id), FALSE);
 
 -- CRP Practice Categories
 WITH crp_program_id AS (SELECT id

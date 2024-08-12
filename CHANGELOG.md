@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create schema now uses a new command-line
   argument. [#27](https://github.com/policy-design-lab/data-ingestion/issues/27)
+- EQIP data, CSP data and its practice category grouping based on latest data share and
+  feedback. [#28](https://github.com/policy-design-lab/data-ingestion/issues/28)
 
 #### Fixed
 

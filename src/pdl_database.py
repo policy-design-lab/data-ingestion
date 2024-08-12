@@ -169,7 +169,7 @@ class PDLDatabase:
 
                     practice_code_filtered = None
                     if "practice_code" in row and not pd.isna(row["practice_code"]):
-                        # Filter practice codes to only include ones that contain a three-digit code or is contains all uppercase letters
+                        # If practice code contain a three-digit code, extract that. Otherwise, use the entire string
                         if re.search(r'\d{3}', str(row["practice_code"])):
                             practice_code_filtered = re.search(r'\d{3}', str(row["practice_code"])).group()
                         else:
