@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Feature to parse and ingest Title-II EQIP and CSP
   data. [#7](https://github.com/policy-design-lab/data-ingestion/issues/7)
+- Feature to parse and ingest Title-II CRP
+  data. [#14](https://github.com/policy-design-lab/data-ingestion/issues/14)
 
 ### Changed
 
