@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     title_ii_data_parser = DataParser(2018, 2022, "Title 2: Conservation",
                                       "../data/title-ii", "",
-                                      crp_csv_filename="CRP_total_compiled_August_24_2023.csv",
+                                      crp_csv_filename="CRP-total compiled (February 2 2024).csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",

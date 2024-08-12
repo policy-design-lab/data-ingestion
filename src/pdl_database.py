@@ -135,7 +135,7 @@ class PDLDatabase:
                     title_id, subtitle_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, None, None, row["state_code"], row['year'],
@@ -143,7 +143,9 @@ class PDLDatabase:
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
                                          row['base_acres'] if 'base_acres' in row and not pd.isna(
-                                             row['base_acres']) else None))
+                                             row['base_acres']) else None,
+                                         row['farm_count'] if 'farm_count' in row and not pd.isna(
+                                             row['farm_count']) else None))
             elif row['entity_type'] == 'program':
                 # Find the program id, title id, and the subtitle id from the program table
                 sql_select_query = "SELECT id, title_id, subtitle_id FROM pdl.programs WHERE name = %s"
@@ -159,10 +161,10 @@ class PDLDatabase:
                         sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s AND program_id = %s"
                         self.cursor.execute(sql_select_query, (row['practice_category'], program_id))
                         practice_category_id = self.cursor.fetchone()[0]
-                        
+
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, farm_count, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
 
                     practice_code_filtered = None
@@ -181,6 +183,8 @@ class PDLDatabase:
                                              row['recipient_count']) else None,
                                          row['base_acres'] if 'base_acres' in row and not pd.isna(
                                              row['base_acres']) else None,
+                                         row['farm_count'] if 'farm_count' in row and not pd.isna(
+                                             row['farm_count']) else None,
                                          practice_code_filtered,
                                          str(row['practice_code']) if 'practice_code' in row and not pd.isna(
                                              row['practice_code']) else None))
@@ -194,7 +198,7 @@ class PDLDatabase:
                     program_id, title_id, subtitle_id, sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, sub_program_id, row["state_code"],
@@ -203,7 +207,9 @@ class PDLDatabase:
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
                                          row['base_acres'] if 'base_acres' in row and not pd.isna(
-                                             row['base_acres']) else None))
+                                             row['base_acres']) else None,
+                                         row['farm_count'] if 'farm_count' in row and not pd.isna(
+                                             row['farm_count']) else None))
 
     def close(self):
         if self.connection:
