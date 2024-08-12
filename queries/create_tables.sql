@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS pdl.payments
     payment               numeric(14, 2),
     recipient_count       bigint,
     base_acres            numeric(10, 2),
+    farm_count            bigint,
     practice_code         character varying(100),
     practice_code_variant character varying(100),
     CONSTRAINT pk_payments PRIMARY KEY (id),
@@ -55,6 +56,9 @@ CREATE TABLE IF NOT EXISTS pdl.payments
     WITH (
         OIDS = FALSE
     );
+
+COMMENT ON COLUMN pdl.payments.recipient_count
+    IS 'Stores recipient count for programs. Stores count of contracts for CRP.';
 
 -- CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_unique
 --     ON pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year);

@@ -225,6 +225,21 @@ VALUES ('Cropland', 'Cropland', '2014 Eligible Land', (SELECT id from csp_progra
        ('Other Improvement', 'Other improvement', '2018 Practices', (SELECT id from csp_program_id), FALSE),
        ('Miscellaneous', 'Miscellaneous', 'Miscellaneous Practices', (SELECT id from csp_program_id), FALSE);
 
+-- CRP Practice Categories
+WITH crp_program_id AS (SELECT id
+                        FROM pdl.programs
+                        WHERE name = 'Conservation Reserve Program (CRP)')
+INSERT
+INTO pdl.practice_categories(name, display_name, category_grouping, program_id, is_statutory_category)
+VALUES ('Total CRP', 'Total CRP', NULL, (SELECT id from crp_program_id), FALSE),
+       ('Total General Sign-up', 'Total General Sign-up', NULL, (SELECT id from crp_program_id), FALSE),
+       ('Total Continuous Sign-up', 'Total Continuous Sign-up', NULL, (SELECT id from crp_program_id), FALSE),
+       ('CREP Only', 'CREP Only', 'Total Continuous Sign-up', (SELECT id from crp_program_id), FALSE),
+       ('Continuous Non-CREP', 'Continuous Non-CREP', 'Total Continuous Sign-up', (SELECT id from crp_program_id),
+        FALSE),
+       ('Farmable Wetland', 'Farmable Wetland', 'Total Continuous Sign-up', (SELECT id from crp_program_id), FALSE),
+       ('Grassland', 'Grassland', NULL, (SELECT id from crp_program_id), FALSE);
+
 -- Supplemental Nutrition Assistance Program (SNAP)
 INSERT INTO pdl.programs(name, title_id)
 SELECT 'Supplemental Nutrition Assistance Program (SNAP)', id
