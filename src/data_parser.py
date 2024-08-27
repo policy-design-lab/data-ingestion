@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import json
 
+pd.options.mode.copy_on_write = True
+
 
 class DataParser:
     def __init__(self, start_year, end_year, title_name, data_folder, program_csv_filename, subtitle_name="",
@@ -86,6 +88,7 @@ class DataParser:
                 "column_names_map": {
                     "Pay_year": "year",
                     "State": "state_name",
+                    "state": "state_name",
                     "payments": "amount",
                     "category_name": "practice_category",
                     "StatutoryCategory": "practice_category",
@@ -212,7 +215,7 @@ class DataParser:
         else:
             return "unknown"
 
-    def __convert_to_new_data_frame(self, data_frame, program_name, data_type=None):
+    def __convert_to_new_data_frame(self, data_frame, entity_name, data_type=None):
         row_list = []
         for state_code in self.us_state_abbreviations:
             state_data = data_frame[
@@ -222,8 +225,8 @@ class DataParser:
                 if state_data['state_name'].size == 1:
                     row_dict["state_code"] = state_code
                     row_dict["year"] = year
-                    row_dict["entity_name"] = program_name
-                    row_dict["entity_type"] = self.__find_entity_type(program_name)
+                    row_dict["entity_name"] = entity_name
+                    row_dict["entity_type"] = self.__find_entity_type(entity_name)
 
                     if data_type == "Base Acres":
                         row_dict["base_acres"] = state_data[str(year)].item()
@@ -429,103 +432,97 @@ class DataParser:
 
             # Create new blank data frame
             crp_data = pd.DataFrame(
-                columns=["year", "state_name", "amount", "recipient_count", "farm_count", "base_acres",
-                         "practice_category"])
+                columns=["year", "state_name", "amount", "recipient_count", "farm_count", "base_acres"])
 
-            # Iterate through each row in crp_raw_data
-            for index, row in crp_raw_data.iterrows():
-                # Extract year and state_name from row
-                year = row["year"]
-                state_name = row["state"]
+            # total_crp_data = crp_raw_data[
+            #     ["year", "state", "Total CRP - ANNUAL RENTAL PAYMENTS ($1000)", "Total CRP - NUMBER OF CONTRACTS",
+            #      "Total CRP - NUMBER OF FARMS", "Total CRP - ACRES"]]
+            # total_crp_data.rename(columns={"Total CRP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+            #                                "Total CRP - NUMBER OF CONTRACTS": "recipient_count",
+            #                                "Total CRP - NUMBER OF FARMS": "farm_count",
+            #                                "Total CRP - ACRES": "base_acres"}, inplace=True)
+            # total_crp_data["amount"] = total_crp_data["amount"] * 1000
+            # total_crp_data["entity_name"] = "Total CRP"
+            # total_crp_data["entity_type"] = "sub_program"
 
-                # Extract amount, recipient_count, farm_count, base_acres, and practice_category from row
-                total_crp_amount = row["Total CRP - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_crp_recipient_count = row["Total CRP - NUMBER OF CONTRACTS"]
-                total_crp_farm_count = row["Total CRP - NUMBER OF FARMS"]
-                total_crp_base_acres = row["Total CRP - ACRES"]
-                total_crp_practice_category = "Total CRP"
+            general_sign_up_data = crp_raw_data[[
+                "year", "state", "Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)",
+                "Total General Sign-Up - NUMBER OF CONTRACTS",
+                "Total General Sign-Up - NUMBER OF FARMS", "Total General Sign-Up - ACRES"]]
+            general_sign_up_data.rename(
+                columns={"Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                         "Total General Sign-Up - NUMBER OF CONTRACTS": "recipient_count",
+                         "Total General Sign-Up - NUMBER OF FARMS": "farm_count",
+                         "Total General Sign-Up - ACRES": "base_acres"}, inplace=True)
+            general_sign_up_data["amount"] = general_sign_up_data["amount"] * 1000
+            general_sign_up_data["entity_name"] = "General Sign-up"
+            general_sign_up_data["entity_type"] = "sub_program"
 
-                # Extract total general sign-up data
-                total_general_sign_up_amount = row["Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_general_sign_up_recipient_count = row["Total General Sign-Up - NUMBER OF CONTRACTS"]
-                total_general_sign_up_farm_count = row["Total General Sign-Up - NUMBER OF FARMS"]
-                total_general_sign_up_base_acres = row["Total General Sign-Up - ACRES"]
-                total_general_sign_up_practice_category = "Total General Sign-up"
+            continuous_sign_up_data = crp_raw_data[[
+                "year", "state", "Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)",
+                "Total Continuous - NUMBER OF CONTRACTS",
+                "Total Continuous - NUMBER OF FARMS", "Total Continuous - ACRES"]]
+            continuous_sign_up_data.rename(columns={"Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                                    "Total Continuous - NUMBER OF CONTRACTS": "recipient_count",
+                                                    "Total Continuous - NUMBER OF FARMS": "farm_count",
+                                                    "Total Continuous - ACRES": "base_acres"}, inplace=True)
+            continuous_sign_up_data["amount"] = continuous_sign_up_data["amount"] * 1000
+            continuous_sign_up_data["entity_name"] = "Continuous Sign-up"
+            continuous_sign_up_data["entity_type"] = "sub_program"
 
-                # Extract total continuous data
-                total_continuous_amount = row["Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_continuous_recipient_count = row["Total Continuous - NUMBER OF CONTRACTS"]
-                total_continuous_farm_count = row["Total Continuous - NUMBER OF FARMS"]
-                total_continuous_base_acres = row["Total Continuous - ACRES"]
-                total_continuous_practice_category = "Total Continuous Sign-up"
+            crep_only_data = crp_raw_data[["year", "state", "CREP Only - ANNUAL RENTAL PAYMENTS ($1000)",
+                                           "CREP Only - NUMBER OF CONTRACTS", "CREP Only - NUMBER OF FARMS",
+                                           "CREP Only - ACRES"]]
+            crep_only_data.rename(columns={"CREP Only - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                           "CREP Only - NUMBER OF CONTRACTS": "recipient_count",
+                                           "CREP Only - NUMBER OF FARMS": "farm_count",
+                                           "CREP Only - ACRES": "base_acres"}, inplace=True)
+            crep_only_data["amount"] = crep_only_data["amount"] * 1000
+            crep_only_data["entity_name"] = "CREP Only"
+            crep_only_data["entity_type"] = "sub_sub_program"
 
-                # Extract CREP only data
-                total_crep_only_amount = row["CREP Only - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_crep_only_recipient_count = row["CREP Only - NUMBER OF CONTRACTS"]
-                total_crep_only_farm_count = row["CREP Only - NUMBER OF FARMS"]
-                total_crep_only_base_acres = row["CREP Only - ACRES"]
-                total_crep_only_practice_category = "CREP Only"
+            continuous_non_crep_data = crp_raw_data[
+                ["year", "state", "Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)",
+                 "Continuous Non-CREP - NUMBER OF CONTRACTS", "Continuous Non-CREP - NUMBER OF FARMS",
+                 "Continuous Non-CREP - ACRES"]]
+            continuous_non_crep_data.rename(
+                columns={"Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                         "Continuous Non-CREP - NUMBER OF CONTRACTS": "recipient_count",
+                         "Continuous Non-CREP - NUMBER OF FARMS": "farm_count",
+                         "Continuous Non-CREP - ACRES": "base_acres"}, inplace=True)
+            continuous_non_crep_data["amount"] = continuous_non_crep_data["amount"] * 1000
+            continuous_non_crep_data["entity_name"] = "Continuous Non-CREP"
+            continuous_non_crep_data["entity_type"] = "sub_sub_program"
 
-                # Extract continuous non-CREP data
-                total_continuous_non_crep_amount = row["Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_continuous_non_crep_recipient_count = row["Continuous Non-CREP - NUMBER OF CONTRACTS"]
-                total_continuous_non_crep_farm_count = row["Continuous Non-CREP - NUMBER OF FARMS"]
-                total_continuous_non_crep_base_acres = row["Continuous Non-CREP - ACRES"]
-                total_continuous_non_crep_practice_category = "Continuous Non-CREP"
+            farmable_wetland_data = crp_raw_data[["year", "state", "Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)",
+                                                  "Farmable Wetland - NUMBER OF CONTRACTS",
+                                                  "Farmable Wetland - NUMBER OF FARMS", "Farmable Wetland - ACRES"]]
+            farmable_wetland_data.rename(columns={"Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                                  "Farmable Wetland - NUMBER OF CONTRACTS": "recipient_count",
+                                                  "Farmable Wetland - NUMBER OF FARMS": "farm_count",
+                                                  "Farmable Wetland - ACRES": "base_acres"}, inplace=True)
+            farmable_wetland_data["amount"] = farmable_wetland_data["amount"] * 1000
+            farmable_wetland_data["entity_name"] = "Farmable Wetland"
+            farmable_wetland_data["entity_type"] = "sub_sub_program"
 
-                # Extract farmable wetland data
-                total_farmable_wetland_amount = row["Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_farmable_wetland_recipient_count = row["Farmable Wetland - NUMBER OF CONTRACTS"]
-                total_farmable_wetland_farm_count = row["Farmable Wetland - NUMBER OF FARMS"]
-                total_farmable_wetland_base_acres = row["Farmable Wetland - ACRES"]
-                total_farmable_wetland_practice_category = "Farmable Wetland"
+            grassland_data = crp_raw_data[
+                ["year", "state", "Grassland - ANNUAL RENTAL PAYMENTS ($1000)", "Grassland - NUMBER OF CONTRACTS",
+                 "Grassland - NUMBER OF FARMS", "Grassland - ACRES"]]
 
-                # Extract grassland data
-                total_grassland_amount = row["Grassland - ANNUAL RENTAL PAYMENTS ($1000)"] * 1000
-                total_grassland_recipient_count = row["Grassland - NUMBER OF CONTRACTS"]
-                total_grassland_farm_count = row["Grassland - NUMBER OF FARMS"]
-                total_grassland_base_acres = row["Grassland - ACRES"]
-                total_grassland_practice_category = "Grassland"
+            grassland_data.rename(columns={"Grassland - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                           "Grassland - NUMBER OF CONTRACTS": "recipient_count",
+                                           "Grassland - NUMBER OF FARMS": "farm_count",
+                                           "Grassland - ACRES": "base_acres"}, inplace=True)
 
-                # data rows
-                crp_data_rows = [{"year": year, "state_name": state_name, "amount": total_crp_amount,
-                                  "recipient_count": total_crp_recipient_count,
-                                  "farm_count": total_crp_farm_count, "base_acres": total_crp_base_acres,
-                                  "practice_category": total_crp_practice_category},
-                                 {"year": year, "state_name": state_name, "amount": total_general_sign_up_amount,
-                                  "recipient_count": total_general_sign_up_recipient_count,
-                                  "farm_count": total_general_sign_up_farm_count,
-                                  "base_acres": total_general_sign_up_base_acres,
-                                  "practice_category": total_general_sign_up_practice_category},
-                                 {"year": year, "state_name": state_name, "amount": total_continuous_amount,
-                                  "recipient_count": total_continuous_recipient_count,
-                                  "farm_count": total_continuous_farm_count, "base_acres": total_continuous_base_acres,
-                                  "practice_category": total_continuous_practice_category},
-                                 {"year": year, "state_name": state_name, "amount": total_crep_only_amount,
-                                  "recipient_count": total_crep_only_recipient_count,
-                                  "farm_count": total_crep_only_farm_count, "base_acres": total_crep_only_base_acres,
-                                  "practice_category": total_crep_only_practice_category},
-                                 {"year": year, "state_name": state_name, "amount": total_continuous_non_crep_amount,
-                                  "recipient_count": total_continuous_non_crep_recipient_count,
-                                  "farm_count": total_continuous_non_crep_farm_count,
-                                  "base_acres": total_continuous_non_crep_base_acres,
-                                  "practice_category": total_continuous_non_crep_practice_category},
-                                 {"year": year, "state_name": state_name, "amount": total_farmable_wetland_amount,
-                                  "recipient_count": total_farmable_wetland_recipient_count,
-                                  "farm_count": total_farmable_wetland_farm_count,
-                                  "base_acres": total_farmable_wetland_base_acres,
-                                  "practice_category": total_farmable_wetland_practice_category},
-                                 {"year": year, "state_name": state_name, "amount": total_grassland_amount,
-                                  "recipient_count": total_grassland_recipient_count,
-                                  "farm_count": total_grassland_farm_count, "base_acres": total_grassland_base_acres,
-                                  "practice_category": total_grassland_practice_category}]
+            grassland_data["amount"] = grassland_data["amount"] * 1000
+            grassland_data["entity_name"] = "Grassland"
+            grassland_data["entity_type"] = "sub_program"
 
-                # Append extracted data to crp_data
-                crp_data = crp_data.append(crp_data_rows,
-                                           ignore_index=True)
+            crp_data = pd.concat([general_sign_up_data, continuous_sign_up_data, crep_only_data,
+                                  continuous_non_crep_data, farmable_wetland_data, grassland_data], ignore_index=True)
 
             # Rename column names to make it more uniform
-            # crp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+            crp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
 
             # # Remove leading and trailing whitespaces from practice_code column
             # crp_data["practice_code"] = crp_data["practice_code"].str.strip()
@@ -547,10 +544,10 @@ class DataParser:
             crp_data = crp_data[crp_data["state_name"].isin(self.us_state_abbreviations.values())]
 
             # Add entity type to crp
-            crp_data = crp_data.assign(entity_type="program")
+            # crp_data = crp_data.assign(entity_type="program")
 
             # Add entity_name to crp
-            crp_data = crp_data.assign(entity_name="Conservation Reserve Program (CRP)")
+            # crp_data = crp_data.assign(entity_name="Conservation Reserve Program (CRP)")
 
             # Add state code to crp using self.us_state_abbreviations
             crp_data = crp_data.assign(state_code=crp_data["state_name"].map(
