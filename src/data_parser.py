@@ -192,19 +192,23 @@ class DataParser:
         :param entity_name:
         :return: entity type
         """
-        if entity_name in ["Agriculture Risk Coverage County Option (ARC-CO)",
-                           "Agriculture Risk Coverage Individual Coverage (ARC-IC)"]:
-            return "sub_program"
+
+        if entity_name in ["Total Commodities Programs, Subtitle A", "Dairy Margin Coverage, Subtitle D",
+                           "Supplemental Agricultural Disaster Assistance, Subtitle E"]:
+            return "subtitle"
         elif entity_name in ["Price Loss Coverage (PLC)",
                              "Emergency Assistance for Livestock, Honey Bees, and Farm-Raised Fish Program (ELAP)",
                              "Livestock Forage Program (LFP)", "Livestock Indemnity Payments (LIP)",
-                             "Tree Assistance Program (TAP)", "Supplemental Nutrition Assistance Program (SNAP)"]:
+                             "Tree Assistance Program (TAP)", "Environmental Quality Incentives Program (EQIP)",
+                             "Conservation Stewardship Program (CSP)",
+                             "Supplemental Nutrition Assistance Program (SNAP)"]:
             return "program"
-        elif entity_name in ["Total Commodities Programs, Subtitle A", "Dairy Margin Coverage, Subtitle D",
-                             "Supplemental Agricultural Disaster Assistance, Subtitle E",
-                             "Environmental Quality Incentives Program (EQIP)",
-                             "Conservation Stewardship Program (CSP)", ]:
-            return "subtitle"
+        elif entity_name in ["Agriculture Risk Coverage County Option (ARC-CO)",
+                             "Agriculture Risk Coverage Individual Coverage (ARC-IC)",
+                             "General Sign-up", "Continuous Sign-up", "Grassland"]:
+            return "sub_program"
+        elif entity_name in ["CREP Only", "Continuous Non-CREP", "Farmable Wetland"]:
+            return "sub_sub_program"
         else:
             return "unknown"
 
@@ -417,8 +421,6 @@ class DataParser:
 
             self.csp_data = csp_data
 
-            # TODO: Add ACEP, RCPP, and CRP data processing and update self.program_data
-
             # Import CRP CSV files and convert to existing format
             crp_raw_data = pd.read_csv(self.crp_csv_filepath)
 
@@ -555,6 +557,8 @@ class DataParser:
                 {v: k for k, v in self.us_state_abbreviations.items()}))
 
             self.crp_data = crp_data
+
+            # TODO: Add ACEP, and RCPP data processing and update self.program_data
 
             self.program_data = pd.concat([self.eqip_data, self.csp_data, self.crp_data], ignore_index=True)
 
