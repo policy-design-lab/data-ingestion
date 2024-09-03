@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS pdl.payments
     recipient_count       bigint,
     base_acres            numeric(10, 2),
     farm_count            bigint,
+    contract_count        bigint,
     practice_code         character varying(100),
     practice_code_variant character varying(100),
     CONSTRAINT pk_payments PRIMARY KEY (id),

@@ -430,15 +430,11 @@ class DataParser:
             # Remove leading and trailing whitespaces from column names
             crp_raw_data.columns = crp_raw_data.columns.str.strip()
 
-            # Create new blank data frame
-            crp_data = pd.DataFrame(
-                columns=["year", "state_name", "amount", "recipient_count", "farm_count", "base_acres"])
-
             # total_crp_data = crp_raw_data[
             #     ["year", "state", "Total CRP - ANNUAL RENTAL PAYMENTS ($1000)", "Total CRP - NUMBER OF CONTRACTS",
             #      "Total CRP - NUMBER OF FARMS", "Total CRP - ACRES"]]
             # total_crp_data.rename(columns={"Total CRP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-            #                                "Total CRP - NUMBER OF CONTRACTS": "recipient_count",
+            #                                "Total CRP - NUMBER OF CONTRACTS": "contract_count",
             #                                "Total CRP - NUMBER OF FARMS": "farm_count",
             #                                "Total CRP - ACRES": "base_acres"}, inplace=True)
             # total_crp_data["amount"] = total_crp_data["amount"] * 1000
@@ -451,7 +447,7 @@ class DataParser:
                 "Total General Sign-Up - NUMBER OF FARMS", "Total General Sign-Up - ACRES"]]
             general_sign_up_data.rename(
                 columns={"Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-                         "Total General Sign-Up - NUMBER OF CONTRACTS": "recipient_count",
+                         "Total General Sign-Up - NUMBER OF CONTRACTS": "contract_count",
                          "Total General Sign-Up - NUMBER OF FARMS": "farm_count",
                          "Total General Sign-Up - ACRES": "base_acres"}, inplace=True)
             general_sign_up_data["amount"] = general_sign_up_data["amount"] * 1000
@@ -463,7 +459,7 @@ class DataParser:
                 "Total Continuous - NUMBER OF CONTRACTS",
                 "Total Continuous - NUMBER OF FARMS", "Total Continuous - ACRES"]]
             continuous_sign_up_data.rename(columns={"Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-                                                    "Total Continuous - NUMBER OF CONTRACTS": "recipient_count",
+                                                    "Total Continuous - NUMBER OF CONTRACTS": "contract_count",
                                                     "Total Continuous - NUMBER OF FARMS": "farm_count",
                                                     "Total Continuous - ACRES": "base_acres"}, inplace=True)
             continuous_sign_up_data["amount"] = continuous_sign_up_data["amount"] * 1000
@@ -474,7 +470,7 @@ class DataParser:
                                            "CREP Only - NUMBER OF CONTRACTS", "CREP Only - NUMBER OF FARMS",
                                            "CREP Only - ACRES"]]
             crep_only_data.rename(columns={"CREP Only - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-                                           "CREP Only - NUMBER OF CONTRACTS": "recipient_count",
+                                           "CREP Only - NUMBER OF CONTRACTS": "contract_count",
                                            "CREP Only - NUMBER OF FARMS": "farm_count",
                                            "CREP Only - ACRES": "base_acres"}, inplace=True)
             crep_only_data["amount"] = crep_only_data["amount"] * 1000
@@ -487,7 +483,7 @@ class DataParser:
                  "Continuous Non-CREP - ACRES"]]
             continuous_non_crep_data.rename(
                 columns={"Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-                         "Continuous Non-CREP - NUMBER OF CONTRACTS": "recipient_count",
+                         "Continuous Non-CREP - NUMBER OF CONTRACTS": "contract_count",
                          "Continuous Non-CREP - NUMBER OF FARMS": "farm_count",
                          "Continuous Non-CREP - ACRES": "base_acres"}, inplace=True)
             continuous_non_crep_data["amount"] = continuous_non_crep_data["amount"] * 1000
@@ -498,7 +494,7 @@ class DataParser:
                                                   "Farmable Wetland - NUMBER OF CONTRACTS",
                                                   "Farmable Wetland - NUMBER OF FARMS", "Farmable Wetland - ACRES"]]
             farmable_wetland_data.rename(columns={"Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-                                                  "Farmable Wetland - NUMBER OF CONTRACTS": "recipient_count",
+                                                  "Farmable Wetland - NUMBER OF CONTRACTS": "contract_count",
                                                   "Farmable Wetland - NUMBER OF FARMS": "farm_count",
                                                   "Farmable Wetland - ACRES": "base_acres"}, inplace=True)
             farmable_wetland_data["amount"] = farmable_wetland_data["amount"] * 1000
@@ -510,7 +506,7 @@ class DataParser:
                  "Grassland - NUMBER OF FARMS", "Grassland - ACRES"]]
 
             grassland_data.rename(columns={"Grassland - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-                                           "Grassland - NUMBER OF CONTRACTS": "recipient_count",
+                                           "Grassland - NUMBER OF CONTRACTS": "contract_count",
                                            "Grassland - NUMBER OF FARMS": "farm_count",
                                            "Grassland - ACRES": "base_acres"}, inplace=True)
 
