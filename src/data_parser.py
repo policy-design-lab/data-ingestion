@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import json
 
 pd.options.mode.copy_on_write = True
 
@@ -520,13 +519,6 @@ class DataParser:
             # Rename column names to make it more uniform
             crp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
 
-            # # Remove leading and trailing whitespaces from practice_code column
-            # crp_data["practice_code"] = crp_data["practice_code"].str.strip()
-
-            # Replace value names
-            # crp_data["practice_category"] = crp_data["practice_category"].replace(
-            #     self.metadata[self.title_name]["value_names_map"])
-
             # Filter only relevant years data
             crp_data = crp_data[crp_data["year"].between(self.start_year, self.end_year, inclusive="both")]
 
@@ -538,12 +530,6 @@ class DataParser:
 
             # Filter only states in self.us_state_abbreviations
             crp_data = crp_data[crp_data["state_name"].isin(self.us_state_abbreviations.values())]
-
-            # Add entity type to crp
-            # crp_data = crp_data.assign(entity_type="program")
-
-            # Add entity_name to crp
-            # crp_data = crp_data.assign(entity_name="Conservation Reserve Program (CRP)")
 
             # Add state code to crp using self.us_state_abbreviations
             crp_data = crp_data.assign(state_code=crp_data["state_name"].map(
