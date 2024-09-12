@@ -430,16 +430,16 @@ class DataParser:
             # Remove leading and trailing whitespaces from column names
             crp_raw_data.columns = crp_raw_data.columns.str.strip()
 
-            # total_crp_data = crp_raw_data[
-            #     ["year", "state", "Total CRP - ANNUAL RENTAL PAYMENTS ($1000)", "Total CRP - NUMBER OF CONTRACTS",
-            #      "Total CRP - NUMBER OF FARMS", "Total CRP - ACRES"]]
-            # total_crp_data.rename(columns={"Total CRP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
-            #                                "Total CRP - NUMBER OF CONTRACTS": "contract_count",
-            #                                "Total CRP - NUMBER OF FARMS": "farm_count",
-            #                                "Total CRP - ACRES": "base_acres"}, inplace=True)
-            # total_crp_data["amount"] = total_crp_data["amount"] * 1000
-            # total_crp_data["entity_name"] = "Total CRP"
-            # total_crp_data["entity_type"] = "sub_program"
+            total_crp_data = crp_raw_data[
+                ["year", "state", "Total CRP - ANNUAL RENTAL PAYMENTS ($1000)", "Total CRP - NUMBER OF CONTRACTS",
+                 "Total CRP - NUMBER OF FARMS", "Total CRP - ACRES"]]
+            total_crp_data.rename(columns={"Total CRP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                           "Total CRP - NUMBER OF CONTRACTS": "contract_count",
+                                           "Total CRP - NUMBER OF FARMS": "farm_count",
+                                           "Total CRP - ACRES": "base_acres"}, inplace=True)
+            total_crp_data["amount"] = total_crp_data["amount"] * 1000
+            total_crp_data["entity_name"] = "Total CRP"
+            total_crp_data["entity_type"] = "sub_program"
 
             general_sign_up_data = crp_raw_data[[
                 "year", "state", "Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)",
@@ -514,7 +514,7 @@ class DataParser:
             grassland_data["entity_name"] = "Grassland"
             grassland_data["entity_type"] = "sub_program"
 
-            crp_data = pd.concat([general_sign_up_data, continuous_sign_up_data, crep_only_data,
+            crp_data = pd.concat([total_crp_data, general_sign_up_data, continuous_sign_up_data, crep_only_data,
                                   continuous_non_crep_data, farmable_wetland_data, grassland_data], ignore_index=True)
 
             # Rename column names to make it more uniform
