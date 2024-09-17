@@ -62,6 +62,13 @@ if __name__ == '__main__':
                                   snap_cost_filename="snap_costs.csv")
     snap_data_parser.format_data()
 
+    crop_insurance_data_parser = DataParser(2018, 2022, "Crop Insurance",
+                                            "../data/crop-insurance","",
+                                            ci_state_year_benefit_filename="ci_state_year_benefits 8-28-23.csv")
+    crop_insurance_data_parser.format_data()
+
+    database.insert_data(crop_insurance_data_parser.ci_data)
+
     if cli.args.insert_data:
         # Title I data ingestion
         logger.info("Starting Title I data ingestion...")
@@ -79,5 +86,10 @@ if __name__ == '__main__':
         logger.info("Starting Title IV data ingestion...")
         database.insert_data(snap_data_parser.snap_data)
         logger.info("Title IV data ingestion complete.")
+
+        # Title XI data ingestion
+        logger.info("Starting Title XI data ingestion...")
+        database.insert_data(crop_insurance_data_parser.ci_data)
+        logger.info("Title XI data ingestion complete.")
 
     database.close()

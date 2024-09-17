@@ -166,7 +166,12 @@ class PDLDatabase:
 
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, payment, recipient_count, base_acres, farm_count, contract_count, practice_code, practice_code_variant) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_"
+                        "category_id, state_code, year, payment, recipient_count, base_acres, farm_count, "
+                        "contract_count, practice_code, practice_code_variant, premium_policy_count, liability_amount,"
+                        "premium_amount, premium_subsidy_amount, indemnity_amount, farmer_premium_amount,"
+                        "loss_ratio, net_farmer_benefit_amount) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
 
                     practice_code_filtered = None
@@ -180,7 +185,8 @@ class PDLDatabase:
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, None, practice_category_id,
                                          row["state_code"], row['year'],
-                                         row['amount'],
+                                         row['amount'] if 'amount' in row and not pd.isna(
+                                             row['amount']) else None,
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
                                          row['base_acres'] if 'base_acres' in row and not pd.isna(
@@ -191,7 +197,26 @@ class PDLDatabase:
                                              row['contract_count']) else None,
                                          practice_code_filtered,
                                          str(row['practice_code']) if 'practice_code' in row and not pd.isna(
-                                             row['practice_code']) else None))
+                                             row['practice_code']) else None,
+                                         row['premium_policy_count'] if 'premium_policy_count' in row and not pd.isna(
+                                             row['premium_policy_count']) else None,
+                                         row['liability_amount'] if 'liability_amount' in row and not pd.isna(
+                                             row['liability_amount']) else None,
+                                         row['premium_amount'] if 'premium_amount' in row and not pd.isna(
+                                             row['premium_amount']) else None,
+                                         row['premium_subsidy_amount'] if 'premium_subsidy_amount' in row
+                                                                          and not pd.isna(
+                                             row['premium_subsidy_amount']) else None,
+                                         row['indemnity_amount'] if 'indemnity_amount' in row and not pd.isna(
+                                             row['indemnity_amount']) else None,
+                                         row['farmer_premium_amount'] if 'farmer_premium_amount' in row
+                                                                         and not pd.isna(
+                                             row['farmer_premium_amount']) else None,
+                                         row['loss_ratio'] if 'loss_ratio' in row and not pd.isna(
+                                             row['loss_ratio']) else None,
+                                         row['net_farmer_benefit_amount'] if 'net_farmer_benefit_amount' in row
+                                                                             and not pd.isna(
+                                             row['net_farmer_benefit_amount']) else None)),
             elif row['entity_type'] == 'sub_program':
                 # Find the program id, title id, subtitle id, and sub_program id from joining sub_programs, programs, and titles
                 # tables

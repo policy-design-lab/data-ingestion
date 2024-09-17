@@ -252,3 +252,9 @@ INSERT INTO pdl.programs(name, title_id)
 SELECT 'Supplemental Nutrition Assistance Program (SNAP)', id
 FROM pdl.titles
 WHERE name = 'Title IV: Nutrition';
+
+-- Crop Insurance
+INSERT INTO pdl.programs(name, title_id)
+SELECT 'Crop Insurance', id
+FROM pdl.titles
+WHERE name = 'Title IX: Crop Insurance';
