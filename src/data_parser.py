@@ -92,7 +92,11 @@ class DataParser:
                     "category_name": "practice_category",
                     "StatutoryCategory": "practice_category",
                     "practice_code": "practice_code_processed",
-                    "full_practice_code": "practice_code"
+                    "full_practice_code": "practice_code",
+                    "Number of Contracts": "contract_count",
+                    "Number of Acres": "base_acres",
+                    "Total Financial Assistance Payments ($1000)": "amount",
+
                 },
                 "value_names_map": {
                     "CRP": "Conservation Reserve Program (CRP)",
@@ -537,9 +541,43 @@ class DataParser:
 
             self.crp_data = crp_data
 
-            # TODO: Add ACEP, and RCPP data processing and update self.program_data
+            # Import ACEP CSV file and convert to pandas dataframe
+            acep_data = pd.read_csv(self.acep_csv_filepath)
 
-            self.program_data = pd.concat([self.eqip_data, self.csp_data, self.crp_data], ignore_index=True)
+            # Remove leading and trailing whitespaces from column names
+            acep_data.columns = acep_data.columns.str.strip()
+
+            # Rename column names to make it more uniform
+            acep_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Filter only relevant years data
+            acep_data = acep_data[acep_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            acep_data = acep_data[acep_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            acep_data = acep_data[acep_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to acep
+            acep_data = acep_data.assign(entity_type="program")
+
+            # Add entity_name to acep
+            acep_data = acep_data.assign(entity_name="Agricultural Conservation Easement Program (ACEP)")
+
+            # Add state code to acep using self.us_state_abbreviations
+            acep_data = acep_data.assign(state_code=acep_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            # Multiply amount by 1000
+            acep_data["amount"] = acep_data["amount"] * 1000
+
+            self.acep_data = acep_data
+
+            # TODO: Add RCPP data processing and update self.program_data
+
+            self.program_data = pd.concat([self.eqip_data, self.csp_data, self.crp_data, self.acep_data],
+                                          ignore_index=True)
 
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
             # Import SNAP Cost CSV file
