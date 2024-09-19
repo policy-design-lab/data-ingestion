@@ -67,8 +67,6 @@ if __name__ == '__main__':
                                             ci_state_year_benefit_filename="ci_state_year_benefits 8-28-23.csv")
     crop_insurance_data_parser.format_data()
 
-    database.insert_data(crop_insurance_data_parser.ci_data)
-
     if cli.args.insert_data:
         # Title I data ingestion
         logger.info("Starting Title I data ingestion...")
