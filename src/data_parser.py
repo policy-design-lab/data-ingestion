@@ -92,7 +92,11 @@ class DataParser:
                     "category_name": "practice_category",
                     "StatutoryCategory": "practice_category",
                     "practice_code": "practice_code_processed",
-                    "full_practice_code": "practice_code"
+                    "full_practice_code": "practice_code",
+                    "Number of Contracts": "contract_count",
+                    "Number of Acres": "base_acres",
+                    "Total Financial Assistance Payments ($1000)": "amount",
+
                 },
                 "value_names_map": {
                     "CRP": "Conservation Reserve Program (CRP)",
@@ -126,7 +130,7 @@ class DataParser:
                     "NIPF": "Non-Industrial Private Forestland",
                     "Pastured Cropland": "Grassland",
                     "2014 Other Practices": "Miscellaneous",
-                    # "Existing Activity Payments": "Miscellaneous",
+                    "Hawaii/Pacific ": "Hawaii"  # Check with the team if this mapping is okay, else remove
                 }
             },
             "Supplemental Nutrition Assistance Program (SNAP)": {
@@ -537,9 +541,87 @@ class DataParser:
 
             self.crp_data = crp_data
 
-            # TODO: Add ACEP, and RCPP data processing and update self.program_data
+            # Import ACEP CSV file and convert to pandas dataframe
+            acep_data = pd.read_csv(self.acep_csv_filepath)
 
-            self.program_data = pd.concat([self.eqip_data, self.csp_data, self.crp_data], ignore_index=True)
+            # Remove leading and trailing whitespaces from column names
+            acep_data.columns = acep_data.columns.str.strip()
+
+            # Rename column names to make it more uniform
+            acep_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from state_name column
+            acep_data["state_name"] = acep_data["state_name"].str.strip()
+
+            # Replace value names
+            acep_data["state_name"] = acep_data["state_name"].replace(self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            acep_data = acep_data[acep_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            acep_data = acep_data[acep_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            acep_data = acep_data[acep_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to acep
+            acep_data = acep_data.assign(entity_type="program")
+
+            # Add entity_name to acep
+            acep_data = acep_data.assign(entity_name="Agricultural Conservation Easement Program (ACEP)")
+
+            # Add state code to acep using self.us_state_abbreviations
+            acep_data = acep_data.assign(state_code=acep_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            # Multiply amount by 1000
+            acep_data["amount"] = acep_data["amount"] * 1000
+
+            self.acep_data = acep_data
+
+            # Import RCPP CSV file and convert to pandas dataframe
+            rcpp_data = pd.read_csv(self.rcpp_csv_filepath)
+
+            # Remove leading and trailing whitespaces from column names
+            rcpp_data.columns = rcpp_data.columns.str.strip()
+
+            # Rename column names to make it more uniform
+            rcpp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from state_name column
+            rcpp_data["state_name"] = rcpp_data["state_name"].str.strip()
+
+            # Replace value names
+            rcpp_data["state_name"] = rcpp_data["state_name"].replace(self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            rcpp_data = rcpp_data[rcpp_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            rcpp_data = rcpp_data[rcpp_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            rcpp_data = rcpp_data[rcpp_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to rcpp
+            rcpp_data = rcpp_data.assign(entity_type="program")
+
+            # Add entity_name to rcpp
+            rcpp_data = rcpp_data.assign(entity_name="Regional Conservation Partnership Program (RCPP)")
+
+            # Add state code to rcpp using self.us_state_abbreviations
+            rcpp_data = rcpp_data.assign(state_code=rcpp_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            # Multiply amount by 1000
+            rcpp_data["amount"] = rcpp_data["amount"] * 1000
+
+            self.rcpp_data = rcpp_data
+
+            self.program_data = pd.concat(
+                [self.eqip_data, self.csp_data, self.crp_data, self.acep_data, self.rcpp_data],
+                ignore_index=True)
 
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
             # Import SNAP Cost CSV file
