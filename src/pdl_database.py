@@ -182,35 +182,40 @@ class PDLDatabase:
                         else:
                             practice_code_filtered = row["practice_code"]
 
-                    self.cursor.execute(sql_insert_query, (
-                        title_id, subtitle_id, program_id, None, practice_category_id,
-                        row["state_code"], row['year'],
-                        row['amount'] if 'amount' in row and not pd.isna(row['amount']) else None,
-                        row['recipient_count'] if 'recipient_count' in row and not pd.isna(
-                            row['recipient_count']) else None,
-                        row['base_acres'] if 'base_acres' in row and not pd.isna(row['base_acres']) else None,
-                        row['farm_count'] if 'farm_count' in row and not pd.isna(row['farm_count']) else None,
-                        row['contract_count'] if 'contract_count' in row and not pd.isna(
-                            row['contract_count']) else None,
-                        practice_code_filtered,
-                        str(row['practice_code']) if 'practice_code' in row and not pd.isna(
-                            row['practice_code']) else None,
-                        row['premium_policy_count'] if 'premium_policy_count' in row and not pd.isna(
-                            row['premium_policy_count']) else None,
-                        row['liability_amount'] if 'liability_amount' in row and not pd.isna(
-                            row['liability_amount']) else None,
-                        row['premium_amount'] if 'premium_amount' in row and not pd.isna(
-                            row['premium_amount']) else None,
-                        row['premium_subsidy_amount'] if 'premium_subsidy_amount' in row and not pd.isna(
-                            row['premium_subsidy_amount']) else None,
-                        row['indemnity_amount'] if 'indemnity_amount' in row and not pd.isna(
-                            row['indemnity_amount']) else None,
-                        row['farmer_premium_amount'] if 'farmer_premium_amount' in row and not pd.isna(
-                            row['farmer_premium_amount']) else None,
-                        row['loss_ratio'] if 'loss_ratio' in row and not pd.isna(row['loss_ratio']) else None,
-                        row['net_farmer_benefit_amount'] if 'net_farmer_benefit_amount' in row and not pd.isna(
-                            row['net_farmer_benefit_amount']) else None
-                    ))
+                    self.cursor.execute(sql_insert_query,
+                                        (title_id, subtitle_id, program_id, None, practice_category_id,
+                                         row["state_code"], row['year'],
+                                         row['amount'] if 'amount' in row and not pd.isna(row['amount']) else None,
+                                         row['recipient_count'] if 'recipient_count' in row and not pd.isna(
+                                             row['recipient_count']) else None,
+                                         row['base_acres'] if 'base_acres' in row and not pd.isna(
+                                             row['base_acres']) else None,
+                                         row['farm_count'] if 'farm_count' in row and not pd.isna(
+                                             row['farm_count']) else None,
+                                         row['contract_count'] if 'contract_count' in row and not pd.isna(
+                                             row['contract_count']) else None,
+                                         practice_code_filtered,
+                                         str(row['practice_code']) if 'practice_code' in row and not pd.isna(
+                                             row['practice_code']) else None,
+                                         row['premium_policy_count'] if 'premium_policy_count' in row and not pd.isna(
+                                             row['premium_policy_count']) else None,
+                                         row['liability_amount'] if 'liability_amount' in row and not pd.isna(
+                                             row['liability_amount']) else None,
+                                         row['premium_amount'] if 'premium_amount' in row and not pd.isna(
+                                             row['premium_amount']) else None,
+                                         row[
+                                             'premium_subsidy_amount'] if 'premium_subsidy_amount' in row and not pd.isna(
+                                             row['premium_subsidy_amount']) else None,
+                                         row['indemnity_amount'] if 'indemnity_amount' in row and not pd.isna(
+                                             row['indemnity_amount']) else None,
+                                         row['farmer_premium_amount'] if 'farmer_premium_amount' in row and not pd.isna(
+                                             row['farmer_premium_amount']) else None,
+                                         row['loss_ratio'] if 'loss_ratio' in row and not pd.isna(
+                                             row['loss_ratio']) else None,
+                                         row[
+                                             'net_farmer_benefit_amount'] if 'net_farmer_benefit_amount' in row and not pd.isna(
+                                             row['net_farmer_benefit_amount']) else None
+                                         ))
             elif row['entity_type'] == 'sub_program':
                 # Find the program id, title id, subtitle id, and sub_program id from joining sub_programs, programs, and titles
                 # tables
