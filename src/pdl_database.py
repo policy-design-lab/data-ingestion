@@ -171,7 +171,6 @@ class PDLDatabase:
                         "liability_amount, premium_amount, premium_subsidy_amount, indemnity_amount, farmer_premium_amount, loss_ratio, net_farmer_benefit_amount) "
                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                     )
-
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
 
                     practice_code_filtered = None

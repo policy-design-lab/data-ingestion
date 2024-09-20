@@ -233,7 +233,8 @@ WITH crp_program_id AS (SELECT id
                         WHERE name = 'Conservation Reserve Program (CRP)')
 INSERT
 INTO pdl.sub_programs(program_id, name)
-VALUES ((SELECT id from crp_program_id), 'General Sign-up'),
+VALUES ((SELECT id from crp_program_id), 'Total CRP'),
+       ((SELECT id from crp_program_id), 'General Sign-up'),
        ((SELECT id from crp_program_id), 'Continuous Sign-up'),
        ((SELECT id from crp_program_id), 'Grassland');
 

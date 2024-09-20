@@ -11,7 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Feature to parse and ingest Title-II CRP
   data. [#14](https://github.com/policy-design-lab/data-ingestion/issues/14)
-
+- Feature to parse and ingest Title-II ACEP
+  data. [#34](https://github.com/policy-design-lab/data-ingestion/issues/34)
+- Feature to parse and ingest Title-II RCPP
+  data. [#16](https://github.com/policy-design-lab/data-ingestion/issues/16)
 - Feature to parse and ingest Title-XI Crop Insurance
   data. [#18](https://github.com/policy-design-lab/data-ingestion/issues/18)
 
