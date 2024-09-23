@@ -54,8 +54,6 @@ if __name__ == '__main__':
                                       csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
-    # TODO: Add feature to update data or insert data for specific programs.
-
     snap_data_parser = DataParser(2018, 2022, "Supplemental Nutrition Assistance Program (SNAP)",
                                   "../data/snap", "",
                                   snap_monthly_participation_filename="snap_monthly_participation.csv",
@@ -63,7 +61,7 @@ if __name__ == '__main__':
     snap_data_parser.format_data()
 
     crop_insurance_data_parser = DataParser(2018, 2022, "Crop Insurance",
-                                            "../data/crop-insurance","",
+                                            "../data/crop-insurance", "",
                                             ci_state_year_benefit_filename="ci_state_year_benefits 8-28-23.csv")
     crop_insurance_data_parser.format_data()
 
