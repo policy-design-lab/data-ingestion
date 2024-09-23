@@ -3,6 +3,8 @@ import pandas as pd
 
 pd.options.mode.copy_on_write = True
 
+pd.options.mode.copy_on_write = True
+
 
 class DataParser:
     def __init__(self, start_year, end_year, title_name, data_folder, program_csv_filename, subtitle_name="",
@@ -141,6 +143,20 @@ class DataParser:
                     "State": "state_name",
                     "program": "entity_name"
                 }
+            },
+            "Crop Insurance": {
+                "column_names_map": {
+                    "state": "state_code",
+                    "policies_prem": "premium_policy_count",
+                    "acres_insured": "base_acres",
+                    "liabilities": "liability_amount",
+                    "premium": "premium_amount",
+                    "subsidy": "premium_subsidy_amount",
+                    "indemnity": "indemnity_amount",
+                    "farmer_premium": "farmer_premium_amount",
+                    "loss_ratio": "loss_ratio",
+                    "net_benefit": "net_farmer_benefit_amount"
+                }
             }
         }
 
@@ -185,7 +201,8 @@ class DataParser:
             self.csp_csv_filepath = str(os.path.join(data_folder, kwargs["csp_csv_filename"]))
             pass
         elif self.title_name == "Crop Insurance":
-            pass
+            self.ci_data = None
+            self.ci_benefit_csv_filepath = str(os.path.join(data_folder, kwargs["ci_state_year_benefit_filename"]))
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
             self.snap_data = None
             self.snap_mon_part_filepath = str(os.path.join(data_folder, kwargs["snap_monthly_participation_filename"]))
@@ -659,3 +676,21 @@ class DataParser:
             # perform left join on the base acres and farm payee count data
             self.snap_data = pd.merge(snap_cost_data_output, snap_mon_part_data_output,
                                       on=["state_code", "year", "entity_name", "entity_type"], how="left")
+
+        elif self.title_name == "Crop Insurance":
+            # Import Crop Insurance Benefit CSV file
+            ci_data = pd.read_csv(self.ci_benefit_csv_filepath)
+
+            # Filter rows where the 'year' column values are between self.start_year and self.end_year
+            ci_data = ci_data[(ci_data['year'] >= self.start_year) & (ci_data['year'] <= self.end_year)]
+
+            # Rename column names to make it more uniform
+            ci_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Add entity type to ci_data
+            ci_data = ci_data.assign(entity_type="program")
+
+            # Add entity_name to ci_data
+            ci_data = ci_data.assign(entity_name="Crop Insurance")
+
+            self.ci_data = ci_data
