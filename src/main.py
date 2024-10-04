@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     crop_insurance_data_parser = DataParser(2018, 2022, "Crop Insurance",
                                             "../data/crop-insurance", "",
-                                            ci_state_year_benefit_filename="ci_state_year_benefits 8-28-23.csv")
+                                            ci_state_year_benefit_filename="ci_state_year_benefits 2014-2023.csv")
     crop_insurance_data_parser.format_data()
 
     if cli.args.insert_data:
