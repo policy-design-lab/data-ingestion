@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature to parse and ingest Title-XI Crop Insurance
   data. [#18](https://github.com/policy-design-lab/data-ingestion/issues/18)
 
+### Changed
+
+- Update Crop Insurance raw data file based on latest updates from the research
+  team. [#38](https://github.com/policy-design-lab/data-ingestion/issues/38)
+
 ## [0.3.0] - 2024-08-16
 
 ### Added
