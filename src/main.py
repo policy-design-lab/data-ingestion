@@ -47,20 +47,23 @@ if __name__ == '__main__':
 
     title_ii_data_parser = DataParser(2018, 2022, "Title 2: Conservation",
                                       "../data/title-ii", "",
-                                      crp_csv_filename="CRP_total_compiled_August_24_2023.csv",
+                                      crp_csv_filename="CRP-total compiled (February 2 2024).csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
                                       csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
-    # TODO: Add feature to update data or insert data for specific programs.
-
     snap_data_parser = DataParser(2018, 2022, "Supplemental Nutrition Assistance Program (SNAP)",
                                   "../data/snap", "",
                                   snap_monthly_participation_filename="snap_monthly_participation.csv",
                                   snap_cost_filename="snap_costs.csv")
     snap_data_parser.format_data()
+
+    crop_insurance_data_parser = DataParser(2018, 2022, "Crop Insurance",
+                                            "../data/crop-insurance", "",
+                                            ci_state_year_benefit_filename="ci_state_year_benefits 2014-2023.csv")
+    crop_insurance_data_parser.format_data()
 
     if cli.args.insert_data:
         # Title I data ingestion
@@ -79,5 +82,10 @@ if __name__ == '__main__':
         logger.info("Starting Title IV data ingestion...")
         database.insert_data(snap_data_parser.snap_data)
         logger.info("Title IV data ingestion complete.")
+
+        # Title XI data ingestion
+        logger.info("Starting Title XI data ingestion...")
+        database.insert_data(crop_insurance_data_parser.ci_data)
+        logger.info("Title XI data ingestion complete.")
 
     database.close()

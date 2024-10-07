@@ -1,6 +1,9 @@
 import os
 import pandas as pd
-import json
+
+pd.options.mode.copy_on_write = True
+
+pd.options.mode.copy_on_write = True
 
 
 class DataParser:
@@ -64,8 +67,6 @@ class DataParser:
             'WI': 'Wisconsin',
             'WY': 'Wyoming'
         }
-
-        # Main program category specific file paths
         self.metadata = {
             "Title 1: Commodities": {
                 "column_names_map": {
@@ -86,48 +87,18 @@ class DataParser:
             },
             "Title 2: Conservation": {
                 "column_names_map": {
-                    "Total CRP - NUMBER OF CONTRACTS": "CRP-Contract",
-                    "Total CRP - NUMBER OF FARMS": "CRP-Farm",
-                    "Total CRP - ACRES": "CRP-Acre",
-                    "Total CRP - ANNUAL RENTAL PAYMENTS ($1000)": "CRP-Rent-1K",
-                    "Total CRP - ANNUAL RENTAL PAYMENTS ($/ACRE)": "CRP-Ren-Acre",
-                    "Total General Sign-Up - NUMBER OF CONTRACTS": "Gen-Contract",
-                    "Total General Sign-Up - NUMBER OF FARMS": "Gen-Farm",
-                    "Total General Sign-Up - ACRES": "Gen-Acre",
-                    "Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)": "Gen-Rent-1K",
-                    "Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($/ACRE)": "Gen-Rent-Acre",
-                    "Total Continuous - NUMBER OF CONTRACTS": "Cont-Contract",
-                    "Total Continuous - NUMBER OF FARMS": "Cont-Farm",
-                    "Total Continuous - ACRES": "Cont-Acre",
-                    "Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)": "Cont-Rent-1K",
-                    "Total Continuous - ANNUAL RENTAL PAYMENTS ($/ACRE)": "Cont-Rent-Acre",
-                    "CREP Only - NUMBER OF CONTRACTS": "CREP-Contract",
-                    "CREP Only - NUMBER OF FARMS": "CREP-Farm",
-                    "CREP Only - ACRES": "CREP-Acre",
-                    "CREP Only - ANNUAL RENTAL PAYMENTS ($1000)": "CREP-Rent-1K",
-                    "CREP Only - ANNUAL RENTAL PAYMENTS ($/ACRE)": "CREP-Rent-Acre",
-                    "Continuous Non-CREP - NUMBER OF CONTRACTS": "No-CREP-Contract",
-                    "Continuous Non-CREP - NUMBER OF FARMS": "No-CREP-Farm",
-                    "Continuous Non-CREP - ACRES": "No-CREP-Acre",
-                    "Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)": "No-CREP-Rent-1K",
-                    "Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($/ACRE)": "No-CREP-Rent-Acre",
-                    "Farmable Wetland - NUMBER OF CONTRACTS": "Wet-Contract",
-                    "Farmable Wetland - NUMBER OF FARMS": "Wet-Farm",
-                    "Farmable Wetland - ACRES": "Wet-Acre",
-                    "Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)": "Wet-Rent-1K",
-                    "Farmable Wetland - ANNUAL RENTAL PAYMENTS ($/ACRE)": "Wet-Rent-Acre",
-                    "Grassland - NUMBER OF CONTRACTS": "Grass-Contract",
-                    "Grassland - NUMBER OF FARMS": "Grass-Farm",
-                    "Grassland - ACRES": "Grass-Acre",
-                    "Grassland - ANNUAL RENTAL PAYMENTS ($1000)": "Grass-Rent-1K",
-                    "Grassland - ANNUAL RENTAL PAYMENTS ($/ACRE)": "Grass-Rent-Acre",
                     "Pay_year": "year",
                     "State": "state_name",
+                    "state": "state_name",
                     "payments": "amount",
                     "category_name": "practice_category",
                     "StatutoryCategory": "practice_category",
                     "practice_code": "practice_code_processed",
-                    "full_practice_code": "practice_code"
+                    "full_practice_code": "practice_code",
+                    "Number of Contracts": "contract_count",
+                    "Number of Acres": "base_acres",
+                    "Total Financial Assistance Payments ($1000)": "amount",
+
                 },
                 "value_names_map": {
                     "CRP": "Conservation Reserve Program (CRP)",
@@ -161,7 +132,7 @@ class DataParser:
                     "NIPF": "Non-Industrial Private Forestland",
                     "Pastured Cropland": "Grassland",
                     "2014 Other Practices": "Miscellaneous",
-                    # "Existing Activity Payments": "Miscellaneous",
+                    "Hawaii/Pacific ": "Hawaii"  # Check with the team if this mapping is okay, else remove
                 }
             },
             "Supplemental Nutrition Assistance Program (SNAP)": {
@@ -172,8 +143,24 @@ class DataParser:
                     "State": "state_name",
                     "program": "entity_name"
                 }
+            },
+            "Crop Insurance": {
+                "column_names_map": {
+                    "state": "state_code",
+                    "policies_prem": "premium_policy_count",
+                    "acres_insured": "base_acres",
+                    "liabilities": "liability_amount",
+                    "premium": "premium_amount",
+                    "subsidy": "premium_subsidy_amount",
+                    "indemnity": "indemnity_amount",
+                    "farmer_premium": "farmer_premium_amount",
+                    "loss_ratio": "loss_ratio",
+                    "net_benefit": "net_farmer_benefit_amount"
+                }
             }
         }
+
+        # Main program category specific file paths
         if self.title_name == "Title 1: Commodities":
             self.base_acres_data = None
             self.farm_payee_count_data = None
@@ -214,7 +201,8 @@ class DataParser:
             self.csp_csv_filepath = str(os.path.join(data_folder, kwargs["csp_csv_filename"]))
             pass
         elif self.title_name == "Crop Insurance":
-            pass
+            self.ci_data = None
+            self.ci_benefit_csv_filepath = str(os.path.join(data_folder, kwargs["ci_state_year_benefit_filename"]))
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
             self.snap_data = None
             self.snap_mon_part_filepath = str(os.path.join(data_folder, kwargs["snap_monthly_participation_filename"]))
@@ -227,23 +215,27 @@ class DataParser:
         :param entity_name:
         :return: entity type
         """
-        if entity_name in ["Agriculture Risk Coverage County Option (ARC-CO)",
-                           "Agriculture Risk Coverage Individual Coverage (ARC-IC)"]:
-            return "sub_program"
+
+        if entity_name in ["Total Commodities Programs, Subtitle A", "Dairy Margin Coverage, Subtitle D",
+                           "Supplemental Agricultural Disaster Assistance, Subtitle E"]:
+            return "subtitle"
         elif entity_name in ["Price Loss Coverage (PLC)",
                              "Emergency Assistance for Livestock, Honey Bees, and Farm-Raised Fish Program (ELAP)",
                              "Livestock Forage Program (LFP)", "Livestock Indemnity Payments (LIP)",
-                             "Tree Assistance Program (TAP)", "Supplemental Nutrition Assistance Program (SNAP)"]:
+                             "Tree Assistance Program (TAP)", "Environmental Quality Incentives Program (EQIP)",
+                             "Conservation Stewardship Program (CSP)",
+                             "Supplemental Nutrition Assistance Program (SNAP)"]:
             return "program"
-        elif entity_name in ["Total Commodities Programs, Subtitle A", "Dairy Margin Coverage, Subtitle D",
-                             "Supplemental Agricultural Disaster Assistance, Subtitle E",
-                             "Environmental Quality Incentives Program (EQIP)",
-                             "Conservation Stewardship Program (CSP)", ]:
-            return "subtitle"
+        elif entity_name in ["Agriculture Risk Coverage County Option (ARC-CO)",
+                             "Agriculture Risk Coverage Individual Coverage (ARC-IC)",
+                             "General Sign-up", "Continuous Sign-up", "Grassland"]:
+            return "sub_program"
+        elif entity_name in ["CREP Only", "Continuous Non-CREP", "Farmable Wetland"]:
+            return "sub_sub_program"
         else:
             return "unknown"
 
-    def __convert_to_new_data_frame(self, data_frame, program_name, data_type=None):
+    def __convert_to_new_data_frame(self, data_frame, entity_name, data_type=None):
         row_list = []
         for state_code in self.us_state_abbreviations:
             state_data = data_frame[
@@ -253,8 +245,8 @@ class DataParser:
                 if state_data['state_name'].size == 1:
                     row_dict["state_code"] = state_code
                     row_dict["year"] = year
-                    row_dict["entity_name"] = program_name
-                    row_dict["entity_type"] = self.__find_entity_type(program_name)
+                    row_dict["entity_name"] = entity_name
+                    row_dict["entity_type"] = self.__find_entity_type(entity_name)
 
                     if data_type == "Base Acres":
                         row_dict["base_acres"] = state_data[str(year)].item()
@@ -452,9 +444,201 @@ class DataParser:
 
             self.csp_data = csp_data
 
-            # TODO: Add ACEP, RCPP, and CRP data processing and update self.program_data
+            # Import CRP CSV files and convert to existing format
+            crp_raw_data = pd.read_csv(self.crp_csv_filepath)
 
-            self.program_data = pd.concat([self.eqip_data, self.csp_data], ignore_index=True)
+            # Remove leading and trailing whitespaces from column names
+            crp_raw_data.columns = crp_raw_data.columns.str.strip()
+
+            total_crp_data = crp_raw_data[
+                ["year", "state", "Total CRP - ANNUAL RENTAL PAYMENTS ($1000)", "Total CRP - NUMBER OF CONTRACTS",
+                 "Total CRP - NUMBER OF FARMS", "Total CRP - ACRES"]]
+            total_crp_data.rename(columns={"Total CRP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                           "Total CRP - NUMBER OF CONTRACTS": "contract_count",
+                                           "Total CRP - NUMBER OF FARMS": "farm_count",
+                                           "Total CRP - ACRES": "base_acres"}, inplace=True)
+            total_crp_data["amount"] = total_crp_data["amount"] * 1000
+            total_crp_data["entity_name"] = "Total CRP"
+            total_crp_data["entity_type"] = "sub_program"
+
+            general_sign_up_data = crp_raw_data[[
+                "year", "state", "Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)",
+                "Total General Sign-Up - NUMBER OF CONTRACTS",
+                "Total General Sign-Up - NUMBER OF FARMS", "Total General Sign-Up - ACRES"]]
+            general_sign_up_data.rename(
+                columns={"Total General Sign-Up - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                         "Total General Sign-Up - NUMBER OF CONTRACTS": "contract_count",
+                         "Total General Sign-Up - NUMBER OF FARMS": "farm_count",
+                         "Total General Sign-Up - ACRES": "base_acres"}, inplace=True)
+            general_sign_up_data["amount"] = general_sign_up_data["amount"] * 1000
+            general_sign_up_data["entity_name"] = "General Sign-up"
+            general_sign_up_data["entity_type"] = "sub_program"
+
+            continuous_sign_up_data = crp_raw_data[[
+                "year", "state", "Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)",
+                "Total Continuous - NUMBER OF CONTRACTS",
+                "Total Continuous - NUMBER OF FARMS", "Total Continuous - ACRES"]]
+            continuous_sign_up_data.rename(columns={"Total Continuous - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                                    "Total Continuous - NUMBER OF CONTRACTS": "contract_count",
+                                                    "Total Continuous - NUMBER OF FARMS": "farm_count",
+                                                    "Total Continuous - ACRES": "base_acres"}, inplace=True)
+            continuous_sign_up_data["amount"] = continuous_sign_up_data["amount"] * 1000
+            continuous_sign_up_data["entity_name"] = "Continuous Sign-up"
+            continuous_sign_up_data["entity_type"] = "sub_program"
+
+            crep_only_data = crp_raw_data[["year", "state", "CREP Only - ANNUAL RENTAL PAYMENTS ($1000)",
+                                           "CREP Only - NUMBER OF CONTRACTS", "CREP Only - NUMBER OF FARMS",
+                                           "CREP Only - ACRES"]]
+            crep_only_data.rename(columns={"CREP Only - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                           "CREP Only - NUMBER OF CONTRACTS": "contract_count",
+                                           "CREP Only - NUMBER OF FARMS": "farm_count",
+                                           "CREP Only - ACRES": "base_acres"}, inplace=True)
+            crep_only_data["amount"] = crep_only_data["amount"] * 1000
+            crep_only_data["entity_name"] = "CREP Only"
+            crep_only_data["entity_type"] = "sub_sub_program"
+
+            continuous_non_crep_data = crp_raw_data[
+                ["year", "state", "Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)",
+                 "Continuous Non-CREP - NUMBER OF CONTRACTS", "Continuous Non-CREP - NUMBER OF FARMS",
+                 "Continuous Non-CREP - ACRES"]]
+            continuous_non_crep_data.rename(
+                columns={"Continuous Non-CREP - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                         "Continuous Non-CREP - NUMBER OF CONTRACTS": "contract_count",
+                         "Continuous Non-CREP - NUMBER OF FARMS": "farm_count",
+                         "Continuous Non-CREP - ACRES": "base_acres"}, inplace=True)
+            continuous_non_crep_data["amount"] = continuous_non_crep_data["amount"] * 1000
+            continuous_non_crep_data["entity_name"] = "Continuous Non-CREP"
+            continuous_non_crep_data["entity_type"] = "sub_sub_program"
+
+            farmable_wetland_data = crp_raw_data[["year", "state", "Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)",
+                                                  "Farmable Wetland - NUMBER OF CONTRACTS",
+                                                  "Farmable Wetland - NUMBER OF FARMS", "Farmable Wetland - ACRES"]]
+            farmable_wetland_data.rename(columns={"Farmable Wetland - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                                  "Farmable Wetland - NUMBER OF CONTRACTS": "contract_count",
+                                                  "Farmable Wetland - NUMBER OF FARMS": "farm_count",
+                                                  "Farmable Wetland - ACRES": "base_acres"}, inplace=True)
+            farmable_wetland_data["amount"] = farmable_wetland_data["amount"] * 1000
+            farmable_wetland_data["entity_name"] = "Farmable Wetland"
+            farmable_wetland_data["entity_type"] = "sub_sub_program"
+
+            grassland_data = crp_raw_data[
+                ["year", "state", "Grassland - ANNUAL RENTAL PAYMENTS ($1000)", "Grassland - NUMBER OF CONTRACTS",
+                 "Grassland - NUMBER OF FARMS", "Grassland - ACRES"]]
+
+            grassland_data.rename(columns={"Grassland - ANNUAL RENTAL PAYMENTS ($1000)": "amount",
+                                           "Grassland - NUMBER OF CONTRACTS": "contract_count",
+                                           "Grassland - NUMBER OF FARMS": "farm_count",
+                                           "Grassland - ACRES": "base_acres"}, inplace=True)
+
+            grassland_data["amount"] = grassland_data["amount"] * 1000
+            grassland_data["entity_name"] = "Grassland"
+            grassland_data["entity_type"] = "sub_program"
+
+            crp_data = pd.concat([total_crp_data, general_sign_up_data, continuous_sign_up_data, crep_only_data,
+                                  continuous_non_crep_data, farmable_wetland_data, grassland_data], ignore_index=True)
+
+            # Rename column names to make it more uniform
+            crp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Filter only relevant years data
+            crp_data = crp_data[crp_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            crp_data = crp_data[crp_data["amount"].notna()]
+
+            # Change state name to title case
+            crp_data["state_name"] = crp_data["state_name"].str.title()
+
+            # Filter only states in self.us_state_abbreviations
+            crp_data = crp_data[crp_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add state code to crp using self.us_state_abbreviations
+            crp_data = crp_data.assign(state_code=crp_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            self.crp_data = crp_data
+
+            # Import ACEP CSV file and convert to pandas dataframe
+            acep_data = pd.read_csv(self.acep_csv_filepath)
+
+            # Remove leading and trailing whitespaces from column names
+            acep_data.columns = acep_data.columns.str.strip()
+
+            # Rename column names to make it more uniform
+            acep_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from state_name column
+            acep_data["state_name"] = acep_data["state_name"].str.strip()
+
+            # Replace value names
+            acep_data["state_name"] = acep_data["state_name"].replace(self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            acep_data = acep_data[acep_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            acep_data = acep_data[acep_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            acep_data = acep_data[acep_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to acep
+            acep_data = acep_data.assign(entity_type="program")
+
+            # Add entity_name to acep
+            acep_data = acep_data.assign(entity_name="Agricultural Conservation Easement Program (ACEP)")
+
+            # Add state code to acep using self.us_state_abbreviations
+            acep_data = acep_data.assign(state_code=acep_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            # Multiply amount by 1000
+            acep_data["amount"] = acep_data["amount"] * 1000
+
+            self.acep_data = acep_data
+
+            # Import RCPP CSV file and convert to pandas dataframe
+            rcpp_data = pd.read_csv(self.rcpp_csv_filepath)
+
+            # Remove leading and trailing whitespaces from column names
+            rcpp_data.columns = rcpp_data.columns.str.strip()
+
+            # Rename column names to make it more uniform
+            rcpp_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from state_name column
+            rcpp_data["state_name"] = rcpp_data["state_name"].str.strip()
+
+            # Replace value names
+            rcpp_data["state_name"] = rcpp_data["state_name"].replace(self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            rcpp_data = rcpp_data[rcpp_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            rcpp_data = rcpp_data[rcpp_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            rcpp_data = rcpp_data[rcpp_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to rcpp
+            rcpp_data = rcpp_data.assign(entity_type="program")
+
+            # Add entity_name to rcpp
+            rcpp_data = rcpp_data.assign(entity_name="Regional Conservation Partnership Program (RCPP)")
+
+            # Add state code to rcpp using self.us_state_abbreviations
+            rcpp_data = rcpp_data.assign(state_code=rcpp_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            # Multiply amount by 1000
+            rcpp_data["amount"] = rcpp_data["amount"] * 1000
+
+            self.rcpp_data = rcpp_data
+
+            self.program_data = pd.concat(
+                [self.eqip_data, self.csp_data, self.crp_data, self.acep_data, self.rcpp_data],
+                ignore_index=True)
 
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
             # Import SNAP Cost CSV file
@@ -492,3 +676,21 @@ class DataParser:
             # perform left join on the base acres and farm payee count data
             self.snap_data = pd.merge(snap_cost_data_output, snap_mon_part_data_output,
                                       on=["state_code", "year", "entity_name", "entity_type"], how="left")
+
+        elif self.title_name == "Crop Insurance":
+            # Import Crop Insurance Benefit CSV file
+            ci_data = pd.read_csv(self.ci_benefit_csv_filepath)
+
+            # Filter rows where the 'year' column values are between self.start_year and self.end_year
+            ci_data = ci_data[(ci_data['year'] >= self.start_year) & (ci_data['year'] <= self.end_year)]
+
+            # Rename column names to make it more uniform
+            ci_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Add entity type to ci_data
+            ci_data = ci_data.assign(entity_type="program")
+
+            # Add entity_name to ci_data
+            ci_data = ci_data.assign(entity_name="Crop Insurance")
+
+            self.ci_data = ci_data
