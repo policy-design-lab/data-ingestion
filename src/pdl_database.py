@@ -69,7 +69,7 @@ class PDLDatabase:
         # connect to the database
         self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host)
 
-    def create_schema(self):  # Default schema set to 'pdl'
+    def create_schema(self):
         # create schema
         self.cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {self.schema_name}")
         self.connection.commit()
