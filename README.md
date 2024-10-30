@@ -33,7 +33,8 @@ options:
   --create-tables, -c   Create tables
   --create-database, -C
                         Construct database if it does not exist.
-  --create-schema, -S   Create schema if it does not exist.
+  --create-schema SCHEMA_NAME, -S   
+                        Create schema if it does not exist.
   --init-tables, -i     Initialize tables
   --insert-data, -I     Insert data
 ```
