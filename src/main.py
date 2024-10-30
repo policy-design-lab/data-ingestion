@@ -11,7 +11,7 @@ if __name__ == '__main__':
     cli = PolicyDesignLabDataCLI()
     cli.print_args()
     database = PDLDatabase(cli.args.db_name, cli.args.db_user, cli.args.db_password, cli.args.db_host,
-                           cli.args.db_port)
+                           cli.args.db_port, cli.args.schema_name)
     # Connect to the database if not creating a new database
     if not cli.args.create_database:
         database.connect(database.db_name, database.db_user, database.db_password, database.db_host, database.db_port)
@@ -24,7 +24,7 @@ if __name__ == '__main__':
             print("Continuing without dropping the database")
     if cli.args.create_database:
         database.create_database()
-    if cli.args.create_schema:
+    if cli.args.schema_name:
         database.create_schema()
     if cli.args.create_tables:
         database.create_tables()

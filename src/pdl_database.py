@@ -7,12 +7,13 @@ from psycopg2 import Error
 
 
 class PDLDatabase:
-    def __init__(self, db_name, db_user, db_password, db_host, db_port):
+    def __init__(self, db_name, db_user, db_password, db_host, db_port, schema_name):
         self.db_name = db_name
         self.db_user = db_user
         self.db_password = db_password
         self.db_host = db_host
         self.db_port = db_port
+        self.schema_name = schema_name
         self.connection = None
         self.cursor = None
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -68,11 +69,11 @@ class PDLDatabase:
         # connect to the database
         self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host)
 
-    def create_schema(self):
+    def create_schema(self):  # Default schema set to 'pdl'
         # create schema
-        self.cursor.execute(f"CREATE SCHEMA IF NOT EXISTS pdl")
+        self.cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {self.schema_name}")
         self.connection.commit()
-        self.logger.info(f"Schema pdl created successfully or already exists")
+        self.logger.info(f"Schema {self.schema_name} created successfully or already exists")
 
     def create_tables(self):
         self._execute_sql_file(self.create_tables_file)
