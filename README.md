@@ -34,6 +34,7 @@ options:
   --create-database, -C
                         Construct database if it does not exist.
   --create-schema, -S   Create schema if it does not exist.
+  --schema-name, -N     New schema name, default pdl.
   --init-tables, -i     Initialize tables
   --insert-data, -I     Insert data
 ```
