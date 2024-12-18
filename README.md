@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 ```bash
 usage: main.py [-h] --db_name DB_NAME [--db_user DB_USER] [--db_password DB_PASSWORD] [--db_host DB_HOST] [--db_port DB_PORT] [--drop_existing] [--log_level LOG_LEVEL] [--create-tables] [--create-database] [--create-schema]
-               [--init-tables] [--insert-data]
+               [--schema-name SCHEMA_NAME] [--init-tables] [--insert-data]
 
 Create a PostgreSQL database and tables, and insert/update data into the tables.
 
@@ -34,6 +34,8 @@ options:
   --create-database, -C
                         Construct database if it does not exist.
   --create-schema, -S   Create schema if it does not exist.
+  --schema-name SCHEMA_NAME, -N SCHEMA_NAME
+                        Name of the new schema, default pdl.
   --init-tables, -i     Initialize tables
   --insert-data, -I     Insert data
 ```

@@ -3,7 +3,7 @@
 BEGIN;
 
 
-CREATE TABLE IF NOT EXISTS pdl.titles
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.titles
 (
     id          smallint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 CACHE 1 ),
     name        character varying(100) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS pdl.titles
     CONSTRAINT uc_title_name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.programs
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.programs
 (
     id          smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 CACHE 1 ),
     title_id    smallint,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS pdl.programs
     CONSTRAINT pk_programs PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.sub_programs
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.sub_programs
 (
     id         smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 CACHE 1 ),
     program_id smallint NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS pdl.sub_programs
     CONSTRAINT pk_sub_programs PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.payments
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments
 (
     id                        bigint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000000 CACHE 1 ),
     title_id                  smallint,
@@ -59,14 +59,14 @@ CREATE TABLE IF NOT EXISTS pdl.payments
     CONSTRAINT uc_payments UNIQUE (title_id, subtitle_id, program_id, sub_program_id, state_code, year)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.states
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.states
 (
     code character varying(2)   NOT NULL,
     name character varying(100) NOT NULL,
     CONSTRAINT pk_states PRIMARY KEY (code)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.subtitles
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.subtitles
 (
     id       smallint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 ),
     title_id smallint               NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS pdl.subtitles
     CONSTRAINT pk_subtitles PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.practice_categories
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.practice_categories
 (
     id                    smallint          NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 ),
     name                  character varying NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS pdl.practice_categories
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS pdl.practices
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.practices
 (
     code         character varying(100) NOT NULL,
     name         character varying(200) NOT NULL,
@@ -94,10 +94,10 @@ CREATE TABLE IF NOT EXISTS pdl.practices
     CONSTRAINT pk_practices PRIMARY KEY (code)
 );
 
-COMMENT ON TABLE pdl.practices
+COMMENT ON TABLE ${SCHEMA}.practices
     IS 'Conservation Practice Standards';
 
-CREATE TABLE IF NOT EXISTS pdl.sub_sub_programs
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.sub_sub_programs
 (
     id             smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 ),
     sub_program_id smallint NOT NULL,
@@ -105,113 +105,113 @@ CREATE TABLE IF NOT EXISTS pdl.sub_sub_programs
     CONSTRAINT pk_sub_sub_programs PRIMARY KEY (id)
 );
 
-ALTER TABLE IF EXISTS pdl.programs
+ALTER TABLE IF EXISTS ${SCHEMA}.programs
     ADD CONSTRAINT "fk_ titles_id" FOREIGN KEY (title_id)
-        REFERENCES pdl.titles (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.programs
+ALTER TABLE IF EXISTS ${SCHEMA}.programs
     ADD CONSTRAINT "fk_ subtitles_id" FOREIGN KEY (subtitle_id)
-        REFERENCES pdl.subtitles (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.sub_programs
+ALTER TABLE IF EXISTS ${SCHEMA}.sub_programs
     ADD CONSTRAINT fk_programs_id FOREIGN KEY (program_id)
-        REFERENCES pdl.programs (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_programs_id FOREIGN KEY (program_id)
-        REFERENCES pdl.programs (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_sub_programs_id FOREIGN KEY (sub_program_id)
-        REFERENCES pdl.sub_programs (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_states_id FOREIGN KEY (state_code)
-        REFERENCES pdl.states (code) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.states (code) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_titles_id FOREIGN KEY (title_id)
-        REFERENCES pdl.titles (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_subtitles_id FOREIGN KEY (subtitle_id)
-        REFERENCES pdl.subtitles (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_practice_categories_id FOREIGN KEY (practice_category_id)
-        REFERENCES pdl.practice_categories (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.practice_categories (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_practice_code FOREIGN KEY (practice_code)
-        REFERENCES pdl.practices (code) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.practices (code) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.payments
+ALTER TABLE IF EXISTS ${SCHEMA}.payments
     ADD CONSTRAINT fk_sub_sub_programs_id FOREIGN KEY (sub_sub_program_id)
-        REFERENCES pdl.sub_sub_programs (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.sub_sub_programs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.subtitles
+ALTER TABLE IF EXISTS ${SCHEMA}.subtitles
     ADD CONSTRAINT fk_titles_id FOREIGN KEY (title_id)
-        REFERENCES pdl.titles (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.practice_categories
+ALTER TABLE IF EXISTS ${SCHEMA}.practice_categories
     ADD CONSTRAINT fk_program_id FOREIGN KEY (program_id)
-        REFERENCES pdl.programs (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
 
 
-ALTER TABLE IF EXISTS pdl.sub_sub_programs
+ALTER TABLE IF EXISTS ${SCHEMA}.sub_sub_programs
     ADD CONSTRAINT fk_sub_programs_id FOREIGN KEY (sub_program_id)
-        REFERENCES pdl.sub_programs (id) MATCH SIMPLE
+        REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
