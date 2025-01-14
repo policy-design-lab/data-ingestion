@@ -278,6 +278,7 @@ FARM,Farmstead,CSP
 MINPAY,Minimum Payment Adjustment,EQIP
 NIPF,Non-Industrial Private Forest Land Annual Payment,CSP
 OTP,Other Payment,CSP
+Organic,Organic,CSP
 PAST,Pasture Annual Payment,CSP
 PCROP,Pastured Cropland Annual Payment,CSP
 RANGE,Rangeland Annual Payment,CSP

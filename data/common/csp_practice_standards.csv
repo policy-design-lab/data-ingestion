@@ -451,6 +451,7 @@ E612137Z,Tree/shrub planting for wildlife cover
 E612A,Cropland conversion to trees or shrubs for long term improvement of water quality
 E612B,Planting for high carbon sequestration rate
 E612C,Establishing tree/shrub species to restore native plant communities
+E612D,Adding food-producing trees and shrubs to existing plantings
 E612E,Cultural plantings
 E612F,Sugarbush management
 E612G,Tree/shrub planting for wildlife food
@@ -543,6 +544,7 @@ E666S,Facilitating longleaf pine establishment
 FARM,Farmstead
 MINPAY,Minimum Payment Adjustment
 NIPF,Non-Industrial Private Forest Land Annual Payment
+Organic,Organic
 PAST,Pasture Annual Payment
 PCROP,Pastured Cropland Annual Payment
 RANGE,Rangeland Annual Payment
