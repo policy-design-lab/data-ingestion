@@ -2,6 +2,25 @@ import csv
 import re
 from copy import deepcopy
 
+
+# Find max depth of parentheses in the line
+def find_max_parentheses_depth(string):
+    max_depth = 0
+    current_depth = 0
+    for i in range(len(string)):
+        if string[i] == '(':
+            current_depth += 1
+            if current_depth > max_depth:
+                max_depth = current_depth
+        elif string[i] == ')':
+            if current_depth > 0:
+                current_depth -= 1
+    if current_depth != 0:
+        print(f'Parentheses are not balanced in {string}')
+        return -1
+    return max_depth
+
+
 if __name__ == '__main__':
     csp_practice_standards = []
     eqip_practice_standards = []
@@ -34,9 +53,19 @@ if __name__ == '__main__':
         lines = f.readlines()
         print(len(lines))
         for line in lines:
-            parts = line.rsplit('(', maxsplit=1)
-            csp_practice_name = parts[0].strip()
-            csp_practice_code = parts[1].split(')')[0].strip()
+
+            parenthesis_max_depth = find_max_parentheses_depth(line)
+            if parenthesis_max_depth > 1:
+                parts = line.split("(", maxsplit=1)
+                csp_practice_name = parts[0].strip()
+                csp_practice_code = parts[1].rsplit(')', maxsplit=1)[0].strip()
+            elif parenthesis_max_depth == 1:
+                parts = line.rsplit('(', maxsplit=1)
+                csp_practice_name = parts[0].strip()
+                csp_practice_code = parts[1].split(')')[0].strip()
+            else:
+                print(f'Could not parse {line}')
+                continue
             csp_practice_standards.append((csp_practice_code, csp_practice_name))
 
     # Parse EQIP practice standards
