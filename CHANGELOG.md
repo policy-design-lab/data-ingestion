@@ -8,7 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Add option to specify a schema name [#44](https://github.com/policy-design-lab/data-ingestion/issues/44)
+
+### Fixed
+
+- Bug in practice names when there are nested parentheses in the raw
+  data [#51](https://github.com/policy-design-lab/data-ingestion/issues/51)
 
 ## [0.4.1] - 2024-11-05
 
