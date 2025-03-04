@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug in practice names when there are nested parentheses in the raw
   data [#51](https://github.com/policy-design-lab/data-ingestion/issues/51)
 
+### Changed
+
+- Update code to include Title-II data from years 2014 to
+  2023 [#54](https://github.com/policy-design-lab/data-ingestion/issues/54)
+
 ## [0.4.1] - 2024-11-05
 
 ### Fixed
