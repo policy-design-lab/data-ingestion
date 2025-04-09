@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bug in practice names when there are nested parentheses in the raw
   data [#51](https://github.com/policy-design-lab/data-ingestion/issues/51)
+- Create database was not passing in db_port when connecting to database [#65](https://github.com/policy-design-lab/data-ingestion/issues/65)
 
 ### Changed
 
