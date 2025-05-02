@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update code to include Title-II data from years 2014 to
   2023 [#54](https://github.com/policy-design-lab/data-ingestion/issues/54)
+- Update code to include Crop Insurance data from years 2014 to
+  2023 [#63](https://github.com/policy-design-lab/data-ingestion/issues/63)
 
 ## [0.4.1] - 2024-11-05
 
