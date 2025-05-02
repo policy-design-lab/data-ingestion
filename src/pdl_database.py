@@ -66,7 +66,8 @@ class PDLDatabase:
         self.close()
 
         # connect to the database
-        self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host)
+        self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host,
+                     db_port=self.db_port)
 
     def create_schema(self, schema_name):
         # create schema
