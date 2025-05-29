@@ -80,6 +80,7 @@ class DataParser:
                 "value_names_map": {
                     "Dairy": "Dairy Margin Coverage, Subtitle D",
                     "DMC": "Dairy Margin Coverage, Subtitle D",
+                    "MPP": "Dairy Margin Coverage, Subtitle D",
                     "TAP": "Tree Assistance Program (TAP)",
                     "NAP": "Noninsured Crop Disaster Assistance Program (NAP)",
                     "LFP": "Livestock Forage Program (LFP)",
@@ -352,7 +353,7 @@ class DataParser:
                                "recipient_count"]].apply(pd.to_numeric)
 
             # Filter Dairy data
-            self.dmc_data = dmc_sada_data[dmc_sada_data["entity_name"].isin(["Dairy", "DMC"])]
+            self.dmc_data = dmc_sada_data[dmc_sada_data["entity_name"].isin(["Dairy", "DMC", "MPP"])]
             self.dmc_data = self.dmc_data.replace(self.metadata[self.title_name]["value_names_map"])
             self.dmc_data = self.dmc_data.assign(entity_type="subtitle")
             # Add state code to dmc_data using self.us_state_abbreviations
@@ -360,7 +361,7 @@ class DataParser:
                 {v: k for k, v in self.us_state_abbreviations.items()}))
 
             # Filter Non-Dairy data
-            self.sada_data = dmc_sada_data[~dmc_sada_data["entity_name"].isin(["Dairy", "DMC"])]
+            self.sada_data = dmc_sada_data[~dmc_sada_data["entity_name"].isin(["Dairy", "DMC", "MPP"])]
             self.sada_data = self.sada_data.replace(self.metadata[self.title_name]["value_names_map"])
             self.sada_data = self.sada_data.assign(entity_type="program")
             # Add state code to sada_data using self.us_state_abbreviations
