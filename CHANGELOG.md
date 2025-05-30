@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bug in practice names when there are nested parentheses in the raw
   data [#51](https://github.com/policy-design-lab/data-ingestion/issues/51)
-- Create database was not passing in db_port when connecting to database [#65](https://github.com/policy-design-lab/data-ingestion/issues/65)
+- Create database was not passing in db_port when connecting to
+  database [#65](https://github.com/policy-design-lab/data-ingestion/issues/65)
 
 ### Changed
 
@@ -23,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   2023 [#54](https://github.com/policy-design-lab/data-ingestion/issues/54)
 - Update code to include Crop Insurance data from years 2014 to
   2023 [#63](https://github.com/policy-design-lab/data-ingestion/issues/63)
+- Update code to include Title-I data from years 2014 to
+  2023 [#68](https://github.com/policy-design-lab/data-ingestion/issues/68)
 
 ## [0.4.1] - 2024-11-05
 
