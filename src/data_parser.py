@@ -79,6 +79,8 @@ class DataParser:
                 },
                 "value_names_map": {
                     "Dairy": "Dairy Margin Coverage, Subtitle D",
+                    "DMC": "Dairy Margin Coverage, Subtitle D",
+                    "MPP": "Dairy Margin Coverage, Subtitle D",
                     "TAP": "Tree Assistance Program (TAP)",
                     "NAP": "Noninsured Crop Disaster Assistance Program (NAP)",
                     "LFP": "Livestock Forage Program (LFP)",
@@ -260,18 +262,38 @@ class DataParser:
         output_data_frame = pd.DataFrame(data=row_list)
         return output_data_frame
 
+    def __read_and_clean_data(self, filepath):
+        """
+        Reads a CSV file and cleans the data.
+        :param filepath: Path to the CSV file.
+        :return: Cleaned DataFrame.
+        """
+        # Read the CSV file
+        data = pd.read_csv(filepath)
+
+        # Remove leading and trailing whitespaces from column names
+        data.columns = data.columns.str.strip()
+
+        # Rename columns to make them more uniform
+        data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+        # Remove trailing whitespaces from specific columns if they exist
+        if "practice_code" in data.columns:
+            data["practice_code"] = data["practice_code"].str.strip()
+        if "state_name" in data.columns:
+            data["state_name"] = data["state_name"].str.strip()
+
+        return data
+
     def format_data(self):
 
         if self.title_name == "Title 1: Commodities":
-            # Import base acres CSV files and convert to existing format
-            base_acres_data_arc_co = pd.read_csv(self.base_acres_csv_filepath_arc_co)
-            # Rename column names to make it more uniform
-            base_acres_data_arc_co.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
 
-            base_acres_data_plc = pd.read_csv(self.base_acres_csv_filepath_plc)
-            # Rename column names to make it more uniform
-            base_acres_data_plc.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+            # Read and clean the base acres CSV files for ARC-CO and PLC
+            base_acres_data_arc_co = self.__read_and_clean_data(self.base_acres_csv_filepath_arc_co)
+            base_acres_data_plc = self.__read_and_clean_data(self.base_acres_csv_filepath_plc)
 
+            # Convert the base acres data to the new format
             base_acres_data_arc_co_output = self.__convert_to_new_data_frame(base_acres_data_arc_co,
                                                                              "Agriculture Risk Coverage County Option (ARC-CO)",
                                                                              "Base Acres")
@@ -281,21 +303,12 @@ class DataParser:
             self.base_acres_data = pd.concat([base_acres_data_arc_co_output, base_acres_data_plc_output],
                                              ignore_index=True)
 
-            # Import farm payee count CSV files and convert to existing format
-            farm_payee_count_data_arc_co = pd.read_csv(self.farm_payee_count_csv_filepath_arc_co)
-            # Rename column names to make it more uniform
-            farm_payee_count_data_arc_co.rename(columns=self.metadata[self.title_name]["column_names_map"],
-                                                inplace=True)
+            # Read and clean the farm payee count CSV files for ARC-CO, ARC-IC, and PLC
+            farm_payee_count_data_arc_co = self.__read_and_clean_data(self.farm_payee_count_csv_filepath_arc_co)
+            farm_payee_count_data_arc_ic = self.__read_and_clean_data(self.farm_payee_count_csv_filepath_arc_ic)
+            farm_payee_count_data_plc = self.__read_and_clean_data(self.farm_payee_count_csv_filepath_plc)
 
-            farm_payee_count_data_arc_ic = pd.read_csv(self.farm_payee_count_csv_filepath_arc_ic)
-            # Rename column names to make it more uniform
-            farm_payee_count_data_arc_ic.rename(columns=self.metadata[self.title_name]["column_names_map"],
-                                                inplace=True)
-
-            farm_payee_count_data_plc = pd.read_csv(self.farm_payee_count_csv_filepath_plc)
-            # Rename column names to make it more uniform
-            farm_payee_count_data_plc.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
-
+            # Convert the farm payee count data to the new format
             farm_payee_count_data_arc_co_output = self.__convert_to_new_data_frame(farm_payee_count_data_arc_co,
                                                                                    "Agriculture Risk Coverage County Option (ARC-CO)",
                                                                                    "Payee Count")
@@ -309,19 +322,12 @@ class DataParser:
                 [farm_payee_count_data_arc_co_output, farm_payee_count_data_arc_ic_output,
                  farm_payee_count_data_plc_output], ignore_index=True)
 
-            # Import total payment count CSV files and convert to existing format
-            total_payment_data_arc_co = pd.read_csv(self.total_payment_csv_filepath_arc_co)
-            # Rename column names to make it more uniform
-            total_payment_data_arc_co.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+            # Read and clean the total payment CSV files for ARC-CO, ARC-IC, and PLC
+            total_payment_data_arc_co = self.__read_and_clean_data(self.total_payment_csv_filepath_arc_co)
+            total_payment_data_arc_ic = self.__read_and_clean_data(self.total_payment_csv_filepath_arc_ic)
+            total_payment_data_plc = self.__read_and_clean_data(self.total_payment_csv_filepath_plc)
 
-            total_payment_data_arc_ic = pd.read_csv(self.total_payment_csv_filepath_arc_ic)
-            # Rename column names to make it more uniform
-            total_payment_data_arc_ic.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
-
-            total_payment_data_plc = pd.read_csv(self.total_payment_csv_filepath_plc)
-            # Rename column names to make it more uniform
-            total_payment_data_plc.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
-
+            # Convert the total payment data to the new format
             total_payment_data_arc_co_output = self.__convert_to_new_data_frame(total_payment_data_arc_co,
                                                                                 "Agriculture Risk Coverage County Option (ARC-CO)",
                                                                                 "Total Payment")
@@ -334,9 +340,8 @@ class DataParser:
             self.program_data = pd.concat([total_payment_data_arc_co_output, total_payment_data_arc_ic_output,
                                            total_payment_data_plc_output], ignore_index=True)
 
-            dmc_sada_data = pd.read_csv(self.dmc_sada_csv_filepath)
-            # Rename column names to make it more uniform
-            dmc_sada_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+            # Read and clean the DMC and SADA CSV files
+            dmc_sada_data = self.__read_and_clean_data(self.dmc_sada_csv_filepath)
 
             # some columns have empty values and this makes the rows type as object
             # this makes the process of SUM errors since those are object not number
@@ -348,7 +353,7 @@ class DataParser:
                                "recipient_count"]].apply(pd.to_numeric)
 
             # Filter Dairy data
-            self.dmc_data = dmc_sada_data[dmc_sada_data["entity_name"] == "Dairy"]
+            self.dmc_data = dmc_sada_data[dmc_sada_data["entity_name"].isin(["Dairy", "DMC", "MPP"])]
             self.dmc_data = self.dmc_data.replace(self.metadata[self.title_name]["value_names_map"])
             self.dmc_data = self.dmc_data.assign(entity_type="subtitle")
             # Add state code to dmc_data using self.us_state_abbreviations
@@ -356,7 +361,7 @@ class DataParser:
                 {v: k for k, v in self.us_state_abbreviations.items()}))
 
             # Filter Non-Dairy data
-            self.sada_data = dmc_sada_data[dmc_sada_data["entity_name"] != "Dairy"]
+            self.sada_data = dmc_sada_data[~dmc_sada_data["entity_name"].isin(["Dairy", "DMC", "MPP"])]
             self.sada_data = self.sada_data.replace(self.metadata[self.title_name]["value_names_map"])
             self.sada_data = self.sada_data.assign(entity_type="program")
             # Add state code to sada_data using self.us_state_abbreviations

@@ -32,7 +32,7 @@ if __name__ == '__main__':
     if cli.args.init_tables:
         database.initialize_tables(schema_name)
 
-    title_i_data_parser = DataParser(2014, 2021, "Title 1: Commodities",
+    title_i_data_parser = DataParser(2014, 2023, "Title 1: Commodities",
                                      "../data/title-i", "title_1_version_1.csv",
                                      base_acres_csv_filename_arc_co="ARC-CO Base Acres by Program.csv",
                                      base_acres_csv_filename_plc="PLC Base Acres by Program.csv",
