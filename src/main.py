@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                       csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
-    snap_data_parser = DataParser(2018, 2022, "Supplemental Nutrition Assistance Program (SNAP)",
+    snap_data_parser = DataParser(2014, 2024, "Supplemental Nutrition Assistance Program (SNAP)",
                                   "../data/snap", "",
                                   snap_monthly_participation_filename="snap_monthly_participation.csv",
                                   snap_cost_filename="snap_costs.csv")
