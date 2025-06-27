@@ -41,6 +41,8 @@ class PolicyDesignLabDataCLI:
                                  help='Construct database if it does not exist.', default=False)
         self.parser.add_argument('--create-schema', '-S', action='store_true',
                                  help='Create schema if it does not exist.', default=False)
+        self.parser.add_argument('--schema-name', '-N', type=str,
+                                 help='Name of the new schema', default='pdl')
         self.parser.add_argument('--init-tables', '-i', action='store_true', help='Initialize tables', default=False)
         self.parser.add_argument('--insert-data', '-I', action='store_true', help='Insert data',
                                  default=False)

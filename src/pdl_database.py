@@ -66,23 +66,27 @@ class PDLDatabase:
         self.close()
 
         # connect to the database
-        self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host)
+        self.connect(db_name=self.db_name, db_user=self.db_user, db_password=self.db_password, db_host=self.db_host,
+                     db_port=self.db_port)
 
-    def create_schema(self):
+    def create_schema(self, schema_name):
         # create schema
-        self.cursor.execute(f"CREATE SCHEMA IF NOT EXISTS pdl")
+        self.cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
         self.connection.commit()
-        self.logger.info(f"Schema pdl created successfully or already exists")
+        self.logger.info(f"Schema {schema_name} created successfully or already exists")
 
-    def create_tables(self):
-        self._execute_sql_file(self.create_tables_file)
+    def create_tables(self, schema_name):
+        self._execute_sql_file(self.create_tables_file, schema_name)
         self.logger.info("Tables created successfully")
 
     # Function to execute queries from a file
-    def _execute_sql_file(self, filename):
+    def _execute_sql_file(self, filename, schema_name):
         # Open and read the SQL file
         with open(filename, 'r') as file:
             sql_content = file.read()
+
+        # Replace all occurrences of ${SCHEMA} with schema_name
+        sql_content = sql_content.replace('${SCHEMA}', schema_name)
 
         # Split the file into individual statements
         sql_statements = sql_content.split(';')
@@ -102,13 +106,13 @@ class PDLDatabase:
                     self.logger.error(f"An unexpected error occurred: {e}")
                     self.connection.rollback()
 
-    def initialize_tables(self):
-        self._execute_sql_file(self.initialize_tables_file)
+    def initialize_tables(self, schema_name):
+        self._execute_sql_file(self.initialize_tables_file, schema_name)
 
         # Initialize practice standards
         with open(self.merged_practice_standards, 'r') as file:
             data_frame = pd.read_csv(file)
-            sql_insert_query = ("INSERT INTO pdl.practices (code, name, display_name, source) VALUES (%s, %s, %s, %s) "
+            sql_insert_query = (f"INSERT INTO {schema_name}.practices (code, name, display_name, source) VALUES (%s, %s, %s, %s) "
                                 "ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, display_name = EXCLUDED.display_name, source = EXCLUDED.source")
 
             for index, row in data_frame.iterrows():
@@ -119,7 +123,7 @@ class PDLDatabase:
 
         self.logger.info("Tables initialized successfully")
 
-    def insert_data(self, data_frame):
+    def insert_data(self, data_frame, schema_name):
         total_rows = len(data_frame)
         # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
@@ -128,14 +132,14 @@ class PDLDatabase:
 
             if row['entity_type'] == 'subtitle':
                 # Find the title id, and the subtitle id from the subtitles table
-                sql_select_query = "SELECT title_id, id as subtitle_id FROM pdl.subtitles WHERE name = %s"
+                sql_select_query = f"SELECT title_id, id as subtitle_id FROM {schema_name}.subtitles WHERE name = %s"
                 self.cursor.execute(sql_select_query, (row['entity_name'],))
                 result = self.cursor.fetchone()
                 if result:
                     title_id, subtitle_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, None, None, row["state_code"], row['year'],
@@ -150,7 +154,7 @@ class PDLDatabase:
                                              row['farm_count']) else None))
             elif row['entity_type'] == 'program':
                 # Find the program id, title id, and the subtitle id from the program table
-                sql_select_query = "SELECT id, title_id, subtitle_id FROM pdl.programs WHERE name = %s"
+                sql_select_query = f"SELECT id, title_id, subtitle_id FROM {schema_name}.programs WHERE name = %s"
                 self.cursor.execute(sql_select_query, (row['entity_name'],))
                 result = self.cursor.fetchone()
 
@@ -160,13 +164,13 @@ class PDLDatabase:
                     practice_category_id = None
                     # Find practice_category_id from practice_categories table
                     if "practice_category" in row and not pd.isna(row["practice_category"]):
-                        sql_select_query = "SELECT id FROM pdl.practice_categories WHERE name = %s AND program_id = %s"
+                        sql_select_query = f"SELECT id FROM {schema_name}.practice_categories WHERE name = %s AND program_id = %s"
                         self.cursor.execute(sql_select_query, (row['practice_category'], program_id))
                         practice_category_id = self.cursor.fetchone()[0]
 
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, "
+                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, "
                         "payment, recipient_count, base_acres, farm_count, contract_count, practice_code, practice_code_variant, premium_policy_count, "
                         "liability_amount, premium_amount, premium_subsidy_amount, indemnity_amount, farmer_premium_amount, loss_ratio, net_farmer_benefit_amount) "
                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -218,14 +222,14 @@ class PDLDatabase:
             elif row['entity_type'] == 'sub_program':
                 # Find the program id, title id, subtitle id, and sub_program id from joining sub_programs, programs, and titles
                 # tables
-                sql_select_query = "SELECT p.id, p.title_id, p.subtitle_id, s.id FROM pdl.programs p JOIN pdl.sub_programs s ON p.id = s.program_id WHERE s.name = %s"
+                sql_select_query = f"SELECT p.id, p.title_id, p.subtitle_id, s.id FROM {schema_name}.programs p JOIN {schema_name}.sub_programs s ON p.id = s.program_id WHERE s.name = %s"
                 self.cursor.execute(sql_select_query, (row['entity_name'],))
                 result = self.cursor.fetchone()
                 if result:
                     program_id, title_id, subtitle_id, sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, sub_program_id, row["state_code"],
@@ -243,14 +247,14 @@ class PDLDatabase:
                 # Find the program id, title id, subtitle id, sub_program id, and sub_sub_program id from joining sub_sub_programs, sub_programs, programs, and titles
                 # tables
 
-                sql_select_query = "SELECT p.id, p.title_id, p.subtitle_id, s.id, ss.id FROM pdl.programs p JOIN pdl.sub_programs s ON p.id = s.program_id JOIN pdl.sub_sub_programs ss ON s.id = ss.sub_program_id WHERE ss.name = %s"
+                sql_select_query = f"SELECT p.id, p.title_id, p.subtitle_id, s.id, ss.id FROM {schema_name}.programs p JOIN {schema_name}.sub_programs s ON p.id = s.program_id JOIN {schema_name}.sub_sub_programs ss ON s.id = ss.sub_program_id WHERE ss.name = %s"
                 self.cursor.execute(sql_select_query, (row['entity_name'],))
                 result = self.cursor.fetchone()
                 if result:
                     program_id, title_id, subtitle_id, sub_program_id, sub_sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        "INSERT INTO pdl.payments (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id,

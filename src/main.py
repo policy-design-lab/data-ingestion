@@ -22,14 +22,15 @@ if __name__ == '__main__':
             database.drop_database()
         else:
             print("Continuing without dropping the database")
+    schema_name = cli.args.schema_name
     if cli.args.create_database:
         database.create_database()
     if cli.args.create_schema:
-        database.create_schema()
+        database.create_schema(schema_name)
     if cli.args.create_tables:
-        database.create_tables()
+        database.create_tables(schema_name)
     if cli.args.init_tables:
-        database.initialize_tables()
+        database.initialize_tables(schema_name)
 
     title_i_data_parser = DataParser(2014, 2021, "Title 1: Commodities",
                                      "../data/title-i", "title_1_version_1.csv",
@@ -45,9 +46,9 @@ if __name__ == '__main__':
                                      )
     title_i_data_parser.format_data()
 
-    title_ii_data_parser = DataParser(2018, 2022, "Title 2: Conservation",
+    title_ii_data_parser = DataParser(2014, 2023, "Title 2: Conservation",
                                       "../data/title-ii", "",
-                                      crp_csv_filename="CRP-total compiled (February 2 2024).csv",
+                                      crp_csv_filename="CRP-total compiled (January 28 2025).csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
@@ -60,7 +61,7 @@ if __name__ == '__main__':
                                   snap_cost_filename="snap_costs.csv")
     snap_data_parser.format_data()
 
-    crop_insurance_data_parser = DataParser(2018, 2022, "Crop Insurance",
+    crop_insurance_data_parser = DataParser(2014, 2023, "Crop Insurance",
                                             "../data/crop-insurance", "",
                                             ci_state_year_benefit_filename="ci_state_year_benefits 2014-2023.csv")
     crop_insurance_data_parser.format_data()
@@ -68,24 +69,24 @@ if __name__ == '__main__':
     if cli.args.insert_data:
         # Title I data ingestion
         logger.info("Starting Title I data ingestion...")
-        database.insert_data(title_i_data_parser.program_data)
-        database.insert_data(title_i_data_parser.dmc_data)
-        database.insert_data(title_i_data_parser.sada_data)
+        database.insert_data(title_i_data_parser.program_data, schema_name)
+        database.insert_data(title_i_data_parser.dmc_data, schema_name)
+        database.insert_data(title_i_data_parser.sada_data, schema_name)
         logger.info("Title I data ingestion complete.")
 
         # Title II data ingestion
         logger.info("Starting Title II data ingestion...")
-        database.insert_data(title_ii_data_parser.program_data)
+        database.insert_data(title_ii_data_parser.program_data, schema_name)
         logger.info("Title II data ingestion complete.")
 
         # Title IV data ingestion
         logger.info("Starting Title IV data ingestion...")
-        database.insert_data(snap_data_parser.snap_data)
+        database.insert_data(snap_data_parser.snap_data, schema_name)
         logger.info("Title IV data ingestion complete.")
 
         # Title XI data ingestion
         logger.info("Starting Title XI data ingestion...")
-        database.insert_data(crop_insurance_data_parser.ci_data)
+        database.insert_data(crop_insurance_data_parser.ci_data, schema_name)
         logger.info("Title XI data ingestion complete.")
 
     database.close()

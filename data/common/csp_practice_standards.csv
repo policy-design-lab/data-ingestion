@@ -16,6 +16,8 @@ practice_code,practice_name
 2 - Post-fire Management,Forest Bundle
 "2 - Precision Ag, Reduced till",Crop Bundle
 20 - Soil Health Assessment,Crop Bundle
+21 - Crop Bundle (Organic),Crop Bundle
+22 - Erosion Bundle (Organic),Crop Bundle
 23 - Pheasant and quail habitat,Crop Bundle
 24 - Cropland Soil Health Management System,Crop Bundle
 3,Longleaf Pine Bundle
@@ -542,8 +544,7 @@ E666S,Facilitating longleaf pine establishment
 FARM,Farmstead
 MINPAY,Minimum Payment Adjustment
 NIPF,Non-Industrial Private Forest Land Annual Payment
-Organic,Crop Bundle  (21 - Crop Bundle
-Organic,Crop Bundle  (22 - Erosion Bundle
+Organic,Organic
 PAST,Pasture Annual Payment
 PCROP,Pastured Cropland Annual Payment
 RANGE,Rangeland Annual Payment
