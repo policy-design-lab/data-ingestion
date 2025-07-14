@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Update SNAP data to include the year range 2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
+
 ## [0.5.0] - 2025-06-26
 
 ### Added
@@ -26,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   2023 [#63](https://github.com/policy-design-lab/data-ingestion/issues/63)
 - Update code to include Title-I data from years 2014 to
   2023 [#68](https://github.com/policy-design-lab/data-ingestion/issues/68)
-- Update SNAP data to include the year range 2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
 
 ## [0.4.1] - 2024-11-05
 
