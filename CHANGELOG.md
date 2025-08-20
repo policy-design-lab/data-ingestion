@@ -10,9 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update SNAP data to include the year range 2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
-
-### Added
-
 - Update code to include Title-I data from years 2014 to
   2023 [#68](https://github.com/policy-design-lab/data-ingestion/issues/68)
 
