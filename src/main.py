@@ -32,7 +32,7 @@ if __name__ == '__main__':
     if cli.args.init_tables:
         database.initialize_tables(schema_name)
 
-    title_i_data_parser = DataParser(2014, 2021, "Title 1: Commodities",
+    title_i_data_parser = DataParser(2014, 2023, "Title 1: Commodities",
                                      "../data/title-i", "title_1_version_1.csv",
                                      base_acres_csv_filename_arc_co="ARC-CO Base Acres by Program.csv",
                                      base_acres_csv_filename_plc="PLC Base Acres by Program.csv",
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                       csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
-    snap_data_parser = DataParser(2018, 2022, "Supplemental Nutrition Assistance Program (SNAP)",
+    snap_data_parser = DataParser(2014, 2024, "Supplemental Nutrition Assistance Program (SNAP)",
                                   "../data/snap", "",
                                   snap_monthly_participation_filename="snap_monthly_participation.csv",
                                   snap_cost_filename="snap_costs.csv")
