@@ -2,6 +2,7 @@ import logging
 import re
 
 import pandas as pd
+from utils.county_matcher import match_counties
 import psycopg2
 from psycopg2 import Error
 
@@ -105,6 +106,14 @@ class PDLDatabase:
                 except Exception as e:
                     self.logger.error(f"An unexpected error occurred: {e}")
                     self.connection.rollback()
+
+    def get_counties_reference(self, schema_name: str) -> pd.DataFrame:
+        """
+        Returns the canonical counties reference from the database.
+        Expects columns: state_code, name, fips_code
+        """
+        sql = f"SELECT state_code, name, fips_code FROM {schema_name}.counties"
+        return pd.read_sql(sql, self.connection)
 
     def initialize_tables(self, schema_name):
         self._execute_sql_file(self.initialize_tables_file, schema_name)
@@ -270,162 +279,124 @@ class PDLDatabase:
                                              row['farm_count']) else None))
         self.connection.commit()
 
-    def insert_county_data(self, data, schema_name):
+    def insert_county_data(self, data: pd.DataFrame, schema_name: str):
         """
-        Insert county-level data into payments_by_counties table
-        Uses SQL JOINs to resolve state codes and county FIPS codes
+        Insert county-level crop insurance data into payments_by_counties.
+        Resolves county FIPS via generalized matching and inserts using county_fips_code.
         """
+        assert self.cursor and self.connection
 
-        # First, create a temporary table for the raw data (without schema prefix)
+        if data is None or data.empty:
+            self.logger.info("No county-level rows to insert.")
+            return
+
+        # Load canonical counties reference
+        counties_ref = self.get_counties_reference(schema_name)
+
+        # Clean + match to FIPS
+        self.logger.info("Matching counties to FIPS using generalized normalization...")
+        matched = match_counties(
+            data_df=data,
+            ref_df=counties_ref,
+            state_col='state',
+            county_col='county',
+            fuzzy_threshold=0.92
+        )
+
+        unmatched = matched[matched['fips_code'].isna()]
+        unique_pairs = (
+            unmatched[['state', 'county', 'state_code', 'county_clean']]
+            .drop_duplicates()
+            .sort_values(['state_code', 'county_clean'])
+        )
+        print(f"Unique unmatched pairs ({len(unique_pairs)}):")
+        print(unique_pairs.to_string(index=False))
+
+        # Report unmatched
+        still_unmatched = matched[matched['fips_code'].isna()]
+        if not still_unmatched.empty:
+            uniq = still_unmatched[['state', 'county', 'state_code', 'county_clean', 'fuzzy_score']].drop_duplicates()
+            self.logger.warning(f"{len(still_unmatched)} rows unmatched after cleaning; {len(uniq)} unique pairs.")
+            self.logger.debug(f"Sample unmatched:\n{uniq.head(25)}")
+
+        # Keep only matched rows
+        to_insert = matched[matched['fips_code'].notna()].copy()
+        if to_insert.empty:
+            self.logger.warning("No rows to insert after matching (all unmatched).")
+            return
+
+        # Create temporary table with county_fips_code (avoid name joins)
         temp_table_name = "temp_county_ci_data"
-
-        # Drop temp table if exists
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
-
-        # Create temporary table with raw data structure (no schema prefix for temp tables)
         create_temp_sql = f"""
         CREATE TEMPORARY TABLE {temp_table_name} (
             year smallint,
+            state_code varchar(2),
+            county_fips_code varchar(5),
             state_name varchar(100),
             county_name varchar(100),
+            county_clean varchar(120),
             policies_prem bigint,
-            acres_insured numeric(10, 2),
-            liabilities bigint,
-            premium bigint,
-            subsidy bigint,
-            indemnity bigint,
+            acres_insured numeric(18, 4),
+            liabilities numeric(18, 2),
+            premium numeric(18, 2),
+            subsidy numeric(18, 2),
+            indemnity numeric(18, 2),
             loss_ratio numeric,
-            net_benefit bigint,
-            farmer_premium bigint,
+            net_benefit numeric(18, 2),
+            farmer_premium numeric(18, 2),
             entity_type varchar(50),
-            entity_name varchar(100)
+            entity_name varchar(100),
+            match_type varchar(16),
+            fuzzy_score numeric
         )
         """
         self.cursor.execute(create_temp_sql)
 
-        # Insert data into temporary table
-        for index, row in data.iterrows():
-            insert_temp_sql = f"""
-            INSERT INTO {temp_table_name} 
-            (year, state_name, county_name, policies_prem, acres_insured, liabilities, 
-             premium, subsidy, indemnity, loss_ratio, net_benefit, farmer_premium, 
-             entity_type, entity_name)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            self.cursor.execute(insert_temp_sql, (
-                row['year'], row['state'], row['county'], row['policies_prem'],
-                row['acres_insured'], row['liabilities'], row['premium'],
-                row['subsidy'], row['indemnity'], row['loss_ratio'],
-                row['net_benefit'], row['farmer_premium'],
-                row['entity_type'], row['entity_name']
+        insert_cols = [
+            'year', 'state_code', 'fips_code', 'state', 'county', 'county_clean',
+            'policies_prem', 'acres_insured', 'liabilities', 'premium', 'subsidy',
+            'indemnity', 'loss_ratio', 'net_benefit', 'farmer_premium',
+            'entity_type', 'entity_name', 'match_type', 'fuzzy_score'
+        ]
+        insert_sql = f"""
+            INSERT INTO {temp_table_name}
+            (year, state_code, county_fips_code, state_name, county_name, county_clean,
+             policies_prem, acres_insured, liabilities, premium, subsidy, indemnity,
+             loss_ratio, net_benefit, farmer_premium, entity_type, entity_name, match_type, fuzzy_score)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """
+
+        # Convert NaN -> None
+        to_insert = to_insert.replace({pd.NA: None}).where(pd.notna(to_insert), None)
+
+        for _, row in to_insert[insert_cols].iterrows():
+            self.cursor.execute(insert_sql, (
+                row['year'],
+                row['state_code'],
+                row['fips_code'],
+                row['state'],
+                row['county'],
+                row['county_clean'],
+                row['policies_prem'],
+                row['acres_insured'],
+                row['liabilities'],
+                row['premium'],
+                row['subsidy'],
+                row['indemnity'],
+                row['loss_ratio'],
+                row['net_benefit'],
+                row['farmer_premium'],
+                row.get('entity_type'),
+                row.get('entity_name') or 'Crop Insurance',
+                row.get('match_type'),
+                row.get('fuzzy_score'),
             ))
 
         self.connection.commit()
+        self.logger.info(f"Inserted {len(to_insert)} matched rows into temp table.")
 
-        # ADD THE DEBUGGING CODE HERE - AFTER commit() and BEFORE the final INSERT
-        # Add debugging before the final insert
-        self.logger.info(f"Inserting data for {len(data)} rows from CSV")
-
-        # Check temp table has data
-        self.cursor.execute(f"SELECT COUNT(*) FROM {temp_table_name}")
-        temp_count = self.cursor.fetchone()[0]
-        self.logger.info(f"Temporary table has {temp_count} rows")
-
-        # Check if states/counties exist
-        self.cursor.execute(f"SELECT COUNT(*) FROM {schema_name}.states")
-        state_count = self.cursor.fetchone()[0]
-        self.logger.info(f"States table has {state_count} rows")
-
-        self.cursor.execute(f"SELECT COUNT(*) FROM {schema_name}.counties")
-        county_count = self.cursor.fetchone()[0]
-        self.logger.info(f"Counties table has {county_count} rows")
-
-        # Check if titles/programs exist for "Crop Insurance"
-        self.cursor.execute(f"SELECT id, name FROM {schema_name}.titles WHERE name = 'Crop Insurance'")
-        title_result = self.cursor.fetchall()
-        self.logger.info(f"Title 'Crop Insurance' found: {title_result}")
-
-        self.cursor.execute(f"SELECT id, name FROM {schema_name}.programs WHERE name = 'Crop Insurance'")
-        program_result = self.cursor.fetchall()
-        self.logger.info(f"Program 'Crop Insurance' found: {program_result}")
-
-        # Check sample data matching - states first
-        self.cursor.execute(f"""
-            SELECT DISTINCT temp.state_name, s.name as matched_state
-            FROM {temp_table_name} temp
-            LEFT JOIN {schema_name}.states s ON s.name = temp.state_name
-            LIMIT 5
-        """)
-        state_matches = self.cursor.fetchall()
-        self.logger.info(f"Sample state matches: {state_matches}")
-
-        # Check sample counties
-        self.cursor.execute(f"""
-            SELECT DISTINCT temp.state_name, temp.county_name, c.name as matched_county
-            FROM {temp_table_name} temp
-            LEFT JOIN {schema_name}.states s ON s.name = temp.state_name
-            LEFT JOIN {schema_name}.counties c ON c.state_code = s.code AND c.name = temp.county_name
-            LIMIT 5
-        """)
-        county_matches = self.cursor.fetchall()
-        self.logger.info(f"Sample county matches: {county_matches}")
-
-        # Test the full JOIN to see how many rows would match
-        test_join_sql = f"""
-        SELECT COUNT(*)
-        FROM {temp_table_name} temp
-        JOIN {schema_name}.states s ON UPPER(s.name) = UPPER(temp.state_name)
-        JOIN {schema_name}.counties c ON c.state_code = s.code AND UPPER(c.name) = UPPER(temp.county_name)
-        JOIN {schema_name}.titles t ON t.name = 'Title IX: Crop Insurance'
-        JOIN {schema_name}.programs p ON p.title_id = t.id AND p.name = temp.entity_name AND p.id = 112
-        """
-
-        self.cursor.execute(test_join_sql)
-        join_count = self.cursor.fetchone()[0]
-        self.logger.info(f"Full JOIN would match {join_count} rows")
-
-        # Check all unmatched counties to see the 386 missing rows
-        self.cursor.execute(f"""
-        SELECT temp.state_name, temp.county_name, COUNT(*) as count
-        FROM {temp_table_name} temp
-        LEFT JOIN {schema_name}.states s ON UPPER(s.name) = UPPER(temp.state_name)
-        LEFT JOIN {schema_name}.counties c ON c.state_code = s.code AND UPPER(c.name) = UPPER(temp.county_name)
-        WHERE c.name IS NULL
-        GROUP BY temp.state_name, temp.county_name
-        ORDER BY count DESC
-        """)
-        unmatched_counties = self.cursor.fetchall()
-        self.logger.info(f"All unmatched counties ({len(unmatched_counties)} unique): {unmatched_counties}")
-
-        # Get total unmatched rows count
-        self.cursor.execute(f"""
-        SELECT COUNT(*)
-        FROM {temp_table_name} temp
-        LEFT JOIN {schema_name}.states s ON UPPER(s.name) = UPPER(temp.state_name)
-        LEFT JOIN {schema_name}.counties c ON c.state_code = s.code AND UPPER(c.name) = UPPER(temp.county_name)
-        WHERE c.name IS NULL
-        """)
-        total_unmatched = self.cursor.fetchone()[0]
-        self.logger.info(f"Total unmatched rows: {total_unmatched}")
-
-        # Show some examples with more detail
-        self.cursor.execute(f"""
-        SELECT temp.state_name, temp.county_name, temp.year, 
-               LENGTH(temp.state_name) as state_len, 
-               LENGTH(temp.county_name) as county_len,
-               s.name as matched_state
-        FROM {temp_table_name} temp
-        LEFT JOIN {schema_name}.states s ON UPPER(s.name) = UPPER(temp.state_name)
-        LEFT JOIN {schema_name}.counties c ON c.state_code = s.code AND UPPER(c.name) = UPPER(temp.county_name)
-        WHERE c.name IS NULL
-        LIMIT 10
-        """)
-        unmatched_details = self.cursor.fetchall()
-        self.logger.info(f"Unmatched county details (first 10): {unmatched_details}")
-
-
-
-        # Now insert into payments_by_counties using JOINs to resolve codes
+        # Final insert using fips code
         insert_final_sql = f"""
         INSERT INTO {schema_name}.payments_by_counties 
         (title_id, program_id, county_fips_code, year, payment, premium_policy_count,
@@ -434,7 +405,7 @@ class PDLDatabase:
         SELECT 
             t.id as title_id,
             p.id as program_id,
-            c.fips_code as county_fips_code,
+            temp.county_fips_code,
             temp.year,
             temp.net_benefit as payment,
             temp.policies_prem as premium_policy_count,
@@ -447,10 +418,11 @@ class PDLDatabase:
             temp.loss_ratio,
             temp.net_benefit as net_farmer_benefit_amount
         FROM {temp_table_name} temp
-        JOIN {schema_name}.states s ON UPPER(s.name) = UPPER(temp.state_name)
-        JOIN {schema_name}.counties c ON c.state_code = s.code AND UPPER(c.name) = UPPER(temp.county_name)
-        JOIN {schema_name}.titles t ON t.name = 'Title IX: Crop Insurance'
-        JOIN {schema_name}.programs p ON p.title_id = t.id AND p.name = temp.entity_name AND p.id = 112
+        JOIN {schema_name}.titles t 
+             ON t.name = 'Title IX: Crop Insurance'
+        JOIN {schema_name}.programs p 
+             ON p.title_id = t.id 
+            AND p.name = 'Crop Insurance'
         ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code) 
         DO UPDATE SET
             payment = EXCLUDED.payment,
@@ -464,17 +436,14 @@ class PDLDatabase:
             loss_ratio = EXCLUDED.loss_ratio,
             net_farmer_benefit_amount = EXCLUDED.net_farmer_benefit_amount
         """
-
         self.cursor.execute(insert_final_sql)
         rows_inserted = self.cursor.rowcount
         self.connection.commit()
+        self.logger.info(f"Inserted/updated {rows_inserted} rows in payments_by_counties.")
 
-        self.logger.info(f"Inserted {rows_inserted} rows into payments_by_counties table")
-
-        # Drop temporary table (optional, as it will be dropped automatically at session end)
-        self.cursor.execute(f"DROP TABLE {temp_table_name}")
-
-        self.logger.info("County-level crop insurance data inserted successfully")
+        # Drop temp table
+        self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
+        self.logger.info("County-level crop insurance data inserted successfully.")
 
     def close(self):
         if self.connection:
