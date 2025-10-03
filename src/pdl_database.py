@@ -18,6 +18,7 @@ class PDLDatabase:
         self.cursor = None
         self.logger = logging.getLogger(self.__class__.__name__)
         self.create_tables_file = "../queries/create_tables.sql"
+        self.create_views_file = "../queries/create_views.sql"
         self.initialize_tables_file = "../queries/initialize_tables.sql"
         self.merged_practice_standards = "../data/common/merged_practice_standards.csv"
 
@@ -79,6 +80,10 @@ class PDLDatabase:
     def create_tables(self, schema_name):
         self._execute_sql_file(self.create_tables_file, schema_name)
         self.logger.info("Tables created successfully")
+
+    def create_views(self, schema_name):
+        self._execute_sql_file(self.create_views_file, schema_name)
+        self.logger.info("Views created successfully")
 
     # Function to execute queries from a file
     def _execute_sql_file(self, filename, schema_name):

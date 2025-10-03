@@ -29,6 +29,7 @@ if __name__ == '__main__':
         database.create_schema(schema_name)
     if cli.args.create_tables:
         database.create_tables(schema_name)
+        database.create_views(schema_name)
     if cli.args.init_tables:
         database.initialize_tables(schema_name)
 
