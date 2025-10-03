@@ -63,7 +63,8 @@ if __name__ == '__main__':
 
     crop_insurance_data_parser = DataParser(2014, 2023, "Crop Insurance",
                                             "../data/crop-insurance", "",
-                                            ci_state_year_benefit_filename="ci_state_year_benefits 2014-2023.csv")
+                                            ci_state_year_benefit_filename="ci_state_year_benefits 2014-2023.csv",
+                                            ci_state_county_year_benefit_filename="ci_state_county_year_benefits 2014-2024.csv")
     crop_insurance_data_parser.format_data()
 
     if cli.args.insert_data:
@@ -87,6 +88,11 @@ if __name__ == '__main__':
         # Title XI data ingestion
         logger.info("Starting Title XI data ingestion...")
         database.insert_data(crop_insurance_data_parser.ci_data, schema_name)
+
+        # Insert county-level crop insurance data
+        if crop_insurance_data_parser.ci_county_data is not None:
+            logger.info("Starting Title XI county-level data ingestion...")
+            database.insert_county_data(crop_insurance_data_parser.ci_county_data, schema_name)
         logger.info("Title XI data ingestion complete.")
 
     database.close()

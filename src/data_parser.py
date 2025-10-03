@@ -205,7 +205,8 @@ class DataParser:
             pass
         elif self.title_name == "Crop Insurance":
             self.ci_data = None
-            self.ci_benefit_csv_filepath = str(os.path.join(data_folder, kwargs["ci_state_year_benefit_filename"]))
+            self.ci_state_benefit_csv_filepath = str(os.path.join(data_folder, kwargs["ci_state_year_benefit_filename"]))
+            self.ci_county_benefit_csv_filepath = str(os.path.join(data_folder, kwargs["ci_state_county_year_benefit_filename"]))
         elif self.title_name == "Supplemental Nutrition Assistance Program (SNAP)":
             self.snap_data = None
             self.snap_mon_part_filepath = str(os.path.join(data_folder, kwargs["snap_monthly_participation_filename"]))
@@ -684,8 +685,9 @@ class DataParser:
                                       on=["state_code", "year", "entity_name", "entity_type"], how="left")
 
         elif self.title_name == "Crop Insurance":
-            # Import Crop Insurance Benefit CSV file
-            ci_data = pd.read_csv(self.ci_benefit_csv_filepath)
+
+            # Import Crop Insurance Benefit CSV file for state-level data
+            ci_data = pd.read_csv(self.ci_state_benefit_csv_filepath)
 
             # Filter rows where the 'year' column values are between self.start_year and self.end_year
             ci_data = ci_data[(ci_data['year'] >= self.start_year) & (ci_data['year'] <= self.end_year)]
@@ -700,3 +702,24 @@ class DataParser:
             ci_data = ci_data.assign(entity_name="Crop Insurance")
 
             self.ci_data = ci_data
+
+            # Process county-level data - keep original state and county names
+            if hasattr(self, 'ci_county_benefit_csv_filepath') and self.ci_county_benefit_csv_filepath:
+
+                ci_county_data = pd.read_csv(self.ci_county_benefit_csv_filepath)
+
+                # Filter by year range
+                ci_county_data = ci_county_data[
+                    (ci_county_data['year'] >= self.start_year) & (ci_county_data['year'] <= self.end_year)]
+
+                # Keep original column names for now - we'll map them in the database insert
+                ci_county_data = ci_county_data.assign(entity_type="program")
+
+                ci_county_data = ci_county_data.assign(entity_name="Crop Insurance")
+
+                # Keep state and county as-is - we'll resolve them via SQL JOINs
+                self.ci_county_data = ci_county_data
+
+            else:
+                self.ci_county_data = None
+
