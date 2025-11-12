@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Update crop insurance state level data for 2014-2024 [#79](https://github.com/policy-design-lab/data-ingestion/issues/79)
 - Update schema design file to include county-level payment distribution
   data. [#80](https://github.com/policy-design-lab/data-ingestion/issues/80)
-
-## [0.6.0] - 2025-08-20
 
 ### Changed
 
