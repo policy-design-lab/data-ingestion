@@ -4,6 +4,8 @@ using CROPLAND AREA (not total area) as the weighting factor.
 
 This is an alternative to the total-area-weighted approach in calculate_ct_weights_from_acreage.py,
 focusing specifically on cropland rather than insured acres.
+
+https://quickstats.nass.usda.gov/results/26241C25-DA7E-3439-9DBB-C3EF499C0A24
 """
 
 import pandas as pd
