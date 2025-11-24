@@ -9,6 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 # Connecticut mappings
 OLD_COUNTY_FIPS = {
     'Fairfield': '09001',
@@ -21,29 +22,31 @@ OLD_COUNTY_FIPS = {
     'Windham': '09015'
 }
 
+# New planning region FIPS codes
+# Updated to match actual 2024 data column names
 NEW_REGION_FIPS = {
-    'Capitol Region': '09901',
-    'Greater Bridgeport': '09902',
-    'Lower Connecticut River Valley': '09903',
+    'Capitol': '09901',
+    'Lower CT River Valley': '09903',
     'Naugatuck Valley': '09904',
-    'Northeast Connecticut': '09905',
+    'Northeastern CT': '09905',
     'Northwest Hills': '09906',
-    'South Central Connecticut': '09907',
-    'Southeastern Connecticut': '09908',
-    'Western Connecticut': '09909'
+    'South Central CT': '09907',
+    'Southeastern CT': '09908',
+    'Western CT': '09909'
 }
 
 # Known mappings: which old counties feed into which new regions
 # Based on official CT town assignments
+# Updated to remove Greater Bridgeport (09902) - not in 2024 data
 COUNTY_TO_REGION_RELATIONSHIPS = {
-    '09001': ['09902', '09909'],  # Fairfield → Greater Bridgeport, Western CT
+    '09001': ['09909'],  # Fairfield → Western CT (Greater Bridgeport merged into Western CT?)
     '09003': ['09901', '09906'],  # Hartford → Capitol, Northwest Hills
     '09005': ['09906', '09909'],  # Litchfield → Northwest Hills, Western CT
     '09007': ['09903'],  # Middlesex → Lower CT River Valley (1:1)
     '09009': ['09907', '09904', '09903'],  # New Haven → South Central, Naugatuck, Lower CT River
-    '09011': ['09908', '09905'],  # New London → Southeastern, Northeast
-    '09013': ['09905', '09901'],  # Tolland → Northeast, Capitol
-    '09015': ['09905']  # Windham → Northeast (1:1)
+    '09011': ['09908', '09905'],  # New London → Southeastern, Northeastern
+    '09013': ['09905', '09901'],  # Tolland → Northeastern, Capitol
+    '09015': ['09905']  # Windham → Northeastern (1:1)
 }
 
 
@@ -108,6 +111,10 @@ def calculate_weights_from_acreage(data_2023, data_2024):
     logger.info("\n2024 New Planning Region Totals:")
     logger.info(region_2024.to_string())
 
+    # Create lookup dictionaries for acres
+    county_acres_lookup = county_2023.set_index('county')['acres_insured'].to_dict()
+    region_acres_lookup = region_2024.set_index('county')['acres_insured'].to_dict()
+
     # Map county names to FIPS
     county_2023['county_fips'] = county_2023['county'].map(lambda x: OLD_COUNTY_FIPS.get(x))
     region_2024['region_fips'] = region_2024['county'].map(lambda x: NEW_REGION_FIPS.get(x))
@@ -117,7 +124,8 @@ def calculate_weights_from_acreage(data_2023, data_2024):
 
     weights = []
 
-    for old_fips, old_name in OLD_COUNTY_FIPS.items():
+    # Iterate over county names (keys), not FIPS codes
+    for old_name, old_fips in OLD_COUNTY_FIPS.items():
         # Get 2023 acres for this old county
         old_row = county_2023[county_2023['county'] == old_name]
         if old_row.empty:
@@ -133,11 +141,15 @@ def calculate_weights_from_acreage(data_2023, data_2024):
             # 1:1 mapping
             new_fips = new_region_fips_list[0]
             new_name = [k for k, v in NEW_REGION_FIPS.items() if v == new_fips][0]
+            new_region_acres = region_acres_lookup.get(new_name, 0)
+
             weights.append({
                 'old_fips_code': old_fips,
                 'old_county_name': old_name,
+                'old_county_acres_2023': old_acres,
                 'new_fips_code': new_fips,
                 'new_region_name': new_name,
+                'new_region_acres_2024': new_region_acres,
                 'allocation_weight': 1.0,
                 'notes': 'Complete 1:1 mapping'
             })
@@ -161,12 +173,15 @@ def calculate_weights_from_acreage(data_2023, data_2024):
                 if new_fips in new_acres_by_region and total_new_acres > 0:
                     # Proportion of this new region's acres relative to all regions this county feeds
                     proportion = new_acres_by_region[new_fips] / total_new_acres
+                    new_region_acres = new_acres_by_region[new_fips]
 
                     weights.append({
                         'old_fips_code': old_fips,
                         'old_county_name': old_name,
+                        'old_county_acres_2023': old_acres,
                         'new_fips_code': new_fips,
                         'new_region_name': new_name,
+                        'new_region_acres_2024': new_region_acres,
                         'allocation_weight': round(proportion, 4),
                         'notes': f'Acreage-weighted allocation'
                     })
@@ -237,8 +252,9 @@ def generate_sql(weights_df):
 def main():
     # File paths
     ci_csv = "../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv"
-    output_csv = "../data/crop-insurance/ct_county_region_mapping_acreage.csv"
-    output_sql = "../data/crop-insurance/ct_county_region_mapping_acreage.sql"
+    output_weights_csv = "../data/crop-insurance/output/ct_county_region_mapping_acreage.csv"
+    output_remapped_csv = "../data/crop-insurance/output/ct_remapped_regions_2014-2023_acreage.csv"
+    output_sql = "../queries/insert_ct_county_region_mapping_acreage.sql"
 
     # Read data
     df = read_crop_insurance_data(ci_csv)
@@ -261,10 +277,14 @@ def main():
     # Validate
     validation = validate_weights(weights_df, data_2023, data_2024)
 
-    # Save outputs
-    weights_df.to_csv(output_csv, index=False)
-    logger.info(f"\nSaved weights to: {output_csv}")
+    # Save weights
+    weights_df.to_csv(output_weights_csv, index=False)
+    logger.info(f"\nSaved weights to: {output_weights_csv}")
 
+    # Apply weights to historical data (2014-2023)
+    remapped_historical = apply_weights_to_historical_data(df, weights_df, output_remapped_csv)
+
+    # Generate SQL
     sql = generate_sql(weights_df)
     with open(output_sql, 'w') as f:
         f.write(sql)
@@ -273,6 +293,93 @@ def main():
     logger.info("\n" + "=" * 80)
     logger.info("SUCCESS! Acreage-based mapping complete.")
     logger.info("=" * 80)
+    logger.info(f"\nOutput files:")
+    logger.info(f"  1. Weights: {output_weights_csv}")
+    logger.info(f"  2. Remapped historical data (2014-2023): {output_remapped_csv}")
+    logger.info(f"  3. SQL: {output_sql}")
+
+
+def apply_weights_to_historical_data(df, weights_df, output_path):
+    """
+    Apply calculated weights to all Connecticut data from 2014-2023 to create
+    remapped data for the new planning regions.
+
+    Args:
+        df: Full crop insurance dataframe
+        weights_df: Calculated allocation weights
+        output_path: Path to save the remapped historical data
+    """
+    logger.info("\nApplying weights to historical data (2014-2023)...")
+
+    # Filter for Connecticut data 2014-2023
+    ct_historical = df[(df['state'] == 'Connecticut') & (df['year'] <= 2023)].copy()
+
+    if ct_historical.empty:
+        logger.warning("No historical Connecticut data found!")
+        return None
+
+    logger.info(f"Found {len(ct_historical)} Connecticut records from 2014-2023")
+
+    # Merge with weights
+    remapped = ct_historical.merge(
+        weights_df[['old_county_name', 'new_region_name', 'new_fips_code', 'allocation_weight']],
+        left_on='county',
+        right_on='old_county_name',
+        how='left'
+    )
+
+    # Apply weights to all numeric columns
+    numeric_cols = ['acres_insured', 'liabilities', 'premium', 'subsidy',
+                    'indemnity', 'net_benefit', 'farmer_premium']
+
+    for col in numeric_cols:
+        if col in remapped.columns:
+            remapped[f'{col}_weighted'] = remapped[col] * remapped['allocation_weight']
+
+    # Also weight policies (though this is approximate)
+    remapped['policies_prem_weighted'] = remapped['policies_prem'] * remapped['allocation_weight']
+
+    # Aggregate by new region and year
+    agg_dict = {
+        'policies_prem_weighted': 'sum',
+        'acres_insured_weighted': 'sum',
+        'liabilities_weighted': 'sum',
+        'premium_weighted': 'sum',
+        'subsidy_weighted': 'sum',
+        'indemnity_weighted': 'sum',
+        'net_benefit_weighted': 'sum',
+        'farmer_premium_weighted': 'sum'
+    }
+
+    remapped_aggregated = remapped.groupby(['year', 'new_region_name', 'new_fips_code']).agg(agg_dict).reset_index()
+
+    # Rename columns to remove '_weighted' suffix
+    remapped_aggregated.columns = ['year', 'region', 'region_fips', 'policies_prem',
+                                   'acres_insured', 'liabilities', 'premium',
+                                   'subsidy', 'indemnity', 'net_benefit', 'farmer_premium']
+
+    # Recalculate derived metrics
+    remapped_aggregated['loss_ratio'] = remapped_aggregated['indemnity'] / remapped_aggregated['premium']
+    remapped_aggregated['benefit_by_pol'] = remapped_aggregated['net_benefit'] / remapped_aggregated['policies_prem']
+    remapped_aggregated['benefit_by_acre'] = remapped_aggregated['net_benefit'] / remapped_aggregated['acres_insured']
+
+    # Sort by year and region
+    remapped_aggregated = remapped_aggregated.sort_values(['year', 'region'])
+
+    # Save to CSV
+    remapped_aggregated.to_csv(output_path, index=False)
+    logger.info(f"Saved remapped historical data to: {output_path}")
+    logger.info(f"  - Years covered: {remapped_aggregated['year'].min()} to {remapped_aggregated['year'].max()}")
+    logger.info(f"  - Total records: {len(remapped_aggregated)}")
+
+    # Show summary by year
+    logger.info("\nRemapped data summary by year:")
+    year_summary = remapped_aggregated.groupby('year')['acres_insured'].sum()
+    for year, acres in year_summary.items():
+        logger.info(
+            f"  {year}: {acres:,.0f} acres across {len(remapped_aggregated[remapped_aggregated['year'] == year])} regions")
+
+    return remapped_aggregated
 
 
 if __name__ == "__main__":

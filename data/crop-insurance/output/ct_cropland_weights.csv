@@ -1,0 +1,13 @@
+old_fips_code,old_county_name,new_fips_code,new_region_name,allocation_weight,old_county_cropland_acres,allocated_cropland_acres,notes
+09003,Hartford,09901,Capitol,0.5003,6194.0,3098.85,Cropland-weighted allocation (50.0%)
+09003,Hartford,09906,Northwest Hills,0.4997,6194.0,3095.15,Cropland-weighted allocation (50.0%)
+09005,Litchfield,09906,Northwest Hills,0.6644,6324.0,4201.46,Cropland-weighted allocation (66.4%)
+09005,Litchfield,09909,Western CT,0.3356,6324.0,2122.54,Cropland-weighted allocation (33.6%)
+09009,New Haven,09907,South Central CT,0.3333,1074.0,358.0,Cropland-weighted allocation (33.3%)
+09009,New Haven,09904,Naugatuck Valley,0.3333,1074.0,358.0,Cropland-weighted allocation (33.3%)
+09009,New Haven,09903,Lower CT River Valley,0.3333,1074.0,358.0,Cropland-weighted allocation (33.3%)
+09011,New London,09908,Southeastern CT,0.1247,2785.0,347.33,Cropland-weighted allocation (12.5%)
+09011,New London,09905,Northeastern CT,0.8753,2785.0,2437.67,Cropland-weighted allocation (87.5%)
+09013,Tolland,09905,Northeastern CT,0.6093,6339.0,3862.41,Cropland-weighted allocation (60.9%)
+09013,Tolland,09901,Capitol,0.3907,6339.0,2476.59,Cropland-weighted allocation (39.1%)
+09015,Windham,09905,Northeastern CT,1.0,5211.0,5211.0,Complete 1:1 mapping
