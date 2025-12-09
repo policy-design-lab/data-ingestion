@@ -5,17 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
 
 ### Changed
 
 - Update crop insurance state level data for 2014-2024 [#79](https://github.com/policy-design-lab/data-ingestion/issues/79)
-
-## [0.6.0] 2025-08-20
+- Update schema design file to include county-level payment distribution
+  data. [#80](https://github.com/policy-design-lab/data-ingestion/issues/80)
 
 ### Changed
 
-- Update SNAP data to include the year range 2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
+- Update SNAP data to include the year range
+  2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
 - Update code to include Title-I data from years 2014 to
   2023 [#68](https://github.com/policy-design-lab/data-ingestion/issues/68)
 
