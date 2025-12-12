@@ -298,6 +298,8 @@ class PDLDatabase:
         # Load canonical counties reference
         counties_ref = self.get_counties_reference(schema_name)
 
+        self.logger.info(f"Counties reference loaded: {len(counties_ref)} counties")
+
         # Clean + match to FIPS
         self.logger.info("Matching counties to FIPS using generalized normalization...")
         matched = match_counties(
@@ -314,8 +316,10 @@ class PDLDatabase:
             .drop_duplicates()
             .sort_values(['state_code', 'county_clean'])
         )
-        print(f"Unique unmatched pairs ({len(unique_pairs)}):")
-        print(unique_pairs.to_string(index=False))
+
+        if not unique_pairs.empty:
+            print(f"Unique unmatched pairs ({len(unique_pairs)}):")
+            print(unique_pairs.to_string(index=False))
 
         # Report unmatched
         still_unmatched = matched[matched['fips_code'].isna()]
@@ -330,32 +334,34 @@ class PDLDatabase:
             self.logger.warning("No rows to insert after matching (all unmatched).")
             return
 
+        self.logger.info(f"Matched {len(to_insert)} rows for insertion")
+
         # Create temporary table with county_fips_code (avoid name joins)
         temp_table_name = "temp_county_ci_data"
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
         create_temp_sql = f"""
-        CREATE TEMPORARY TABLE {temp_table_name} (
-            year smallint,
-            state_code varchar(2),
-            county_fips_code varchar(5),
-            state_name varchar(100),
-            county_name varchar(100),
-            county_clean varchar(120),
-            policies_prem bigint,
-            acres_insured numeric(18, 4),
-            liabilities numeric(18, 2),
-            premium numeric(18, 2),
-            subsidy numeric(18, 2),
-            indemnity numeric(18, 2),
-            loss_ratio numeric,
-            net_benefit numeric(18, 2),
-            farmer_premium numeric(18, 2),
-            entity_type varchar(50),
-            entity_name varchar(100),
-            match_type varchar(16),
-            fuzzy_score numeric
-        )
-        """
+            CREATE TEMPORARY TABLE {temp_table_name} (
+                year smallint,
+                state_code varchar(2),
+                county_fips_code varchar(5),
+                state_name varchar(100),
+                county_name varchar(100),
+                county_clean varchar(120),
+                policies_prem bigint,
+                acres_insured numeric(18, 4),
+                liabilities numeric(18, 2),
+                premium numeric(18, 2),
+                subsidy numeric(18, 2),
+                indemnity numeric(18, 2),
+                loss_ratio numeric,
+                net_benefit numeric(18, 2),
+                farmer_premium numeric(18, 2),
+                entity_type varchar(50),
+                entity_name varchar(100),
+                match_type varchar(16),
+                fuzzy_score numeric
+            )
+            """
         self.cursor.execute(create_temp_sql)
 
         insert_cols = [
@@ -365,12 +371,12 @@ class PDLDatabase:
             'entity_type', 'entity_name', 'match_type', 'fuzzy_score'
         ]
         insert_sql = f"""
-            INSERT INTO {temp_table_name}
-            (year, state_code, county_fips_code, state_name, county_name, county_clean,
-             policies_prem, acres_insured, liabilities, premium, subsidy, indemnity,
-             loss_ratio, net_benefit, farmer_premium, entity_type, entity_name, match_type, fuzzy_score)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """
+                INSERT INTO {temp_table_name}
+                (year, state_code, county_fips_code, state_name, county_name, county_clean,
+                 policies_prem, acres_insured, liabilities, premium, subsidy, indemnity,
+                 loss_ratio, net_benefit, farmer_premium, entity_type, entity_name, match_type, fuzzy_score)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """
 
         # Convert NaN -> None
         to_insert = to_insert.replace({pd.NA: None}).where(pd.notna(to_insert), None)
@@ -401,50 +407,85 @@ class PDLDatabase:
         self.connection.commit()
         self.logger.info(f"Inserted {len(to_insert)} matched rows into temp table.")
 
-        # Final insert using fips code
+        # Verify temp table has data
+        self.cursor.execute(f"SELECT COUNT(*) FROM {temp_table_name}")
+        temp_count = self.cursor.fetchone()[0]
+        self.logger.info(f"Temp table has {temp_count} rows")
+
+        # Check if Title XI exists
+        self.cursor.execute(f"SELECT id, name FROM {schema_name}.titles WHERE name LIKE '%Crop Insurance%'")
+        title_result = self.cursor.fetchall()
+        self.logger.info(f"Found titles: {title_result}")
+
+        # Check if program exists
+        self.cursor.execute(f"""
+                SELECT p.id, p.name, t.name as title_name 
+                FROM {schema_name}.programs p
+                JOIN {schema_name}.titles t ON p.title_id = t.id
+                WHERE p.name = 'Crop Insurance'
+            """)
+        program_result = self.cursor.fetchall()
+        self.logger.info(f"Found programs: {program_result}")
+
+        # Final insert using fips code - FIX: explicitly set subtitle_id and sub_program_id to NULL
         insert_final_sql = f"""
-        INSERT INTO {schema_name}.payments_by_counties 
-        (title_id, program_id, county_fips_code, year, payment, premium_policy_count,
-         base_acres, liability_amount, premium_amount, premium_subsidy_amount,
-         indemnity_amount, farmer_premium_amount, loss_ratio, net_farmer_benefit_amount)
-        SELECT 
-            t.id as title_id,
-            p.id as program_id,
-            temp.county_fips_code,
-            temp.year,
-            temp.net_benefit as payment,
-            temp.policies_prem as premium_policy_count,
-            temp.acres_insured as base_acres,
-            temp.liabilities as liability_amount,
-            temp.premium as premium_amount,
-            temp.subsidy as premium_subsidy_amount,
-            temp.indemnity as indemnity_amount,
-            temp.farmer_premium as farmer_premium_amount,
-            temp.loss_ratio,
-            temp.net_benefit as net_farmer_benefit_amount
-        FROM {temp_table_name} temp
-        JOIN {schema_name}.titles t 
-             ON t.name = 'Title IX: Crop Insurance'
-        JOIN {schema_name}.programs p 
-             ON p.title_id = t.id 
-            AND p.name = 'Crop Insurance'
-        ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code) 
-        DO UPDATE SET
-            payment = EXCLUDED.payment,
-            premium_policy_count = EXCLUDED.premium_policy_count,
-            base_acres = EXCLUDED.base_acres,
-            liability_amount = EXCLUDED.liability_amount,
-            premium_amount = EXCLUDED.premium_amount,
-            premium_subsidy_amount = EXCLUDED.premium_subsidy_amount,
-            indemnity_amount = EXCLUDED.indemnity_amount,
-            farmer_premium_amount = EXCLUDED.farmer_premium_amount,
-            loss_ratio = EXCLUDED.loss_ratio,
-            net_farmer_benefit_amount = EXCLUDED.net_farmer_benefit_amount
-        """
-        self.cursor.execute(insert_final_sql)
-        rows_inserted = self.cursor.rowcount
-        self.connection.commit()
-        self.logger.info(f"Inserted/updated {rows_inserted} rows in payments_by_counties.")
+            INSERT INTO {schema_name}.payments_by_counties 
+            (title_id, subtitle_id, program_id, sub_program_id, county_fips_code, year, 
+             payment, premium_policy_count, base_acres, liability_amount, premium_amount, 
+             premium_subsidy_amount, indemnity_amount, farmer_premium_amount, loss_ratio, 
+             net_farmer_benefit_amount)
+            SELECT 
+                t.id as title_id,
+                NULL as subtitle_id,
+                p.id as program_id,
+                NULL as sub_program_id,
+                temp.county_fips_code,
+                temp.year,
+                temp.net_benefit as payment,
+                temp.policies_prem as premium_policy_count,
+                temp.acres_insured as base_acres,
+                temp.liabilities as liability_amount,
+                temp.premium as premium_amount,
+                temp.subsidy as premium_subsidy_amount,
+                temp.indemnity as indemnity_amount,
+                temp.farmer_premium as farmer_premium_amount,
+                temp.loss_ratio,
+                temp.net_benefit as net_farmer_benefit_amount
+            FROM {temp_table_name} temp
+            JOIN {schema_name}.titles t 
+                 ON t.name = 'Title IX: Crop Insurance'
+            JOIN {schema_name}.programs p 
+                 ON p.title_id = t.id 
+                AND p.name = 'Crop Insurance'
+            ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code) 
+            DO UPDATE SET
+                payment = EXCLUDED.payment,
+                premium_policy_count = EXCLUDED.premium_policy_count,
+                base_acres = EXCLUDED.base_acres,
+                liability_amount = EXCLUDED.liability_amount,
+                premium_amount = EXCLUDED.premium_amount,
+                premium_subsidy_amount = EXCLUDED.premium_subsidy_amount,
+                indemnity_amount = EXCLUDED.indemnity_amount,
+                farmer_premium_amount = EXCLUDED.farmer_premium_amount,
+                loss_ratio = EXCLUDED.loss_ratio,
+                net_farmer_benefit_amount = EXCLUDED.net_farmer_benefit_amount
+            """
+
+        try:
+            self.cursor.execute(insert_final_sql)
+            rows_inserted = self.cursor.rowcount
+            self.connection.commit()
+            self.logger.info(f"Inserted/updated {rows_inserted} rows in payments_by_counties.")
+
+            # Verify the insert worked
+            self.cursor.execute(f"SELECT COUNT(*) FROM {schema_name}.payments_by_counties")
+            final_count = self.cursor.fetchone()[0]
+            self.logger.info(f"payments_by_counties now has {final_count} total rows")
+
+        except Exception as e:
+            self.logger.error(f"Error inserting into payments_by_counties: {e}")
+            self.connection.rollback()
+            raise
 
         # Drop temp table
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
