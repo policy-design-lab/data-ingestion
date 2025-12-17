@@ -66,29 +66,34 @@ OLD_COUNTY_FIPS: Dict[str, str] = {
 # -----------------------------------------------------------------------------
 NEW_REGION_FIPS: Dict[str, str] = {
     "Capitol": "09901",
-    "Lower CT River Valley": "09903",
+    #"Greater Bridgeport": "09902",
+    "South Central Connecticut": "09903",
     "Naugatuck Valley": "09904",
-    "Northeastern CT": "09905",
+    "Northeastern Connecticut": "09905",
     "Northwest Hills": "09906",
-    "South Central CT": "09907",
-    "Southeastern CT": "09908",
-    "Western CT": "09909",
+    "Lower Connecticut River Valley": "09907",
+    "Eastern Connecticut": "09908",
+    "Western Connecticut": "09909",
 }
 
 # -----------------------------------------------------------------------------
 # TIGER GEOID (county-equivalent) -> internal region name.
 # NOTE: 09120 is Greater Bridgeport in some TIGER vintages. We merge to Western CT.
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# TIGER GEOID (county-equivalent) -> internal region name.
+# NOTE: 09120 is Greater Bridgeport in some TIGER vintages. We merge to Western CT.
+# -----------------------------------------------------------------------------
 TIGER_GEOID_TO_INTERNAL_REGION: Dict[str, str] = {
     "09110": "Capitol",
-    "09130": "Lower CT River Valley",
+    "09130": "Lower Connecticut River Valley",
     "09140": "Naugatuck Valley",
-    "09150": "Northeastern CT",
+    "09150": "Northeastern Connecticut",
     "09160": "Northwest Hills",
-    "09170": "South Central CT",
-    "09180": "Southeastern CT",
-    "09190": "Western CT",
-    "09120": "Western CT" if MERGE_GREATER_BRIDGEPORT_INTO_WESTERN_CT else "Greater Bridgeport",
+    "09170": "South Central Connecticut",
+    "09180": "Eastern Connecticut",
+    "09190": "Western Connecticut",
+    "09120": "Western Connecticut" if MERGE_GREATER_BRIDGEPORT_INTO_WESTERN_CT else "Greater Bridgeport",
 }
 
 EXPECTED_OLD_GEOIDS: Set[str] = set(OLD_COUNTY_FIPS.values())
