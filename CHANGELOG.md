@@ -15,7 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update SNAP data to include the year range 2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
+- Update crop insurance state level data for 2014-2024 [#79](https://github.com/policy-design-lab/data-ingestion/issues/79)
+- Update schema design file to include county-level payment distribution
+  data. [#80](https://github.com/policy-design-lab/data-ingestion/issues/80)
+
+### Changed
+
+- Update SNAP data to include the year range
+  2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
 - Update code to include Title-I data from years 2014 to
   2023 [#68](https://github.com/policy-design-lab/data-ingestion/issues/68)
 
