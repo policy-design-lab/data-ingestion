@@ -274,7 +274,7 @@ def main():
     logger.info("=== Starting CT County Allocation Weight Calculation ===")
 
     # Read data
-    ci_data_file = '../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv'
+    ci_data_file = '../../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv'
     ci_df = read_crop_insurance_data(ci_data_file)
 
     # Extract CT data for weight calculation

@@ -426,8 +426,8 @@ def generate_sql(weights_df: pd.DataFrame, output_path: str) -> None:
 def main():
     """Main execution function."""
     # Input files
-    ci_data_file = "../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv"
-    cropland_data_file = "../data/crop-insurance/ct_cropland_acres_by_county_2022.csv"
+    ci_data_file = "../../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv"
+    cropland_data_file = "../../data/crop-insurance/ct_cropland_acres_by_county_2022.csv"
 
     # Output files
     weights_output = "../data/crop-insurance/output/ct_cropland_weights.csv"

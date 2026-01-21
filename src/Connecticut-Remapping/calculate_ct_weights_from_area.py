@@ -441,7 +441,7 @@ def generate_sql(weights_df: pd.DataFrame, output_path: str) -> None:
 # -----------------------------------------------------------------------------
 def main():
     # Inputs
-    ci_data_file = "../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv"
+    ci_data_file = "../../data/crop-insurance/ci_state_county_year_benefits 2014-2024.csv"
 
     # Outputs
     weights_output = "../data/crop-insurance/output/ct_total_area_gis_weights.csv"
