@@ -59,6 +59,36 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments
     CONSTRAINT uc_payments UNIQUE (title_id, subtitle_id, program_id, sub_program_id, state_code, year)
 );
 
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments_by_counties
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000000 CACHE 1 ),
+    title_id smallint,
+    subtitle_id smallint,
+    program_id smallint,
+    sub_program_id smallint,
+    sub_sub_program_id smallint,
+    practice_category_id smallint,
+    county_fips_code character varying(5) NOT NULL,
+    year smallint NOT NULL,
+    payment numeric(14, 2),
+    recipient_count bigint,
+    base_acres numeric(10, 2),
+    farm_count bigint,
+    contract_count bigint,
+    premium_policy_count bigint,
+    liability_amount bigint,
+    premium_amount bigint,
+    premium_subsidy_amount bigint,
+    indemnity_amount bigint,
+    farmer_premium_amount bigint,
+    loss_ratio numeric,
+    net_farmer_benefit_amount bigint,
+    practice_code character varying(100),
+    practice_code_variant character varying(100),
+    CONSTRAINT pk_payments_by_counties PRIMARY KEY (id),
+    CONSTRAINT uc_payments_by_counties UNIQUE (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code)
+);
+
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.states
 (
     code character varying(2)   NOT NULL,
@@ -72,6 +102,15 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.subtitles
     title_id smallint               NOT NULL,
     name     character varying(100) NOT NULL,
     CONSTRAINT pk_subtitles PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.counties
+(
+    fips_code character varying(5) NOT NULL,
+    state_code character varying(2) NOT NULL,
+    name character varying(100) NOT NULL,
+    remarks character varying(100),
+    CONSTRAINT pk_counties_fips_code PRIMARY KEY (fips_code)
 );
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.practice_categories
@@ -215,5 +254,84 @@ ALTER TABLE IF EXISTS ${SCHEMA}.sub_sub_programs
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID;
+
+ALTER TABLE IF EXISTS ${SCHEMA}.counties
+    ADD CONSTRAINT fk_counties_state_code FOREIGN KEY (state_code)
+    REFERENCES ${SCHEMA}.states (code) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_programs_id FOREIGN KEY (program_id)
+    REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_titles_id FOREIGN KEY (title_id)
+    REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_states_id FOREIGN KEY (county_fips_code)
+    REFERENCES ${SCHEMA}.counties (fips_code) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_subtitles_id FOREIGN KEY (subtitle_id)
+    REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_sub_programs_id FOREIGN KEY (sub_program_id)
+    REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_sub_sub_programs_id FOREIGN KEY (sub_sub_program_id)
+    REFERENCES ${SCHEMA}.sub_sub_programs (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_practice_categories_id FOREIGN KEY (practice_category_id)
+    REFERENCES ${SCHEMA}.practice_categories (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_practices_code FOREIGN KEY (practice_code)
+    REFERENCES ${SCHEMA}.practices (code) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_counties_fips_code FOREIGN KEY (county_fips_code)
+    REFERENCES ${SCHEMA}.counties (fips_code) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 END;
