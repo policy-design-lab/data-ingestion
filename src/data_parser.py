@@ -190,6 +190,21 @@ class DataParser:
                                                                    kwargs["total_payment_csv_filename_plc"]))
             self.dmc_sada_csv_filepath = str(
                 os.path.join(data_folder, kwargs["dmc_sada_csv_filename"]))
+
+            # Title I county-level file paths
+            # Subtitle A (Total Commodities Programs)
+            self.arc_co_county_csv_filepath = str(
+                os.path.join(data_folder, kwargs.get("arc_co_county_csv_filename", "")))
+            self.arc_ic_county_csv_filepath = str(
+                os.path.join(data_folder, kwargs.get("arc_ic_county_csv_filename", "")))
+            self.plc_county_csv_filepath = str(os.path.join(data_folder, kwargs.get("plc_county_csv_filename", "")))
+
+            # Subtitle D and E (Dairy Margin Coverage and SADA programs)
+            self.subtitle_d_e_county_payments_csv_filepath = str(
+                os.path.join(data_folder, kwargs.get("subtitle_d_e_county_payments_csv_filename", "")))
+            self.subtitle_d_e_county_recipients_csv_filepath = str(
+                os.path.join(data_folder, kwargs.get("subtitle_d_e_county_recipients_csv_filename", "")))
+
         elif self.title_name == "Title 2: Conservation":
             self.acep_data = None
             self.crp_data = None
@@ -375,6 +390,91 @@ class DataParser:
                                              "entity_type"], how="left")
             self.program_data = pd.merge(self.program_data, self.farm_payee_count_data,
                                          on=["state_code", "year", "entity_name", "entity_type"], how="left")
+
+            # Process Title I county-level data
+            county_data_frames = []
+
+            # Process ARC-CO county data (subtitle_id=100)
+            if (hasattr(self, 'arc_co_county_csv_filepath') and
+                    self.arc_co_county_csv_filepath and
+                    os.path.exists(self.arc_co_county_csv_filepath)):
+                arc_co_county = pd.read_csv(self.arc_co_county_csv_filepath)
+                arc_co_formatted = self._format_title_i_county_file(
+                    arc_co_county,
+                    subtitle_id=100,
+                    program_name='Agriculture Risk Coverage (ARC)',
+                    sub_program_name='Agriculture Risk Coverage County Option (ARC-CO)'
+                )
+                if not arc_co_formatted.empty:
+                    county_data_frames.append(arc_co_formatted)
+
+            # Process ARC-IC county data (subtitle_id=100)
+            if (hasattr(self, 'arc_ic_county_csv_filepath') and
+                    self.arc_ic_county_csv_filepath and
+                    os.path.exists(self.arc_ic_county_csv_filepath)):
+                arc_ic_county = pd.read_csv(self.arc_ic_county_csv_filepath)
+                arc_ic_formatted = self._format_title_i_county_file(
+                    arc_ic_county,
+                    subtitle_id=100,
+                    program_name='Agriculture Risk Coverage (ARC)',
+                    sub_program_name='Agriculture Risk Coverage Individual Coverage (ARC-IC)'
+                )
+                if not arc_ic_formatted.empty:
+                    county_data_frames.append(arc_ic_formatted)
+
+            # Process PLC county data (subtitle_id=100)
+            if (hasattr(self, 'plc_county_csv_filepath') and
+                    self.plc_county_csv_filepath and
+                    os.path.exists(self.plc_county_csv_filepath)):
+                plc_county = pd.read_csv(self.plc_county_csv_filepath)
+                plc_formatted = self._format_title_i_county_file(
+                    plc_county,
+                    subtitle_id=100,
+                    program_name='Price Loss Coverage (PLC)',
+                    sub_program_name=None
+                )
+                if not plc_formatted.empty:
+                    county_data_frames.append(plc_formatted)
+
+            # Process Subtitle D/E County Payments and Recipients (subtitle_id=101, 102)
+            if (hasattr(self, 'subtitle_d_e_county_payments_csv_filepath') and
+                    hasattr(self, 'subtitle_d_e_county_recipients_csv_filepath') and
+                    self.subtitle_d_e_county_payments_csv_filepath and
+                    self.subtitle_d_e_county_recipients_csv_filepath and
+                    os.path.exists(self.subtitle_d_e_county_payments_csv_filepath) and
+                    os.path.exists(self.subtitle_d_e_county_recipients_csv_filepath)):
+
+                county_payments = pd.read_csv(self.subtitle_d_e_county_payments_csv_filepath)
+                county_recipients = pd.read_csv(self.subtitle_d_e_county_recipients_csv_filepath)
+
+                # Process for subtitle 101 (Dairy Margin Coverage, Subtitle D)
+                dairy_formatted = self._format_county_payments_recipients(
+                    county_payments,
+                    county_recipients,
+                    subtitle_id=101,
+                    filter_programs=['Dairy']
+                )
+                if dairy_formatted is not None and not dairy_formatted.empty:
+                    county_data_frames.append(dairy_formatted)
+
+                # Process for subtitle 102 (Supplemental Agricultural Disaster Assistance, Subtitle E)
+                sada_programs = ['ELAP', 'LFP', 'LIP', 'TAP']
+                sada_formatted = self._format_county_payments_recipients(
+                    county_payments,
+                    county_recipients,
+                    subtitle_id=102,
+                    filter_programs=sada_programs
+                )
+                if sada_formatted is not None and not sada_formatted.empty:
+                    county_data_frames.append(sada_formatted)
+
+            # Combine all county data
+            if county_data_frames:
+                self.title_i_county_data = pd.concat(county_data_frames, ignore_index=True)
+                print(f"Title I county data prepared: {len(self.title_i_county_data)} rows")
+            else:
+                self.title_i_county_data = None
+
         elif self.title_name == "Title 2: Conservation":
 
             # Import EQIP CSV files and convert to existing format
@@ -723,3 +823,162 @@ class DataParser:
             else:
                 self.ci_county_data = None
 
+    def _format_title_i_county_file(self, df, subtitle_id, program_name, sub_program_name):
+        """
+        Format Title I county files (arc_co, arc_ic, plc)
+        Expected columns: State Name, County Name, County FIPS, 2014-2023
+        """
+        formatted_rows = []
+
+        for _, row in df.iterrows():
+            state_name = row['State Name']
+            county_name = row['County Name']
+
+            # Skip rows with invalid state or county names
+            if pd.isna(state_name) or pd.isna(county_name):
+                continue
+
+            # Convert to string if not already
+            state_name = str(state_name).strip()
+            county_name = str(county_name).strip()
+
+            # Skip if empty after stripping
+            if not state_name or not county_name:
+                continue
+
+            # Get FIPS code (should be in the file)
+            if 'County FIPS' in df.columns:
+                fips_code = str(row['County FIPS']).zfill(5)
+            elif 'FIPS' in df.columns:
+                fips_code = str(row['FIPS']).zfill(5)
+            else:
+                continue  # Skip if no FIPS
+
+            # Skip if FIPS is invalid
+            if pd.isna(row.get('County FIPS', row.get('FIPS'))) or fips_code == '00000':
+                continue
+
+            # Get state code
+            state_code = None
+            for k, v in self.us_state_abbreviations.items():
+                if v.upper() == state_name.upper():
+                    state_code = k
+                    break
+
+            if not state_code:
+                continue
+
+            # Process year columns (2014-2023)
+            for col in df.columns:
+                if str(col).isdigit() and self.start_year <= int(col) <= self.end_year:
+                    payment = row[col]
+
+                    # Skip null, zero, or invalid payments
+                    if pd.isna(payment) or payment == 0 or payment == '':
+                        continue
+
+                    formatted_rows.append({
+                        'state': state_name,
+                        'state_code': state_code,
+                        'county': county_name,
+                        'fips_code': fips_code,
+                        'year': int(col),
+                        'payment': float(payment),
+                        'subtitle_id': subtitle_id,
+                        'entity_name': program_name,
+                        'sub_entity_name': sub_program_name,
+                        'entity_type': 'sub_program' if sub_program_name else 'program'
+                    })
+
+        return pd.DataFrame(formatted_rows) if formatted_rows else pd.DataFrame()
+
+    def _format_county_payments_recipients(self, payments_df, recipients_df, subtitle_id, filter_programs):
+        """
+        Format County Payments and Recipients files for Subtitle D/E
+        Expected columns: State Name, County Name, FIPS, Program, 2014-2024
+        """
+        # Filter for specific programs
+        if filter_programs:
+            payments_filtered = payments_df[payments_df['Program'].isin(filter_programs)]
+            recipients_filtered = recipients_df[recipients_df['Program'].isin(filter_programs)]
+        else:
+            payments_filtered = payments_df
+            recipients_filtered = recipients_df
+
+        if payments_filtered.empty:
+            return None
+
+        formatted_rows = []
+
+        for _, row in payments_filtered.iterrows():
+            state_name = row['State Name']
+            county_name = row['County Name']
+            program = row['Program']
+
+            # Skip rows with invalid data
+            if pd.isna(state_name) or pd.isna(county_name) or pd.isna(program):
+                continue
+
+            # Convert to string
+            state_name = str(state_name).strip()
+            county_name = str(county_name).strip()
+            program = str(program).strip()
+
+            # Skip if empty
+            if not state_name or not county_name or not program:
+                continue
+
+            fips_code = str(row['FIPS']).zfill(5)
+
+            # Skip if FIPS is invalid
+            if pd.isna(row['FIPS']) or fips_code == '00000':
+                continue
+
+            # Get state code
+            state_code = None
+            for k, v in self.us_state_abbreviations.items():
+                if v.upper() == state_name.upper():
+                    state_code = k
+                    break
+
+            if not state_code:
+                continue
+
+            # Get recipient count from recipients_df
+            recipient_row = recipients_filtered[
+                (recipients_filtered['State Name'] == state_name) &
+                (recipients_filtered['County Name'] == county_name) &
+                (recipients_filtered['Program'] == program)
+                ]
+
+            # Process year columns
+            for col in payments_filtered.columns:
+                if str(col).isdigit() and self.start_year <= int(col) <= self.end_year:
+                    payment = row[col]
+
+                    # Skip null, zero, or invalid payments
+                    if pd.isna(payment) or payment == 0 or payment == '':
+                        continue
+
+                    # Get recipient count for this year
+                    recipient_count = None
+                    if not recipient_row.empty and col in recipient_row.columns:
+                        recipient_count = recipient_row.iloc[0][col]
+                        if pd.notna(recipient_count):
+                            recipient_count = int(recipient_count)
+
+                    formatted_rows.append({
+                        'state': state_name,
+                        'state_code': state_code,
+                        'county': county_name,
+                        'fips_code': fips_code,
+                        'year': int(col),
+                        'payment': float(payment),
+                        'recipient_count': recipient_count,
+                        'subtitle_id': subtitle_id,
+                        'entity_name': program,
+                        'sub_entity_name': None,
+                        'entity_type': 'program'
+                    })
+
+        return pd.DataFrame(formatted_rows) if formatted_rows else pd.DataFrame()

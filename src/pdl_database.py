@@ -491,6 +491,151 @@ class PDLDatabase:
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
         self.logger.info("County-level crop insurance data inserted successfully.")
 
+    def insert_title_i_county_data(self, data: pd.DataFrame, schema_name: str):
+        """
+        Insert county-level Title I data into payments_by_counties.
+        Similar to insert_county_data but for Title I programs (ARC-CO, ARC-IC, PLC, etc.)
+        """
+        assert self.cursor and self.connection
+
+        if data is None or data.empty:
+            self.logger.info("No Title I county-level rows to insert.")
+            return
+
+        self.logger.info(f"Processing {len(data)} Title I county records")
+
+        # Load valid FIPS codes from the database
+        counties_ref = self.get_counties_reference(schema_name)
+        valid_fips = set(counties_ref['fips_code'].values)
+        self.logger.info(f"Loaded {len(valid_fips)} valid FIPS codes from database")
+
+        # Filter data to only include valid FIPS codes
+        data_with_valid_fips = data[data['fips_code'].isin(valid_fips)].copy()
+        invalid_fips = data[~data['fips_code'].isin(valid_fips)]
+
+        if not invalid_fips.empty:
+            unique_invalid = invalid_fips[['fips_code', 'state', 'county']].drop_duplicates()
+            self.logger.warning(
+                f"Skipping {len(invalid_fips)} rows with {len(unique_invalid)} unique invalid FIPS codes:")
+            self.logger.warning(f"Sample invalid FIPS:\n{unique_invalid.head(10)}")
+
+        if data_with_valid_fips.empty:
+            self.logger.warning("No valid FIPS codes found in data. Nothing to insert.")
+            return
+
+        self.logger.info(f"Processing {len(data_with_valid_fips)} records with valid FIPS codes")
+
+        # Create temporary table
+        temp_table_name = "temp_title_i_county_data"
+        self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
+        create_temp_sql = f"""
+            CREATE TEMPORARY TABLE {temp_table_name} (
+                year smallint,
+                state_code varchar(2),
+                county_fips_code varchar(5),
+                state_name varchar(100),
+                county_name varchar(100),
+                payment numeric(14, 2),
+                recipient_count bigint,
+                subtitle_id smallint,
+                entity_name varchar(100),
+                sub_entity_name varchar(100),
+                entity_type varchar(50)
+            )
+            """
+        self.cursor.execute(create_temp_sql)
+
+        # Insert data into temp table
+        insert_sql = f"""
+            INSERT INTO {temp_table_name}
+            (year, state_code, county_fips_code, state_name, county_name, 
+             payment, recipient_count, subtitle_id, entity_name, sub_entity_name, entity_type)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """
+
+        # Convert NaN -> None
+        data_with_valid_fips = data_with_valid_fips.replace({pd.NA: None}).where(pd.notna(data_with_valid_fips), None)
+
+        for _, row in data_with_valid_fips.iterrows():
+            # Get recipient_count and handle None/NaN properly
+            recipient_count = row.get('recipient_count')
+            if pd.isna(recipient_count):
+                recipient_count = None
+            elif recipient_count is not None:
+                try:
+                    recipient_count = int(recipient_count)
+                except (ValueError, TypeError):
+                    recipient_count = None
+
+            self.cursor.execute(insert_sql, (
+                int(row['year']),
+                str(row['state_code']),
+                str(row['fips_code']),
+                str(row['state']),
+                str(row['county']),
+                float(row['payment']),
+                recipient_count,
+                int(row['subtitle_id']),
+                str(row['entity_name']),
+                row.get('sub_entity_name'),
+                str(row['entity_type'])
+            ))
+
+        self.connection.commit()
+        self.logger.info(f"Inserted {len(data_with_valid_fips)} rows into temp table.")
+
+        # Get title_id for Title I
+        self.cursor.execute(f"SELECT id FROM {schema_name}.titles WHERE name = 'Title I: Commodities'")
+        title_result = self.cursor.fetchone()
+        if not title_result:
+            self.logger.error("Title I not found in database")
+            return
+        title_id = title_result[0]
+        self.logger.info(f"Title I ID: {title_id}")
+
+        # Final insert with proper program/subprogram resolution
+        insert_final_sql = f"""
+            INSERT INTO {schema_name}.payments_by_counties 
+            (title_id, subtitle_id, program_id, sub_program_id, county_fips_code, year, 
+             payment, recipient_count)
+            SELECT 
+                {title_id} as title_id,
+                temp.subtitle_id,
+                p.id as program_id,
+                sp.id as sub_program_id,
+                temp.county_fips_code,
+                temp.year,
+                temp.payment,
+                temp.recipient_count
+            FROM {temp_table_name} temp
+            JOIN {schema_name}.programs p 
+                 ON p.name = temp.entity_name
+                AND p.title_id = {title_id}
+                AND p.subtitle_id = temp.subtitle_id
+            LEFT JOIN {schema_name}.sub_programs sp
+                 ON sp.program_id = p.id
+                AND (temp.sub_entity_name IS NULL OR sp.name = temp.sub_entity_name)
+            ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code) 
+            DO UPDATE SET
+                payment = EXCLUDED.payment,
+                recipient_count = COALESCE(EXCLUDED.recipient_count, payments_by_counties.recipient_count)
+        """
+
+        try:
+            self.cursor.execute(insert_final_sql)
+            rows_inserted = self.cursor.rowcount
+            self.connection.commit()
+            self.logger.info(f"Inserted/updated {rows_inserted} rows in payments_by_counties.")
+
+        except Exception as e:
+            self.logger.error(f"Error inserting Title I county data: {e}")
+            self.connection.rollback()
+            raise
+
+        # Drop temp table
+        self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
+        self.logger.info("Title I county-level data inserted successfully.")
+
     def close(self):
         if self.connection:
             self.cursor.close()
