@@ -509,23 +509,35 @@ class PDLDatabase:
         valid_fips = set(counties_ref['fips_code'].values)
         self.logger.info(f"Loaded {len(valid_fips)} valid FIPS codes from database")
 
-        # Filter data to only include valid FIPS codes
-        data_with_valid_fips = data[data['fips_code'].isin(valid_fips)].copy()
-        invalid_fips = data[~data['fips_code'].isin(valid_fips)]
+        # Find FIPS codes in data that aren't in the database
+        data_fips = set(data['fips_code'].unique())
+        missing_fips = data_fips - valid_fips
 
-        if not invalid_fips.empty:
-            unique_invalid = invalid_fips[['fips_code', 'state', 'county']].drop_duplicates()
-            self.logger.warning(
-                f"Skipping {len(invalid_fips)} rows with {len(unique_invalid)} unique invalid FIPS codes:")
-            self.logger.warning(f"Sample invalid FIPS:\n{unique_invalid.head(10)}")
+        if missing_fips:
+            self.logger.warning(f"Found {len(missing_fips)} FIPS codes not in database. Adding them...")
 
-        if data_with_valid_fips.empty:
-            self.logger.warning("No valid FIPS codes found in data. Nothing to insert.")
-            return
+            # Get unique county info for missing FIPS
+            missing_counties = data[data['fips_code'].isin(missing_fips)][
+                ['fips_code', 'state_code', 'state', 'county']].drop_duplicates()
 
-        self.logger.info(f"Processing {len(data_with_valid_fips)} records with valid FIPS codes")
+            # Insert missing counties into the counties table
+            for _, county_row in missing_counties.iterrows():
+                insert_county_sql = f"""
+                    INSERT INTO {schema_name}.counties (fips_code, state_code, name, remarks)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (fips_code) DO NOTHING
+                """
+                self.cursor.execute(insert_county_sql, (
+                    county_row['fips_code'],
+                    county_row['state_code'],
+                    county_row['county'],
+                    'Non-standard FIPS code from Title I data'
+                ))
 
-        # Create temporary table
+            self.connection.commit()
+            self.logger.info(f"Added {len(missing_counties)} new counties to the database")
+
+        # Now proceed with the original insertion logic
         temp_table_name = "temp_title_i_county_data"
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
         create_temp_sql = f"""
@@ -554,9 +566,9 @@ class PDLDatabase:
         """
 
         # Convert NaN -> None
-        data_with_valid_fips = data_with_valid_fips.replace({pd.NA: None}).where(pd.notna(data_with_valid_fips), None)
+        data = data.replace({pd.NA: None}).where(pd.notna(data), None)
 
-        for _, row in data_with_valid_fips.iterrows():
+        for _, row in data.iterrows():
             # Get recipient_count and handle None/NaN properly
             recipient_count = row.get('recipient_count')
             if pd.isna(recipient_count):
@@ -582,7 +594,7 @@ class PDLDatabase:
             ))
 
         self.connection.commit()
-        self.logger.info(f"Inserted {len(data_with_valid_fips)} rows into temp table.")
+        self.logger.info(f"Inserted {len(data)} rows into temp table.")
 
         # Get title_id for Title I
         self.cursor.execute(f"SELECT id FROM {schema_name}.titles WHERE name = 'Title I: Commodities'")
