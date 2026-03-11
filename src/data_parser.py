@@ -205,6 +205,17 @@ class DataParser:
             self.subtitle_d_e_county_recipients_csv_filepath = str(
                 os.path.join(data_folder, kwargs.get("subtitle_d_e_county_recipients_csv_filename", "")))
 
+            # Title I County Recipients
+            self.farm_payee_count_csv_filepath_arc_co_county = str(os.path.join(data_folder,
+                                                                         kwargs[
+                                                                             "farm_payee_count_csv_filename_arc_co_county"]))
+            self.farm_payee_count_csv_filepath_arc_ic_county = str(os.path.join(data_folder,
+                                                                         kwargs[
+                                                                             "farm_payee_count_csv_filename_arc_ic_county"]))
+            self.farm_payee_count_csv_filepath_plc_county = str(os.path.join(data_folder,
+                                                                      kwargs[
+                                                                          "farm_payee_count_csv_filename_plc_county"]))
+
         elif self.title_name == "Title 2: Conservation":
             self.acep_data = None
             self.crp_data = None
@@ -259,6 +270,7 @@ class DataParser:
         for state_code in self.us_state_abbreviations:
             state_data = data_frame[
                 data_frame["state_name"] == self.us_state_abbreviations[state_code]]
+
             for year in range(self.start_year, self.end_year + 1):
                 row_dict = dict()
                 if state_data['state_name'].size == 1:
@@ -371,6 +383,7 @@ class DataParser:
             # Filter Dairy data
             self.dmc_data = dmc_sada_data[dmc_sada_data["entity_name"].isin(["Dairy", "DMC", "MPP"])]
             self.dmc_data = self.dmc_data.replace(self.metadata[self.title_name]["value_names_map"])
+
             self.dmc_data = self.dmc_data.assign(entity_type="subtitle")
             # Add state code to dmc_data using self.us_state_abbreviations
             self.dmc_data = self.dmc_data.assign(state_code=self.dmc_data["state_name"].map(
@@ -391,7 +404,13 @@ class DataParser:
             self.program_data = pd.merge(self.program_data, self.farm_payee_count_data,
                                          on=["state_code", "year", "entity_name", "entity_type"], how="left")
 
+
             # Process Title I county-level data
+            # Read the farm payee count CSV files for ARC-CO, ARC-IC, and PLC
+            farm_payee_count_data_arc_co_county = pd.read_csv(self.farm_payee_count_csv_filepath_arc_co_county)
+            farm_payee_count_data_arc_ic_county = pd.read_csv(self.farm_payee_count_csv_filepath_arc_ic_county)
+            farm_payee_count_data_plc_county = pd.read_csv(self.farm_payee_count_csv_filepath_plc_county)
+
             county_data_frames = []
 
             # Process ARC-CO county data (subtitle_id=100)
@@ -401,10 +420,12 @@ class DataParser:
                 arc_co_county = pd.read_csv(self.arc_co_county_csv_filepath)
                 arc_co_formatted = self._format_title_i_county_file(
                     arc_co_county,
+                    farm_payee_count_data_arc_co_county,
                     subtitle_id=100,
                     program_name='Agriculture Risk Coverage (ARC)',
                     sub_program_name='Agriculture Risk Coverage County Option (ARC-CO)'
                 )
+                arc_co_formatted.to_csv("pdl-test2.csv", index=False)
                 if not arc_co_formatted.empty:
                     county_data_frames.append(arc_co_formatted)
 
@@ -415,6 +436,7 @@ class DataParser:
                 arc_ic_county = pd.read_csv(self.arc_ic_county_csv_filepath)
                 arc_ic_formatted = self._format_title_i_county_file(
                     arc_ic_county,
+                    farm_payee_count_data_arc_ic_county,
                     subtitle_id=100,
                     program_name='Agriculture Risk Coverage (ARC)',
                     sub_program_name='Agriculture Risk Coverage Individual Coverage (ARC-IC)'
@@ -429,6 +451,7 @@ class DataParser:
                 plc_county = pd.read_csv(self.plc_county_csv_filepath)
                 plc_formatted = self._format_title_i_county_file(
                     plc_county,
+                    farm_payee_count_data_plc_county,
                     subtitle_id=100,
                     program_name='Price Loss Coverage (PLC)',
                     sub_program_name=None
@@ -444,8 +467,32 @@ class DataParser:
                     os.path.exists(self.subtitle_d_e_county_payments_csv_filepath) and
                     os.path.exists(self.subtitle_d_e_county_recipients_csv_filepath)):
 
-                county_payments = pd.read_csv(self.subtitle_d_e_county_payments_csv_filepath)
-                county_recipients = pd.read_csv(self.subtitle_d_e_county_recipients_csv_filepath)
+                # This handles the case where "Dade, Monroe" is double quoted
+                county_payments = pd.read_csv(self.subtitle_d_e_county_payments_csv_filepath, quotechar='"')
+
+                # Handles case where there is an entry for "Dade, Monroe"
+                county_recipients = pd.read_csv(self.subtitle_d_e_county_recipients_csv_filepath, quotechar='"')
+
+                # Map Counties
+                # Update FIPS - currently only Miami-Dade needs updating
+                county_payments.loc[county_payments["FIPS"] == 12025, ["FIPS", "County Name"]] = [12086, "Miami-Dade"]
+
+                # The above results in duplicates for both recipients and payments because some years have Miami-Dade
+                # and some are Dade, Monroe so we sum them so there is only a single entry per program/FIPS
+                agg_dict = {
+                    col: "sum" if county_payments[col].dtype != "object" else "first"
+                    for col in county_payments.columns
+                    if col not in ["FIPS", "Program"]
+                }
+                county_payments= (county_payments.groupby(["FIPS", "Program"], as_index=False).agg(agg_dict))
+
+                county_recipients.loc[county_recipients["FIPS"] == 12025, ["FIPS", "County Name"]] = [12086, "Miami-Dade"]
+                agg_dict = {
+                    col: "sum" if county_recipients[col].dtype != "object" else "first"
+                    for col in county_recipients.columns
+                    if col not in ["FIPS", "Program"]
+                }
+                county_recipients = (county_recipients.groupby(["FIPS", "Program"], as_index=False).agg(agg_dict))
 
                 # Process for subtitle 101 (Dairy Margin Coverage, Subtitle D)
                 dairy_formatted = self._format_county_payments_recipients(
@@ -454,6 +501,7 @@ class DataParser:
                     subtitle_id=101,
                     filter_programs=['Dairy']
                 )
+                dairy_formatted = dairy_formatted.assign(entity_type="subtitle")
                 if dairy_formatted is not None and not dairy_formatted.empty:
                     county_data_frames.append(dairy_formatted)
 
@@ -465,6 +513,7 @@ class DataParser:
                     subtitle_id=102,
                     filter_programs=sada_programs
                 )
+                sada_formatted = sada_formatted.assign(entity_type="program")
                 if sada_formatted is not None and not sada_formatted.empty:
                     county_data_frames.append(sada_formatted)
 
@@ -823,7 +872,7 @@ class DataParser:
             else:
                 self.ci_county_data = None
 
-    def _format_title_i_county_file(self, df, subtitle_id, program_name, sub_program_name):
+    def _format_title_i_county_file(self, df, recipients_df, subtitle_id, program_name, sub_program_name):
         """
         Format Title I county files (arc_co, arc_ic, plc)
         Expected columns: State Name, County Name, County FIPS, 2014-2023
@@ -868,6 +917,11 @@ class DataParser:
             if not state_code:
                 continue
 
+            recipient_row = recipients_df[
+                (recipients_df['State Name'] == state_name) &
+                (recipients_df['County Name'] == county_name)
+                ]
+
             # Process year columns (2014-2023)
             for col in df.columns:
                 if str(col).isdigit() and self.start_year <= int(col) <= self.end_year:
@@ -876,6 +930,11 @@ class DataParser:
                     # Skip null, zero, or invalid payments
                     if pd.isna(payment) or payment == 0 or payment == '':
                         continue
+                    recipient_count = None
+                    if not recipient_row.empty and col in recipient_row.columns:
+                        recipient_count = recipient_row.iloc[0][col]
+                        if pd.notna(recipient_count):
+                            recipient_count = int(recipient_count)
 
                     formatted_rows.append({
                         'state': state_name,
@@ -884,6 +943,7 @@ class DataParser:
                         'fips_code': fips_code,
                         'year': int(col),
                         'payment': float(payment),
+                        'recipient_count': recipient_count,
                         'subtitle_id': subtitle_id,
                         'entity_name': program_name,
                         'sub_entity_name': sub_program_name,
@@ -897,6 +957,7 @@ class DataParser:
         Format County Payments and Recipients files for Subtitle D/E
         Expected columns: State Name, County Name, FIPS, Program, 2014-2024
         """
+
         # Filter for specific programs
         if filter_programs:
             payments_filtered = payments_df[payments_df['Program'].isin(filter_programs)]

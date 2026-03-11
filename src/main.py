@@ -49,6 +49,9 @@ if __name__ == '__main__':
                                      arc_co_county_csv_filename="arc_co_county_2014_2023.csv",
                                      arc_ic_county_csv_filename="arc_ic_county_2014_2023.csv",
                                      plc_county_csv_filename="plc_county_2014_2023.csv",
+                                     farm_payee_count_csv_filename_arc_co_county="ARC-CO Recipients by Program County.csv",
+                                     farm_payee_count_csv_filename_arc_ic_county="ARC-IC Recipients by Program County.csv",
+                                     farm_payee_count_csv_filename_plc_county="PLC Recipients by Program County.csv",
                                      subtitle_d_e_county_payments_csv_filename="County Payments.csv",
                                      subtitle_d_e_county_recipients_csv_filename="County Recipients.csv"
                                      )
