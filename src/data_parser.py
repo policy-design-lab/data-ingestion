@@ -425,7 +425,6 @@ class DataParser:
                     program_name='Agriculture Risk Coverage (ARC)',
                     sub_program_name='Agriculture Risk Coverage County Option (ARC-CO)'
                 )
-                arc_co_formatted.to_csv("pdl-test2.csv", index=False)
                 if not arc_co_formatted.empty:
                     county_data_frames.append(arc_co_formatted)
 
@@ -502,6 +501,7 @@ class DataParser:
                     filter_programs=['Dairy']
                 )
                 dairy_formatted = dairy_formatted.assign(entity_type="subtitle")
+                dairy_formatted = dairy_formatted.replace(self.metadata[self.title_name]["value_names_map"])
                 if dairy_formatted is not None and not dairy_formatted.empty:
                     county_data_frames.append(dairy_formatted)
 
@@ -513,6 +513,7 @@ class DataParser:
                     subtitle_id=102,
                     filter_programs=sada_programs
                 )
+                sada_formatted = sada_formatted.replace(self.metadata[self.title_name]["value_names_map"])
                 sada_formatted = sada_formatted.assign(entity_type="program")
                 if sada_formatted is not None and not sada_formatted.empty:
                     county_data_frames.append(sada_formatted)
