@@ -137,17 +137,19 @@ class PDLDatabase:
 
         self.logger.info("Tables initialized successfully")
 
-    def insert_data(self, data_frame, schema_name, table_name="payments", geo_level="state"):
+    def insert_data(self, data_frame, schema_name, geo_level="state"):
         total_rows = len(data_frame)
 
         # Geographic level of data to insert
         geo_key = "state_code"
         geo_column = "state_code"
+        table_name = "payments"
 
         # If county data, switch the row data key and SQL column name
         if geo_level == "county":
             geo_key = "fips_code"
             geo_column = "county_fips_code"
+            table_name = "payments_by_counties"
 
         # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
@@ -551,7 +553,7 @@ class PDLDatabase:
 
             # Rename payment column to match the insert_data method expected value and proceed with insertion
             data = data.rename(columns={'payment': 'amount'})
-            self.insert_data(data, schema_name, "payments_by_counties", "county")
+            self.insert_data(data, schema_name, "county")
             self.logger.info("Title I county-level data inserted successfully.")
 
 
