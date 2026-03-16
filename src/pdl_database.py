@@ -137,8 +137,18 @@ class PDLDatabase:
 
         self.logger.info("Tables initialized successfully")
 
-    def insert_data(self, data_frame, schema_name):
+    def insert_data(self, data_frame, schema_name, table_name="payments", geo_level="state"):
         total_rows = len(data_frame)
+
+        # Geographic level of data to insert
+        geo_key = "state_code"
+        geo_column = "state_code"
+
+        # If county data, switch the row data key and SQL column name
+        if geo_level == "county":
+            geo_key = "fips_code"
+            geo_column = "county_fips_code"
+
         # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
             if index % 100 == 0:
@@ -152,11 +162,12 @@ class PDLDatabase:
                 if result:
                     title_id, subtitle_id = result
                     # Insert data into the payments table
+
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, {geo_column}, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
-                                        (title_id, subtitle_id, None, None, row["state_code"], row['year'],
+                                        (title_id, subtitle_id, None, None, row[geo_key], row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
@@ -184,7 +195,7 @@ class PDLDatabase:
 
                     # Insert data into the payments table
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, "
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, {geo_column}, year, "
                         "payment, recipient_count, base_acres, farm_count, contract_count, practice_code, practice_code_variant, premium_policy_count, "
                         "liability_amount, premium_amount, premium_subsidy_amount, indemnity_amount, farmer_premium_amount, loss_ratio, net_farmer_benefit_amount) "
                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -201,7 +212,7 @@ class PDLDatabase:
 
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, None, practice_category_id,
-                                         row["state_code"], row['year'],
+                                         row[geo_key], row['year'],
                                          row['amount'] if 'amount' in row and not pd.isna(row['amount']) else None,
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
@@ -243,10 +254,10 @@ class PDLDatabase:
                     program_id, title_id, subtitle_id, sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, {geo_column}, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
-                                        (title_id, subtitle_id, program_id, sub_program_id, row["state_code"],
+                                        (title_id, subtitle_id, program_id, sub_program_id, row[geo_key],
                                          row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
@@ -268,11 +279,11 @@ class PDLDatabase:
                     program_id, title_id, subtitle_id, sub_program_id, sub_sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, {geo_column}, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id,
-                                         row["state_code"], row['year'],
+                                         row[geo_key], row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
@@ -282,6 +293,7 @@ class PDLDatabase:
                                              row['base_acres']) else None,
                                          row['farm_count'] if 'farm_count' in row and not pd.isna(
                                              row['farm_count']) else None))
+
         self.connection.commit()
 
     def insert_county_data(self, data: pd.DataFrame, schema_name: str):
@@ -537,116 +549,11 @@ class PDLDatabase:
             self.connection.commit()
             self.logger.info(f"Added {len(missing_counties)} new counties to the database")
 
-        # Now proceed with the original insertion logic
-        temp_table_name = "temp_title_i_county_data"
-        self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
-        create_temp_sql = f"""
-            CREATE TEMPORARY TABLE {temp_table_name} (
-                year smallint,
-                state_code varchar(2),
-                county_fips_code varchar(5),
-                state_name varchar(100),
-                county_name varchar(100),
-                payment numeric(14, 2),
-                recipient_count bigint,
-                subtitle_id smallint,
-                entity_name varchar(100),
-                sub_entity_name varchar(100),
-                entity_type varchar(50)
-            )
-            """
-        self.cursor.execute(create_temp_sql)
+            # Rename payment column to match the insert_data method expected value and proceed with insertion
+            data = data.rename(columns={'payment': 'amount'})
+            self.insert_data(data, schema_name, "payments_by_counties", "county")
+            self.logger.info("Title I county-level data inserted successfully.")
 
-        # Insert data into temp table
-        insert_sql = f"""
-            INSERT INTO {temp_table_name}
-            (year, state_code, county_fips_code, state_name, county_name, 
-             payment, recipient_count, subtitle_id, entity_name, sub_entity_name, entity_type)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """
-
-        # Convert NaN -> None
-        data = data.replace({pd.NA: None}).where(pd.notna(data), None)
-
-        for _, row in data.iterrows():
-            # Get recipient_count and handle None/NaN properly
-            recipient_count = row.get('recipient_count')
-            if pd.isna(recipient_count):
-                recipient_count = None
-            elif recipient_count is not None:
-                try:
-                    recipient_count = int(recipient_count)
-                except (ValueError, TypeError):
-                    recipient_count = None
-
-            self.cursor.execute(insert_sql, (
-                int(row['year']),
-                str(row['state_code']),
-                str(row['fips_code']),
-                str(row['state']),
-                str(row['county']),
-                float(row['payment']),
-                recipient_count,
-                int(row['subtitle_id']),
-                str(row['entity_name']),
-                row.get('sub_entity_name'),
-                str(row['entity_type'])
-            ))
-
-        self.connection.commit()
-        self.logger.info(f"Inserted {len(data)} rows into temp table.")
-
-        # Get title_id for Title I
-        self.cursor.execute(f"SELECT id FROM {schema_name}.titles WHERE name = 'Title I: Commodities'")
-        title_result = self.cursor.fetchone()
-        if not title_result:
-            self.logger.error("Title I not found in database")
-            return
-        title_id = title_result[0]
-        self.logger.info(f"Title I ID: {title_id}")
-
-        # Final insert with proper program/subprogram resolution
-        insert_final_sql = f"""
-            INSERT INTO {schema_name}.payments_by_counties 
-            (title_id, subtitle_id, program_id, sub_program_id, county_fips_code, year, 
-             payment, recipient_count)
-            SELECT 
-                {title_id} as title_id,
-                temp.subtitle_id,
-                p.id as program_id,
-                sp.id as sub_program_id,
-                temp.county_fips_code,
-                temp.year,
-                temp.payment,
-                temp.recipient_count
-            FROM {temp_table_name} temp
-            JOIN {schema_name}.programs p 
-                 ON p.name = temp.entity_name
-                AND p.title_id = {title_id}
-                AND p.subtitle_id = temp.subtitle_id
-            LEFT JOIN {schema_name}.sub_programs sp
-                 ON sp.program_id = p.id
-                AND (temp.sub_entity_name IS NULL OR sp.name = temp.sub_entity_name)
-            ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code) 
-            DO UPDATE SET
-                payment = EXCLUDED.payment,
-                recipient_count = COALESCE(EXCLUDED.recipient_count, payments_by_counties.recipient_count)
-        """
-
-        try:
-            self.cursor.execute(insert_final_sql)
-            rows_inserted = self.cursor.rowcount
-            self.connection.commit()
-            self.logger.info(f"Inserted/updated {rows_inserted} rows in payments_by_counties.")
-
-        except Exception as e:
-            self.logger.error(f"Error inserting Title I county data: {e}")
-            self.connection.rollback()
-            raise
-
-        # Drop temp table
-        self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
-        self.logger.info("Title I county-level data inserted successfully.")
 
     def close(self):
         if self.connection:

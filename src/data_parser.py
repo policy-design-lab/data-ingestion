@@ -422,7 +422,7 @@ class DataParser:
                     arc_co_county,
                     farm_payee_count_data_arc_co_county,
                     subtitle_id=100,
-                    program_name='Agriculture Risk Coverage (ARC)',
+                    program_name='Agriculture Risk Coverage County Option (ARC-CO)',
                     sub_program_name='Agriculture Risk Coverage County Option (ARC-CO)'
                 )
                 if not arc_co_formatted.empty:
@@ -437,7 +437,7 @@ class DataParser:
                     arc_ic_county,
                     farm_payee_count_data_arc_ic_county,
                     subtitle_id=100,
-                    program_name='Agriculture Risk Coverage (ARC)',
+                    program_name='Agriculture Risk Coverage Individual Coverage (ARC-IC)',
                     sub_program_name='Agriculture Risk Coverage Individual Coverage (ARC-IC)'
                 )
                 if not arc_ic_formatted.empty:
