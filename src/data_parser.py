@@ -166,9 +166,11 @@ class DataParser:
         # Main program category specific file paths
         if self.title_name == "Title 1: Commodities":
             self.base_acres_data = None
+            self.base_acres_county_data = None
             self.farm_payee_count_data = None
             self.dmc_data = None
             self.sada_data = None
+            self.title_i_county_data = None
 
             self.base_acres_csv_filepath_arc_co = str(
                 os.path.join(data_folder, kwargs["base_acres_csv_filename_arc_co"]))
@@ -192,6 +194,11 @@ class DataParser:
                 os.path.join(data_folder, kwargs["dmc_sada_csv_filename"]))
 
             # Title I county-level file paths
+            self.base_acres_csv_filepath_arc_co_county = str(
+                os.path.join(data_folder, kwargs["base_acres_csv_filename_arc_co_county"]))
+            self.base_acres_csv_filepath_plc_county = str(os.path.join(data_folder,
+                                                                     kwargs["base_acres_csv_filename_plc_county"]))
+
             # Subtitle A (Total Commodities Programs)
             self.arc_co_county_csv_filepath = str(
                 os.path.join(data_folder, kwargs.get("arc_co_county_csv_filename", "")))
@@ -413,10 +420,25 @@ class DataParser:
 
             county_data_frames = []
 
+            # Read and clean the base acres CSV files for ARC-CO and PLC
+            base_acres_data_arc_co_county = self.__read_and_clean_data(self.base_acres_csv_filepath_arc_co_county)
+            base_acres_data_plc_county = self.__read_and_clean_data(self.base_acres_csv_filepath_plc_county)
+
+            base_acres_data_arc_co_county_output = self.__convert_to_new_data_frame_county(
+                base_acres_data_arc_co_county, "Agriculture Risk Coverage County Option (ARC-CO)","Base Acres")
+
+            base_acres_data_plc_county_output = self.__convert_to_new_data_frame_county(base_acres_data_plc_county,
+                                                                          "Price Loss Coverage (PLC)",
+                                                                          "Base Acres")
+            self.base_acres_county_data = pd.concat([base_acres_data_arc_co_county_output,
+                                                     base_acres_data_plc_county_output], ignore_index=True)
+
             # Process ARC-CO county data (subtitle_id=100)
+            arc_co_formatted = None
             if (hasattr(self, 'arc_co_county_csv_filepath') and
                     self.arc_co_county_csv_filepath and
                     os.path.exists(self.arc_co_county_csv_filepath)):
+
                 arc_co_county = pd.read_csv(self.arc_co_county_csv_filepath)
                 arc_co_formatted = self._format_title_i_county_file(
                     arc_co_county,
@@ -425,10 +447,9 @@ class DataParser:
                     program_name='Agriculture Risk Coverage County Option (ARC-CO)',
                     sub_program_name='Agriculture Risk Coverage County Option (ARC-CO)'
                 )
-                if not arc_co_formatted.empty:
-                    county_data_frames.append(arc_co_formatted)
 
             # Process ARC-IC county data (subtitle_id=100)
+            arc_ic_formatted = None
             if (hasattr(self, 'arc_ic_county_csv_filepath') and
                     self.arc_ic_county_csv_filepath and
                     os.path.exists(self.arc_ic_county_csv_filepath)):
@@ -440,10 +461,9 @@ class DataParser:
                     program_name='Agriculture Risk Coverage Individual Coverage (ARC-IC)',
                     sub_program_name='Agriculture Risk Coverage Individual Coverage (ARC-IC)'
                 )
-                if not arc_ic_formatted.empty:
-                    county_data_frames.append(arc_ic_formatted)
 
             # Process PLC county data (subtitle_id=100)
+            plc_formatted = None
             if (hasattr(self, 'plc_county_csv_filepath') and
                     self.plc_county_csv_filepath and
                     os.path.exists(self.plc_county_csv_filepath)):
@@ -455,8 +475,14 @@ class DataParser:
                     program_name='Price Loss Coverage (PLC)',
                     sub_program_name=None
                 )
-                if not plc_formatted.empty:
-                    county_data_frames.append(plc_formatted)
+
+            subtitle_a_county_df = pd.concat([arc_co_formatted, arc_ic_formatted, plc_formatted], ignore_index=True)
+            subtitle_a_county_df = pd.merge(subtitle_a_county_df, self.base_acres_county_data,
+                                         on=["fips_code", "year", "entity_name",
+                                             "entity_type"], how="left")
+
+            # Add subtitle-a county data to the list
+            county_data_frames.append(subtitle_a_county_df)
 
             # Process Subtitle D/E County Payments and Recipients (subtitle_id=101, 102)
             if (hasattr(self, 'subtitle_d_e_county_payments_csv_filepath') and
@@ -522,8 +548,6 @@ class DataParser:
             if county_data_frames:
                 self.title_i_county_data = pd.concat(county_data_frames, ignore_index=True)
                 print(f"Title I county data prepared: {len(self.title_i_county_data)} rows")
-            else:
-                self.title_i_county_data = None
 
         elif self.title_name == "Title 2: Conservation":
 
@@ -949,6 +973,39 @@ class DataParser:
                         'entity_name': program_name,
                         'sub_entity_name': sub_program_name,
                         'entity_type': 'sub_program' if sub_program_name else 'program'
+                    })
+
+        return pd.DataFrame(formatted_rows) if formatted_rows else pd.DataFrame()
+
+    def __convert_to_new_data_frame_county(self, data_frame, entity_name, data_type=None):
+        """
+        Convert Title I base acre county files to new data frame
+        """
+        formatted_rows = []
+
+        for _, row in data_frame.iterrows():
+            # Get FIPS code (should be in the file)
+            if 'FIPS' in data_frame.columns:
+                fips_code = str(row['FIPS']).zfill(5)
+            elif 'County FIPS' in data_frame.columns:
+                fips_code = str(row['County FIPS']).zfill(5)
+            else:
+                continue  # Skip if no FIPS
+
+            # Skip if FIPS is invalid
+            if pd.isna(row.get('County FIPS', row.get('FIPS'))) or fips_code == '00000':
+                continue
+
+            # Process year columns (2014-2023)
+            for col in data_frame.columns:
+                if str(col).isdigit() and self.start_year <= int(col) <= self.end_year:
+                    base_acres = row[col]
+                    formatted_rows.append({
+                        'fips_code': fips_code,
+                        'year': int(col),
+                        'entity_name': entity_name,
+                        'entity_type': self.__find_entity_type(entity_name),
+                        'base_acres': base_acres
                     })
 
         return pd.DataFrame(formatted_rows) if formatted_rows else pd.DataFrame()
