@@ -5,11 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] 2026-03-03
+
+### Added
+
+- Create tables and ingest data for storing county-level data [#81](https://github.com/policy-design-lab/data-ingestion/issues/81)
+
 ## [0.6.0] 2025-08-20
 
 ### Changed
 
-- Update SNAP data to include the year range 2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
+- Update crop insurance state level data for 2014-2024 [#79](https://github.com/policy-design-lab/data-ingestion/issues/79)
+- Update schema design file to include county-level payment distribution
+  data. [#80](https://github.com/policy-design-lab/data-ingestion/issues/80)
+
+### Changed
+
+- Update SNAP data to include the year range
+  2014-2024 [#69](https://github.com/policy-design-lab/data-ingestion/issues/69)
 - Update code to include Title-I data from years 2014 to
   2023 [#68](https://github.com/policy-design-lab/data-ingestion/issues/68)
 
@@ -92,6 +105,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - This CHANGELOG file.
 - Feature to parse and ingest Title II data. [#7](https://github.com/policy-design-lab/data-ingestion/issues/7)
+
+[0.7.0]: https://github.com/policy-design-lab/data-ingestion/compare/0.6.0...0.7.0
 
 [0.6.0]: https://github.com/policy-design-lab/data-ingestion/compare/0.5.0...0.6.0
 
