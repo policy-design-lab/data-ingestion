@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-  Title-I county data for 2014-2023 [#90](https://github.com/policy-design-lab/data-ingestion/issues/90)
+
 ## [0.7.0] 2026-03-03
 
 ### Added
