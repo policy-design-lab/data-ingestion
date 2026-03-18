@@ -151,6 +151,39 @@ class PDLDatabase:
             geo_column = "county_fips_code"
             table_name = "payments_by_counties"
 
+            # Load valid FIPS codes from the database to check for any missing before inserting the data
+            counties_ref = self.get_counties_reference(schema_name)
+            valid_fips = set(counties_ref['fips_code'].values)
+            self.logger.info(f"Loaded {len(valid_fips)} valid FIPS codes from database")
+
+            # Find FIPS codes in data that aren't in the database
+            data_fips = set(data_frame['fips_code'].unique())
+            missing_fips = data_fips - valid_fips
+
+            if missing_fips:
+                self.logger.warning(f"Found {len(missing_fips)} FIPS codes not in database. Adding them...")
+
+                # Get unique county info for missing FIPS
+                missing_counties = data_frame[data_frame['fips_code'].isin(missing_fips)][
+                    ['fips_code', 'state_code', 'state', 'county']].drop_duplicates()
+
+                # Insert missing counties into the counties table
+                for _, county_row in missing_counties.iterrows():
+                    insert_county_sql = f"""
+                                INSERT INTO {schema_name}.counties (fips_code, state_code, name, remarks)
+                                VALUES (%s, %s, %s, %s)
+                                ON CONFLICT (fips_code) DO NOTHING
+                            """
+                    self.cursor.execute(insert_county_sql, (
+                        county_row['fips_code'],
+                        county_row['state_code'],
+                        county_row['county'],
+                        'Non-standard FIPS code from Title I data'
+                    ))
+
+                # self.connection.commit()
+                self.logger.info(f"Added {len(missing_counties)} new counties to the database")
+
         # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
             if index % 100 == 0:
@@ -504,58 +537,6 @@ class PDLDatabase:
         # Drop temp table
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
         self.logger.info("County-level crop insurance data inserted successfully.")
-
-    def insert_title_i_county_data(self, data: pd.DataFrame, schema_name: str):
-        """
-        Insert county-level Title I data into payments_by_counties.
-        Similar to insert_county_data but for Title I programs (ARC-CO, ARC-IC, PLC, etc.)
-        """
-        assert self.cursor and self.connection
-
-        if data is None or data.empty:
-            self.logger.info("No Title I county-level rows to insert.")
-            return
-
-        self.logger.info(f"Processing {len(data)} Title I county records")
-
-        # Load valid FIPS codes from the database
-        counties_ref = self.get_counties_reference(schema_name)
-        valid_fips = set(counties_ref['fips_code'].values)
-        self.logger.info(f"Loaded {len(valid_fips)} valid FIPS codes from database")
-
-        # Find FIPS codes in data that aren't in the database
-        data_fips = set(data['fips_code'].unique())
-        missing_fips = data_fips - valid_fips
-
-        if missing_fips:
-            self.logger.warning(f"Found {len(missing_fips)} FIPS codes not in database. Adding them...")
-
-            # Get unique county info for missing FIPS
-            missing_counties = data[data['fips_code'].isin(missing_fips)][
-                ['fips_code', 'state_code', 'state', 'county']].drop_duplicates()
-
-            # Insert missing counties into the counties table
-            for _, county_row in missing_counties.iterrows():
-                insert_county_sql = f"""
-                    INSERT INTO {schema_name}.counties (fips_code, state_code, name, remarks)
-                    VALUES (%s, %s, %s, %s)
-                    ON CONFLICT (fips_code) DO NOTHING
-                """
-                self.cursor.execute(insert_county_sql, (
-                    county_row['fips_code'],
-                    county_row['state_code'],
-                    county_row['county'],
-                    'Non-standard FIPS code from Title I data'
-                ))
-
-            self.connection.commit()
-            self.logger.info(f"Added {len(missing_counties)} new counties to the database")
-
-            # Rename payment column to match the insert_data method expected value and proceed with insertion
-            data = data.rename(columns={'payment': 'amount'})
-            self.insert_data(data, schema_name, "county")
-            self.logger.info("Title I county-level data inserted successfully.")
-
 
     def close(self):
         if self.connection:

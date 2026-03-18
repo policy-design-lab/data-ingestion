@@ -90,7 +90,7 @@ if __name__ == '__main__':
         # Insert Title I county-level data
         if title_i_data_parser.title_i_county_data is not None:
             logger.info("Starting Title I county-level data ingestion...")
-            database.insert_title_i_county_data(title_i_data_parser.title_i_county_data, schema_name)
+            database.insert_data(title_i_data_parser.title_i_county_data, schema_name, "county")
 
         logger.info("Title I data ingestion complete.")
 
