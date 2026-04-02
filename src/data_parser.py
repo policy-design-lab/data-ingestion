@@ -272,6 +272,24 @@ class DataParser:
         else:
             return "unknown"
 
+    @staticmethod
+    def __parse_county_payment_cell(value):
+        """
+        Parse a county payment CSV year cell. Returns None if the value is missing or
+        non-numeric (skip row); otherwise returns float including 0.0.
+        """
+        if pd.isna(value):
+            return None
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped == '':
+                return None
+            value = stripped
+        parsed = pd.to_numeric(value, errors='coerce')
+        if pd.isna(parsed):
+            return None
+        return float(parsed)
+
     def __convert_to_new_data_frame(self, data_frame, entity_name, data_type=None):
         row_list = []
         for state_code in self.us_state_abbreviations:
@@ -950,10 +968,10 @@ class DataParser:
             # Process year columns (2014-2023)
             for col in df.columns:
                 if str(col).isdigit() and self.start_year <= int(col) <= self.end_year:
-                    payment = row[col]
+                    amount = self.__parse_county_payment_cell(row[col])
 
-                    # Skip null, zero, or invalid payments
-                    if pd.isna(payment) or payment == 0 or payment == '':
+                    # Skip missing/non-numeric payments (zero is ingested)
+                    if amount is None:
                         continue
                     recipient_count = None
                     if not recipient_row.empty and col in recipient_row.columns:
@@ -967,7 +985,7 @@ class DataParser:
                         'county': county_name,
                         'fips_code': fips_code,
                         'year': int(col),
-                        'amount': float(payment),
+                        'amount': amount,
                         'recipient_count': recipient_count,
                         'subtitle_id': subtitle_id,
                         'entity_name': program_name,
@@ -1073,10 +1091,10 @@ class DataParser:
             # Process year columns
             for col in payments_filtered.columns:
                 if str(col).isdigit() and self.start_year <= int(col) <= self.end_year:
-                    payment = row[col]
+                    amount = self.__parse_county_payment_cell(row[col])
 
-                    # Skip null, zero, or invalid payments
-                    if pd.isna(payment) or payment == 0 or payment == '':
+                    # Skip missing/non-numeric payments (zero is ingested)
+                    if amount is None:
                         continue
 
                     # Get recipient count for this year
@@ -1092,7 +1110,7 @@ class DataParser:
                         'county': county_name,
                         'fips_code': fips_code,
                         'year': int(col),
-                        'amount': float(payment),
+                        'amount': amount,
                         'recipient_count': recipient_count,
                         'subtitle_id': subtitle_id,
                         'entity_name': program,
