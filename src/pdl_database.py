@@ -137,8 +137,53 @@ class PDLDatabase:
 
         self.logger.info("Tables initialized successfully")
 
-    def insert_data(self, data_frame, schema_name):
+    def insert_data(self, data_frame, schema_name, geo_level="state"):
         total_rows = len(data_frame)
+
+        # Geographic level of data to insert
+        geo_key = "state_code"
+        geo_column = "state_code"
+        table_name = "payments"
+
+        # If county data, switch the row data key and SQL column name
+        if geo_level == "county":
+            geo_key = "fips_code"
+            geo_column = "county_fips_code"
+            table_name = "payments_by_counties"
+
+            # Load valid FIPS codes from the database to check for any missing before inserting the data
+            counties_ref = self.get_counties_reference(schema_name)
+            valid_fips = set(counties_ref['fips_code'].values)
+            self.logger.info(f"Loaded {len(valid_fips)} valid FIPS codes from database")
+
+            # Find FIPS codes in data that aren't in the database
+            data_fips = set(data_frame['fips_code'].unique())
+            missing_fips = data_fips - valid_fips
+
+            if missing_fips:
+                self.logger.warning(f"Found {len(missing_fips)} FIPS codes not in database. Adding them...")
+
+                # Get unique county info for missing FIPS
+                missing_counties = data_frame[data_frame['fips_code'].isin(missing_fips)][
+                    ['fips_code', 'state_code', 'state', 'county']].drop_duplicates()
+
+                # Insert missing counties into the counties table
+                for _, county_row in missing_counties.iterrows():
+                    insert_county_sql = f"""
+                                INSERT INTO {schema_name}.counties (fips_code, state_code, name, remarks)
+                                VALUES (%s, %s, %s, %s)
+                                ON CONFLICT (fips_code) DO NOTHING
+                            """
+                    self.cursor.execute(insert_county_sql, (
+                        county_row['fips_code'],
+                        county_row['state_code'],
+                        county_row['county'],
+                        'Non-standard FIPS code from Title I data'
+                    ))
+
+                # self.connection.commit()
+                self.logger.info(f"Added {len(missing_counties)} new counties to the database")
+
         # Iterate through the Pandas data frame and insert data into the tables
         for index, row in data_frame.iterrows():
             if index % 100 == 0:
@@ -152,11 +197,12 @@ class PDLDatabase:
                 if result:
                     title_id, subtitle_id = result
                     # Insert data into the payments table
+
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, {geo_column}, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
-                                        (title_id, subtitle_id, None, None, row["state_code"], row['year'],
+                                        (title_id, subtitle_id, None, None, row[geo_key], row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
@@ -184,7 +230,7 @@ class PDLDatabase:
 
                     # Insert data into the payments table
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, state_code, year, "
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, practice_category_id, {geo_column}, year, "
                         "payment, recipient_count, base_acres, farm_count, contract_count, practice_code, practice_code_variant, premium_policy_count, "
                         "liability_amount, premium_amount, premium_subsidy_amount, indemnity_amount, farmer_premium_amount, loss_ratio, net_farmer_benefit_amount) "
                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -201,7 +247,7 @@ class PDLDatabase:
 
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, None, practice_category_id,
-                                         row["state_code"], row['year'],
+                                         row[geo_key], row['year'],
                                          row['amount'] if 'amount' in row and not pd.isna(row['amount']) else None,
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
@@ -243,10 +289,10 @@ class PDLDatabase:
                     program_id, title_id, subtitle_id, sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, {geo_column}, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
-                                        (title_id, subtitle_id, program_id, sub_program_id, row["state_code"],
+                                        (title_id, subtitle_id, program_id, sub_program_id, row[geo_key],
                                          row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
@@ -268,11 +314,11 @@ class PDLDatabase:
                     program_id, title_id, subtitle_id, sub_program_id, sub_sub_program_id = result
                     # Insert data into the payments table
                     sql_insert_query = (
-                        f"INSERT INTO {schema_name}.payments (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
+                        f"INSERT INTO {schema_name}.{table_name} (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, {geo_column}, year, payment, recipient_count, contract_count, base_acres, farm_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ")
                     # "ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id, state_code, year) DO UPDATE SET payment = EXCLUDED.payment")
                     self.cursor.execute(sql_insert_query,
                                         (title_id, subtitle_id, program_id, sub_program_id, sub_sub_program_id,
-                                         row["state_code"], row['year'],
+                                         row[geo_key], row['year'],
                                          row['amount'],
                                          row['recipient_count'] if 'recipient_count' in row and not pd.isna(
                                              row['recipient_count']) else None,
@@ -282,6 +328,7 @@ class PDLDatabase:
                                              row['base_acres']) else None,
                                          row['farm_count'] if 'farm_count' in row and not pd.isna(
                                              row['farm_count']) else None))
+
         self.connection.commit()
 
     def insert_county_data(self, data: pd.DataFrame, schema_name: str):
