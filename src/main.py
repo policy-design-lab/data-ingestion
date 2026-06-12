@@ -33,80 +33,80 @@ if __name__ == '__main__':
     if cli.args.init_tables:
         database.initialize_tables(schema_name)
 
-
-    title_i_data_parser = DataParser(2014, 2023, "Title 1: Commodities",
-                                     "../data/title-i", "title_1_version_1.csv",
-                                     base_acres_csv_filename_arc_co="ARC-CO Base Acres by Program.csv",
-                                     base_acres_csv_filename_plc="PLC Base Acres by Program.csv",
-                                     farm_payee_count_csv_filename_arc_co="ARC-CO Recipients by Program.csv",
-                                     farm_payee_count_csv_filename_arc_ic="ARC-IC Recipients by Program.csv",
-                                     farm_payee_count_csv_filename_plc="PLC Recipients by Program.csv",
-                                     total_payment_csv_filename_arc_co="ARC-CO.csv",
-                                     total_payment_csv_filename_arc_ic="ARC-IC.csv",
-                                     total_payment_csv_filename_plc="PLC.csv",
-                                     dmc_sada_csv_filename="Dairy-Disaster.csv",
-                                     # County-level files
-                                     base_acres_csv_filename_arc_co_county="ARC-CO Base Acres by Program by County.csv",
-                                     base_acres_csv_filename_plc_county="PLC Base Acres by Program by County.csv",
-                                     arc_co_county_csv_filename="arc_co_county_2014_2023.csv",
-                                     arc_ic_county_csv_filename="arc_ic_county_2014_2023.csv",
-                                     plc_county_csv_filename="plc_county_2014_2023.csv",
-                                     farm_payee_count_csv_filename_arc_co_county="ARC-CO Recipients by Program County.csv",
-                                     farm_payee_count_csv_filename_arc_ic_county="ARC-IC Recipients by Program County.csv",
-                                     farm_payee_count_csv_filename_plc_county="PLC Recipients by Program County.csv",
-                                     subtitle_d_e_county_payments_csv_filename="County Payments.csv",
-                                     subtitle_d_e_county_recipients_csv_filename="County Recipients.csv"
-                                     )
-    title_i_data_parser.format_data()
-
-    title_ii_data_parser = DataParser(2014, 2023, "Title 2: Conservation",
-                                      "../data/title-ii", "",
-                                      crp_csv_filename="CRP-total compiled (January 28 2025).csv",
-                                      acep_csv_filename="ACEP.csv",
-                                      rcpp_csv_filename="RCPP.csv",
-                                      eqip_csv_filename="EQIP Farm Bill.csv",
-                                      csp_csv_filename="CSP Farm Bill.csv")
-    title_ii_data_parser.format_data()
-
-    snap_data_parser = DataParser(2014, 2024, "Supplemental Nutrition Assistance Program (SNAP)",
-                                  "../data/snap", "",
-                                  snap_monthly_participation_filename="snap_monthly_participation.csv",
-                                  snap_cost_filename="snap_costs.csv")
-    snap_data_parser.format_data()
+    #
+    # title_i_data_parser = DataParser(2014, 2023, "Title 1: Commodities",
+    #                                  "../data/title-i", "title_1_version_1.csv",
+    #                                  base_acres_csv_filename_arc_co="ARC-CO Base Acres by Program.csv",
+    #                                  base_acres_csv_filename_plc="PLC Base Acres by Program.csv",
+    #                                  farm_payee_count_csv_filename_arc_co="ARC-CO Recipients by Program.csv",
+    #                                  farm_payee_count_csv_filename_arc_ic="ARC-IC Recipients by Program.csv",
+    #                                  farm_payee_count_csv_filename_plc="PLC Recipients by Program.csv",
+    #                                  total_payment_csv_filename_arc_co="ARC-CO.csv",
+    #                                  total_payment_csv_filename_arc_ic="ARC-IC.csv",
+    #                                  total_payment_csv_filename_plc="PLC.csv",
+    #                                  dmc_sada_csv_filename="Dairy-Disaster.csv",
+    #                                  # County-level files
+    #                                  base_acres_csv_filename_arc_co_county="ARC-CO Base Acres by Program by County.csv",
+    #                                  base_acres_csv_filename_plc_county="PLC Base Acres by Program by County.csv",
+    #                                  arc_co_county_csv_filename="arc_co_county_2014_2023.csv",
+    #                                  arc_ic_county_csv_filename="arc_ic_county_2014_2023.csv",
+    #                                  plc_county_csv_filename="plc_county_2014_2023.csv",
+    #                                  farm_payee_count_csv_filename_arc_co_county="ARC-CO Recipients by Program County.csv",
+    #                                  farm_payee_count_csv_filename_arc_ic_county="ARC-IC Recipients by Program County.csv",
+    #                                  farm_payee_count_csv_filename_plc_county="PLC Recipients by Program County.csv",
+    #                                  subtitle_d_e_county_payments_csv_filename="County Payments.csv",
+    #                                  subtitle_d_e_county_recipients_csv_filename="County Recipients.csv"
+    #                                  )
+    # title_i_data_parser.format_data()
+    #
+    # title_ii_data_parser = DataParser(2014, 2023, "Title 2: Conservation",
+    #                                   "../data/title-ii", "",
+    #                                   crp_csv_filename="CRP-total compiled (January 28 2025).csv",
+    #                                   acep_csv_filename="ACEP.csv",
+    #                                   rcpp_csv_filename="RCPP.csv",
+    #                                   eqip_csv_filename="EQIP Farm Bill.csv",
+    #                                   csp_csv_filename="CSP Farm Bill.csv")
+    # title_ii_data_parser.format_data()
+    #
+    # snap_data_parser = DataParser(2014, 2024, "Supplemental Nutrition Assistance Program (SNAP)",
+    #                               "../data/snap", "",
+    #                               snap_monthly_participation_filename="snap_monthly_participation.csv",
+    #                               snap_cost_filename="snap_costs.csv")
+    # snap_data_parser.format_data()
 
     crop_insurance_data_parser = DataParser(2014, 2024, "Crop Insurance",
                                             "../data/crop-insurance", "",
                                             ci_state_year_benefit_filename="ci_state_year_benefits 2014-2024.csv",
-                                            ci_state_county_year_benefit_filename="ci_state_county_year_benefits 2014-2024_with_ct_redistributed.csv"
+                                            ci_state_county_year_benefit_filename="state_county_crop 2014-2024 Title-1 Crops.csv"
                                             )
     crop_insurance_data_parser.format_data()
 
     if cli.args.insert_data:
-        # Title I data ingestion
-        logger.info("Starting Title I data ingestion...")
-        database.insert_data(title_i_data_parser.program_data, schema_name)
-        database.insert_data(title_i_data_parser.dmc_data, schema_name)
-        database.insert_data(title_i_data_parser.sada_data, schema_name)
-        # Insert Title I county-level data
-        if title_i_data_parser.title_i_county_data is not None:
-            logger.info("Starting Title I county-level data ingestion...")
-            database.insert_data(title_i_data_parser.title_i_county_data, schema_name, "county")
-
-        logger.info("Title I data ingestion complete.")
-
-        # Title II data ingestion
-        logger.info("Starting Title II data ingestion...")
-        database.insert_data(title_ii_data_parser.program_data, schema_name)
-        logger.info("Title II data ingestion complete.")
-
-        # Title IV data ingestion
-        logger.info("Starting Title IV data ingestion...")
-        database.insert_data(snap_data_parser.snap_data, schema_name)
-        logger.info("Title IV data ingestion complete.")
-
-        # Title XI data ingestion
-        logger.info("Starting Title XI data ingestion...")
-        database.insert_data(crop_insurance_data_parser.ci_data, schema_name)
+        # # Title I data ingestion
+        # logger.info("Starting Title I data ingestion...")
+        # database.insert_data(title_i_data_parser.program_data, schema_name)
+        # database.insert_data(title_i_data_parser.dmc_data, schema_name)
+        # database.insert_data(title_i_data_parser.sada_data, schema_name)
+        # # Insert Title I county-level data
+        # if title_i_data_parser.title_i_county_data is not None:
+        #     logger.info("Starting Title I county-level data ingestion...")
+        #     database.insert_data(title_i_data_parser.title_i_county_data, schema_name, "county")
+        #
+        # logger.info("Title I data ingestion complete.")
+        #
+        # # Title II data ingestion
+        # logger.info("Starting Title II data ingestion...")
+        # database.insert_data(title_ii_data_parser.program_data, schema_name)
+        # logger.info("Title II data ingestion complete.")
+        #
+        # # Title IV data ingestion
+        # logger.info("Starting Title IV data ingestion...")
+        # database.insert_data(snap_data_parser.snap_data, schema_name)
+        # logger.info("Title IV data ingestion complete.")
+        #
+        # # Title XI data ingestion
+        # logger.info("Starting Title XI data ingestion...")
+        # database.insert_data(crop_insurance_data_parser.ci_data, schema_name)
 
         # Insert county-level crop insurance data
         if crop_insurance_data_parser.ci_county_data is not None:

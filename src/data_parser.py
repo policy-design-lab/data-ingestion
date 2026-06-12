@@ -149,6 +149,7 @@ class DataParser:
             },
             "Crop Insurance": {
                 "column_names_map": {
+                    "commodity_code": "code",
                     "state": "state_code",
                     "policies_prem": "premium_policy_count",
                     "acres_insured": "base_acres",
@@ -902,7 +903,7 @@ class DataParser:
 
                 # Filter by year range
                 ci_county_data = ci_county_data[
-                    (ci_county_data['year'] >= self.start_year) & (ci_county_data['year'] <= self.end_year)]
+                    (ci_county_data['Commodity Year'] >= self.start_year) & (ci_county_data['Commodity Year'] <= self.end_year)]
 
                 # Keep original column names for now - we'll map them in the database insert
                 ci_county_data = ci_county_data.assign(entity_type="program")
@@ -911,7 +912,9 @@ class DataParser:
 
                 # Keep state and county as-is - we'll resolve them via SQL JOINs
                 self.ci_county_data = ci_county_data
-
+                self.ci_commidity_data = ci_county_data[
+                    ["Commodity Code", "Commodity Name", "Commodity Abbrv"]
+                ].drop_duplicates()
             else:
                 self.ci_county_data = None
 
