@@ -482,7 +482,6 @@ class PDLDatabase:
         }
         to_insert.rename(columns=dataframe_columns_to_temporary_table_columns, inplace=True)
 
-        # count = 0
         for _, row in to_insert[insert_cols].iterrows():
             self.cursor.execute(insert_sql, (
                 row['year'],
@@ -506,10 +505,6 @@ class PDLDatabase:
                 row.get('match_type'),
                 row.get('fuzzy_score'),
             ))
-
-            # count += 1
-            # if count >= 5:
-            #     break
 
         self.connection.commit()
         self.logger.info(f"Inserted {len(to_insert)} matched rows into temp table.")
