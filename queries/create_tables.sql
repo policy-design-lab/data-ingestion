@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments_by_counties
     practice_code_variant character varying(100),
     commodity_code smallint,
     CONSTRAINT pk_payments_by_counties PRIMARY KEY (id),
-    CONSTRAINT uc_payments_by_counties UNIQUE (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code)
+    CONSTRAINT uc_payments_by_counties UNIQUE (title_id, subtitle_id, program_id, sub_program_id, county_fips_code, year, commodity_code)
 );
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.commodities

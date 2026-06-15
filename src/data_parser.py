@@ -149,7 +149,6 @@ class DataParser:
             },
             "Crop Insurance": {
                 "column_names_map": {
-                    "commodity_code": "code",
                     "state": "state_code",
                     "policies_prem": "premium_policy_count",
                     "acres_insured": "base_acres",
@@ -160,6 +159,26 @@ class DataParser:
                     "farmer_premium": "farmer_premium_amount",
                     "loss_ratio": "loss_ratio",
                     "net_benefit": "net_farmer_benefit_amount"
+                },
+                "county_column_names_map": {
+                    "Commodity Year": "year",
+                    "Commodity Code": "commodity_code",
+                    "State Code": "state_code",
+                    "Policies Earning Prem": "premium_policy_count", # "policies_prem": "premium_policy_count",?
+                    "Companion/Endorsed Acres": "base_acres", # "acres_insured": "base_acres",?
+                    "Liabilities ($)": "liability_amount",
+                    "Total Prem ($)": "premium_amount",
+                    "Subsidy ($)": "premium_subsidy_amount",
+                    "Indemnity ($)": "indemnity_amount",
+                    "Farmer Premium": "farmer_premium_amount",
+                    "Loss Ratio": "loss_ratio",
+                    "Net Benefit": "net_farmer_benefit_amount",
+
+                    "State Name": "state",
+                    "County Name": "county",
+                    "FIPS": "county_fips_code",
+
+
                 }
             }
         }
@@ -900,10 +919,10 @@ class DataParser:
             if hasattr(self, 'ci_county_benefit_csv_filepath') and self.ci_county_benefit_csv_filepath:
 
                 ci_county_data = pd.read_csv(self.ci_county_benefit_csv_filepath)
-
+                ci_county_data.rename(columns=self.metadata[self.title_name]["county_column_names_map"], inplace=True)
                 # Filter by year range
                 ci_county_data = ci_county_data[
-                    (ci_county_data['Commodity Year'] >= self.start_year) & (ci_county_data['Commodity Year'] <= self.end_year)]
+                    (ci_county_data['year'] >= self.start_year) & (ci_county_data['year'] <= self.end_year)]
 
                 # Keep original column names for now - we'll map them in the database insert
                 ci_county_data = ci_county_data.assign(entity_type="program")
@@ -913,7 +932,7 @@ class DataParser:
                 # Keep state and county as-is - we'll resolve them via SQL JOINs
                 self.ci_county_data = ci_county_data
                 self.ci_commidity_data = ci_county_data[
-                    ["Commodity Code", "Commodity Name", "Commodity Abbrv"]
+                    ["commodity_code", "Commodity Name", "Commodity Abbrv"]
                 ].drop_duplicates()
             else:
                 self.ci_county_data = None

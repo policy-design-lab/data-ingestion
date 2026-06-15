@@ -331,6 +331,46 @@ class PDLDatabase:
 
         self.connection.commit()
 
+    def insert_commodity_data(self, df: pd.DataFrame, schema_name: str):
+        from psycopg2.extras import execute_values
+
+        commodity_columns = {
+            'commodity_code': 'code',
+            'Commodity Name': 'name',
+            "Commodity Abbrv": 'abbreviation',
+        }
+        df.rename(columns=commodity_columns, inplace=True)
+
+        if df is None or df.empty:
+            self.logger.info("No commodity data to insert.")
+            return
+
+        assert self.cursor and self.connection
+
+        table = f"{schema_name}.commodities"
+
+        # Clean NaN -> None
+        df = df.where(pd.notna(df), None)
+
+        # Ensure correct columns
+        df = df[["code", "name", "abbreviation"]]
+
+        rows = list(df.itertuples(index=False, name=None))
+
+        sql = f"""
+            INSERT INTO {table} (code, name, abbreviation)
+            VALUES %s
+            ON CONFLICT (code) DO UPDATE SET
+                name = EXCLUDED.name,
+                abbreviation = EXCLUDED.abbreviation
+        """
+
+        execute_values(self.cursor, sql, rows)
+
+        self.connection.commit()
+        self.logger.info(f"Inserted/updated {len(rows)} commodities")
+
+
     def insert_county_data(self, data: pd.DataFrame, schema_name: str):
         """
         Insert county-level crop insurance data into payments_by_counties.
@@ -390,6 +430,7 @@ class PDLDatabase:
             CREATE TEMPORARY TABLE {temp_table_name} (
                 year smallint,
                 state_code varchar(2),
+                commodity_code smallint,
                 county_fips_code varchar(5),
                 state_name varchar(100),
                 county_name varchar(100),
@@ -412,26 +453,41 @@ class PDLDatabase:
         self.cursor.execute(create_temp_sql)
 
         insert_cols = [
-            'year', 'state_code', 'fips_code', 'state', 'county', 'county_clean',
+            'year', 'state_code', 'commodity_code', 'fips_code', 'state', 'county', 'county_clean',
             'policies_prem', 'acres_insured', 'liabilities', 'premium', 'subsidy',
             'indemnity', 'loss_ratio', 'net_benefit', 'farmer_premium',
             'entity_type', 'entity_name', 'match_type', 'fuzzy_score'
         ]
         insert_sql = f"""
                 INSERT INTO {temp_table_name}
-                (year, state_code, county_fips_code, state_name, county_name, county_clean,
+                (year, state_code, commodity_code, county_fips_code, state_name, county_name, county_clean,
                  policies_prem, acres_insured, liabilities, premium, subsidy, indemnity,
                  loss_ratio, net_benefit, farmer_premium, entity_type, entity_name, match_type, fuzzy_score)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """
 
         # Convert NaN -> None
         to_insert = to_insert.replace({pd.NA: None}).where(pd.notna(to_insert), None)
 
+        # rename dataframe to temporary database table schema
+        dataframe_columns_to_temporary_table_columns = {
+            'premium_policy_count': 'policies_prem',
+            'base_acres': 'acres_insured',
+            "liability_amount": 'liabilities',
+            'premium_amount': 'premium',
+            'premium_subsidy_amount': 'subsidy',
+            'indemnity_amount': 'indemnity',
+            'net_farmer_benefit_amount': 'net_benefit',
+            'farmer_premium_amount': 'farmer_premium',
+        }
+        to_insert.rename(columns=dataframe_columns_to_temporary_table_columns, inplace=True)
+
+        # count = 0
         for _, row in to_insert[insert_cols].iterrows():
             self.cursor.execute(insert_sql, (
                 row['year'],
                 row['state_code'],
+                row['commodity_code'],
                 row['fips_code'],
                 row['state'],
                 row['county'],
@@ -450,6 +506,10 @@ class PDLDatabase:
                 row.get('match_type'),
                 row.get('fuzzy_score'),
             ))
+
+            # count += 1
+            # if count >= 5:
+            #     break
 
         self.connection.commit()
         self.logger.info(f"Inserted {len(to_insert)} matched rows into temp table.")
@@ -477,7 +537,7 @@ class PDLDatabase:
         # Final insert using fips code - FIX: explicitly set subtitle_id and sub_program_id to NULL
         insert_final_sql = f"""
             INSERT INTO {schema_name}.payments_by_counties 
-            (title_id, subtitle_id, program_id, sub_program_id, county_fips_code, year, 
+            (title_id, subtitle_id, program_id, sub_program_id, commodity_code, county_fips_code, year, 
              payment, premium_policy_count, base_acres, liability_amount, premium_amount, 
              premium_subsidy_amount, indemnity_amount, farmer_premium_amount, loss_ratio, 
              net_farmer_benefit_amount)
@@ -486,6 +546,7 @@ class PDLDatabase:
                 NULL as subtitle_id,
                 p.id as program_id,
                 NULL as sub_program_id,
+                temp.commodity_code,
                 temp.county_fips_code,
                 temp.year,
                 temp.net_benefit as payment,
@@ -504,7 +565,7 @@ class PDLDatabase:
             JOIN {schema_name}.programs p 
                  ON p.title_id = t.id 
                 AND p.name = 'Crop Insurance'
-            ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code) 
+            ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code, commodity_code) 
             DO UPDATE SET
                 payment = EXCLUDED.payment,
                 premium_policy_count = EXCLUDED.premium_policy_count,
