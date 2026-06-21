@@ -77,7 +77,7 @@ if __name__ == '__main__':
     crop_insurance_data_parser = DataParser(2014, 2024, "Crop Insurance",
                                             "../data/crop-insurance", "",
                                             ci_state_year_benefit_filename="ci_state_year_benefits 2014-2024.csv",
-                                            ci_state_county_year_benefit_filename="state_county_crop 2014-2024 Title-1 Crops.csv"
+                                            ci_state_county_year_benefit_filename="State-County-Crop 2014-2024 All Acreage Crops.csv"
                                             )
     crop_insurance_data_parser.format_data()
 
