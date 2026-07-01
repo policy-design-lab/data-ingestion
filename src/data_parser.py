@@ -165,7 +165,7 @@ class DataParser:
                     "Commodity Code": "commodity_code",
                     "State Code": "state_code",
                     "Policies Earning Prem": "premium_policy_count", # "policies_prem": "premium_policy_count",?
-                    "Companion/Endorsed Acres": "base_acres", # "acres_insured": "base_acres",?
+                    "Quantity": "base_acres", # "acres_insured": "base_acres",?
                     "Liabilities ($)": "liability_amount",
                     "Total Prem ($)": "premium_amount",
                     "Subsidy ($)": "premium_subsidy_amount",
