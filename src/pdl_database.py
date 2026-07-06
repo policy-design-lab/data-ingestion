@@ -334,16 +334,16 @@ class PDLDatabase:
     def insert_commodity_data(self, df: pd.DataFrame, schema_name: str):
         from psycopg2.extras import execute_values
 
+        if df is None or df.empty:
+            self.logger.info("No commodity data to insert.")
+            return
+
         commodity_columns = {
             'commodity_code': 'code',
             'Commodity Name': 'name',
             "Commodity Abbrv": 'abbreviation',
         }
         df.rename(columns=commodity_columns, inplace=True)
-
-        if df is None or df.empty:
-            self.logger.info("No commodity data to insert.")
-            return
 
         assert self.cursor and self.connection
 
