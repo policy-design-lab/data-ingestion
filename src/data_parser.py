@@ -931,7 +931,7 @@ class DataParser:
 
                 # Keep state and county as-is - we'll resolve them via SQL JOINs
                 self.ci_county_data = ci_county_data
-                self.ci_commidity_data = ci_county_data[
+                self.ci_commodity_data = ci_county_data[
                     ["commodity_code", "Commodity Name", "Commodity Abbrv"]
                 ].drop_duplicates()
             else:
