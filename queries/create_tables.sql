@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments
     net_farmer_benefit_amount bigint,
     practice_code character varying(100),
     practice_code_variant character varying(100),
-    CONSTRAINT pk_payments_counties PRIMARY KEY (id),
+    CONSTRAINT pk_payments PRIMARY KEY (id),
     CONSTRAINT uc_payments UNIQUE (title_id, subtitle_id, program_id, sub_program_id, state_code, year)
 );
 
