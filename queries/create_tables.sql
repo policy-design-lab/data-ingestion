@@ -346,7 +346,7 @@ ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
-    ADD CONSTRAINT fk_payments_by_counties_commidity_code FOREIGN KEY (commodity_code)
+    ADD CONSTRAINT fk_payments_by_counties_commodity_code FOREIGN KEY (commodity_code)
     REFERENCES ${SCHEMA}.commodities (code) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
