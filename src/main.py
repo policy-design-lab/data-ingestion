@@ -83,30 +83,30 @@ if __name__ == '__main__':
 
     if cli.args.insert_data:
         # Title I data ingestion
-        # logger.info("Starting Title I data ingestion...")
-        # database.insert_data(title_i_data_parser.program_data, schema_name)
-        # database.insert_data(title_i_data_parser.dmc_data, schema_name)
-        # database.insert_data(title_i_data_parser.sada_data, schema_name)
-        # # Insert Title I county-level data
-        # if title_i_data_parser.title_i_county_data is not None:
-        #     logger.info("Starting Title I county-level data ingestion...")
-        #     database.insert_data(title_i_data_parser.title_i_county_data, schema_name, "county")
-        #
-        # logger.info("Title I data ingestion complete.")
-        #
-        # # Title II data ingestion
-        # logger.info("Starting Title II data ingestion...")
-        # database.insert_data(title_ii_data_parser.program_data, schema_name)
-        # logger.info("Title II data ingestion complete.")
-        #
-        # # Title IV data ingestion
-        # logger.info("Starting Title IV data ingestion...")
-        # database.insert_data(snap_data_parser.snap_data, schema_name)
-        # logger.info("Title IV data ingestion complete.")
-        #
-        # # Title XI data ingestion
-        # logger.info("Starting Title XI data ingestion...")
-        # database.insert_data(crop_insurance_data_parser.ci_data, schema_name)
+        logger.info("Starting Title I data ingestion...")
+        database.insert_data(title_i_data_parser.program_data, schema_name)
+        database.insert_data(title_i_data_parser.dmc_data, schema_name)
+        database.insert_data(title_i_data_parser.sada_data, schema_name)
+        # Insert Title I county-level data
+        if title_i_data_parser.title_i_county_data is not None:
+            logger.info("Starting Title I county-level data ingestion...")
+            database.insert_data(title_i_data_parser.title_i_county_data, schema_name, "county")
+
+        logger.info("Title I data ingestion complete.")
+
+        # Title II data ingestion
+        logger.info("Starting Title II data ingestion...")
+        database.insert_data(title_ii_data_parser.program_data, schema_name)
+        logger.info("Title II data ingestion complete.")
+
+        # Title IV data ingestion
+        logger.info("Starting Title IV data ingestion...")
+        database.insert_data(snap_data_parser.snap_data, schema_name)
+        logger.info("Title IV data ingestion complete.")
+
+        # Title XI data ingestion
+        logger.info("Starting Title XI data ingestion...")
+        database.insert_data(crop_insurance_data_parser.ci_data, schema_name)
 
         # Insert county-level crop insurance data
         if crop_insurance_data_parser.ci_county_data is not None:
