@@ -90,6 +90,7 @@ class DataParser:
             },
             "Title 2: Conservation": {
                 "column_names_map": {
+                    "County": "county",
                     "Pay_year": "year",
                     "State": "state_name",
                     "state": "state_name",

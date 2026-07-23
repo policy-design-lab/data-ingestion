@@ -64,7 +64,7 @@ if __name__ == '__main__':
                                       crp_csv_filename="CRP-total compiled (January 28 2025).csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
-                                      eqip_csv_filename="EQIP Farm Bill.csv",
+                                      eqip_csv_filename="EQIP Farm Bill County.csv",
                                       csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
