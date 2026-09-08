@@ -485,14 +485,7 @@ class PDLDatabase:
         }
         to_insert.rename(columns=dataframe_columns_to_temporary_table_columns, inplace=True)
 
-        # TODO delete test code.
-        for col in insert_cols:
-            if col not in to_insert.columns:
-                to_insert[col] = None
-        test_rows = to_insert[insert_cols].head(5)
-
-        for _, row in test_rows.iterrows():
-        # for _, row in to_insert[insert_cols].iterrows():
+        for _, row in to_insert[insert_cols].iterrows():
             self.cursor.execute(insert_sql, (
                 row['year'],
                 row['state_code'],
