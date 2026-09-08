@@ -531,16 +531,6 @@ class PDLDatabase:
         title_result = self.cursor.fetchall()
         self.logger.info(f"Found titles: {title_result}")
 
-        sql = f"""
-            SELECT p.id, p.name, t.name as title_name 
-            FROM {schema_name}.programs p
-            JOIN {schema_name}.titles t ON p.title_id = t.id
-            WHERE p.name = %s
-        """
-
-        print(sql)
-
-
         # Check if program exists
         self.cursor.execute(f"""
             SELECT p.id, p.name, t.name as title_name 
