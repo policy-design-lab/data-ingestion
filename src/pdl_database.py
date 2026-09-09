@@ -484,7 +484,8 @@ class PDLDatabase:
             'farmer_premium_amount': 'farmer_premium',
         }
         to_insert.rename(columns=dataframe_columns_to_temporary_table_columns, inplace=True)
-
+        to_insert = to_insert.reindex(columns=insert_cols)
+        to_insert = to_insert.astype(object).where(pd.notna(to_insert), None)
         for _, row in to_insert[insert_cols].iterrows():
             self.cursor.execute(insert_sql, (
                 row['year'],
