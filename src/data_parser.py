@@ -649,8 +649,9 @@ class DataParser:
             # eqip county data
             eqip_county_data = pd.read_csv(self.eqip_county_csv_filepath)
             # print(eqip_county_data[eqip_county_data["County"].isna()])
-            # TODO: temporarliy drop the rows without counties.
+            # TODO: temporarliy drop the rows without counties or County FIPS
             eqip_county_data = eqip_county_data.dropna(subset=["County"])
+            eqip_county_data = eqip_county_data.dropna(subset=["County FIPS"])
 
             # Remove leading and trailing whitespaces from column names
             eqip_county_data.columns = eqip_county_data.columns.str.strip()

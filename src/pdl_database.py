@@ -370,7 +370,6 @@ class PDLDatabase:
         self.connection.commit()
         self.logger.info(f"Inserted/updated {len(rows)} commodities")
 
-
     def insert_county_data(self, data: pd.DataFrame, schema_name: str):
         """
         Insert county-level crop insurance data into payments_by_counties.
@@ -381,9 +380,6 @@ class PDLDatabase:
         if data is None or data.empty:
             self.logger.info("No county-level rows to insert.")
             return
-
-        program_entity_name = data["entity_name"].iloc[0]
-        self.logger.info(f"Ingest {program_entity_name} county data")
 
         # Load canonical counties reference
         counties_ref = self.get_counties_reference(schema_name)
@@ -484,8 +480,7 @@ class PDLDatabase:
             'farmer_premium_amount': 'farmer_premium',
         }
         to_insert.rename(columns=dataframe_columns_to_temporary_table_columns, inplace=True)
-        to_insert = to_insert.reindex(columns=insert_cols)
-        to_insert = to_insert.astype(object).where(pd.notna(to_insert), None)
+
         for _, row in to_insert[insert_cols].iterrows():
             self.cursor.execute(insert_sql, (
                 row['year'],
@@ -518,27 +513,18 @@ class PDLDatabase:
         temp_count = self.cursor.fetchone()[0]
         self.logger.info(f"Temp table has {temp_count} rows")
 
-        if 'Crop Insurance' in program_entity_name:
         # Check if Title XI exists
-            self.cursor.execute(f"SELECT id, name FROM {schema_name}.titles WHERE name LIKE '%Crop Insurance%'")
-            program_name = 'Crop Insurance'
-            title_name = 'Title IX: Crop Insurance'
-        elif 'EQIP' in program_entity_name:
-            self.cursor.execute(f"SELECT id, name FROM {schema_name}.titles WHERE name LIKE '%Conservation%'")
-            program_name = 'Environmental Quality Incentives Program (EQIP)'
-            title_name = 'Title II: Conservation'
-
-        #TODO: handle other program county data
+        self.cursor.execute(f"SELECT id, name FROM {schema_name}.titles WHERE name LIKE '%Crop Insurance%'")
         title_result = self.cursor.fetchall()
         self.logger.info(f"Found titles: {title_result}")
 
         # Check if program exists
         self.cursor.execute(f"""
-            SELECT p.id, p.name, t.name as title_name 
-            FROM {schema_name}.programs p
-            JOIN {schema_name}.titles t ON p.title_id = t.id
-            WHERE p.name = %s
-        """, (program_name,))
+                SELECT p.id, p.name, t.name as title_name 
+                FROM {schema_name}.programs p
+                JOIN {schema_name}.titles t ON p.title_id = t.id
+                WHERE p.name = 'Crop Insurance'
+            """)
         program_result = self.cursor.fetchall()
         self.logger.info(f"Found programs: {program_result}")
 
@@ -569,10 +555,10 @@ class PDLDatabase:
                 temp.net_benefit as net_farmer_benefit_amount
             FROM {temp_table_name} temp
             JOIN {schema_name}.titles t 
-                 ON t.name = %s
+                 ON t.name = 'Title IX: Crop Insurance'
             JOIN {schema_name}.programs p 
                  ON p.title_id = t.id 
-                AND p.name = %s
+                AND p.name = 'Crop Insurance'
             ON CONFLICT (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code, commodity_code) 
             DO UPDATE SET
                 payment = EXCLUDED.payment,
@@ -585,13 +571,10 @@ class PDLDatabase:
                 farmer_premium_amount = EXCLUDED.farmer_premium_amount,
                 loss_ratio = EXCLUDED.loss_ratio,
                 net_farmer_benefit_amount = EXCLUDED.net_farmer_benefit_amount
-        """
+            """
 
         try:
-            self.cursor.execute(
-                insert_final_sql,
-                (title_name, program_name)
-            )
+            self.cursor.execute(insert_final_sql)
             rows_inserted = self.cursor.rowcount
             self.connection.commit()
             self.logger.info(f"Inserted/updated {rows_inserted} rows in payments_by_counties.")
@@ -608,7 +591,7 @@ class PDLDatabase:
 
         # Drop temp table
         self.cursor.execute(f"DROP TABLE IF EXISTS {temp_table_name}")
-        self.logger.info(f"{program_entity_name} county data inserted successfully.")
+        self.logger.info("County-level crop insurance data inserted successfully.")
 
     def close(self):
         if self.connection:
