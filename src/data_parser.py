@@ -111,7 +111,6 @@ class DataParser:
                     "practice_code": "practice_code_processed",
                     "category_name": "practice_category",
                     "payments": "net_farmer_benefit_amount",
-                    "County FIPS": "fips_code",
 
                     "state": "state_name",
                     "StatutoryCategory": "practice_category",
