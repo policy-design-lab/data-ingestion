@@ -658,8 +658,14 @@ class DataParser:
             # Rename column names to make it more uniform
             eqip_county_data.rename(columns=self.metadata[self.title_name]["county_column_names_map"], inplace=True)
 
-            # force convert county_fips_code into integer
-            eqip_county_data["fips_code"] = eqip_county_data["fips_code"].astype("Int64")
+            eqip_county_data["State FIPS"] = eqip_county_data["State FIPS"].astype(int)
+            eqip_county_data["County FIPS"] = eqip_county_data["County FIPS"].astype(int)
+            eqip_county_data["fips_code"] = eqip_county_data.apply(
+                lambda row: str(row["State FIPS"]).zfill(2) +
+                            str(row["County FIPS"]).zfill(3),
+                axis=1
+            ).astype("string")
+
 
             # Filter only states in self.us_state_abbreviations
             eqip_county_data = eqip_county_data[eqip_county_data["state"].isin(self.us_state_abbreviations.values())]
