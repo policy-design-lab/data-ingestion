@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
         if title_ii_data_parser.eqip_county_data is not None:
             logger.info("Starting EQIP county data ingestion...")
-            database.insert_county_data(title_ii_data_parser.eqip_county_data, schema_name)
+            database.insert_data(title_ii_data_parser.eqip_county_data, schema_name, "county")
             logger.info(" EQIP county data ingestion complete.")
 
         logger.info("Title II data ingestion complete.")

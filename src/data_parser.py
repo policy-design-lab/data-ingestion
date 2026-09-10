@@ -105,13 +105,13 @@ class DataParser:
                 },
                 "county_column_names_map": {
                     "Pay_year": "year",
-                    "State": "state_name",
+                    "State": "state",
                     "County": "county",
                     "full_practice_code": "practice_code",
                     "practice_code": "practice_code_processed",
                     "category_name": "practice_category",
                     "payments": "net_farmer_benefit_amount",
-                    "County FIPS": "county_fips_code",
+                    "County FIPS": "fips_code",
 
                     "state": "state_name",
                     "StatutoryCategory": "practice_category",
@@ -659,10 +659,10 @@ class DataParser:
             eqip_county_data.rename(columns=self.metadata[self.title_name]["county_column_names_map"], inplace=True)
 
             # force convert county_fips_code into integer
-            eqip_county_data["county_fips_code"] = eqip_county_data["county_fips_code"].astype("Int64")
+            eqip_county_data["fips_code"] = eqip_county_data["fips_code"].astype("Int64")
 
             # Filter only states in self.us_state_abbreviations
-            eqip_county_data = eqip_county_data[eqip_county_data["state_name"].isin(self.us_state_abbreviations.values())]
+            eqip_county_data = eqip_county_data[eqip_county_data["state"].isin(self.us_state_abbreviations.values())]
 
             # Remove leading and trailing whitespaces from practice_code column
             eqip_county_data["practice_code"] = eqip_county_data["practice_code"].str.strip()
@@ -678,7 +678,7 @@ class DataParser:
             eqip_county_data = eqip_county_data[eqip_county_data["net_farmer_benefit_amount"].notna()]
 
             # Filter only states in self.us_state_abbreviations
-            eqip_county_data = eqip_county_data[eqip_county_data["state_name"].isin(self.us_state_abbreviations.values())]
+            eqip_county_data = eqip_county_data[eqip_county_data["state"].isin(self.us_state_abbreviations.values())]
 
             # Add entity type to eqip
             eqip_county_data = eqip_county_data.assign(entity_type="program")
@@ -687,8 +687,11 @@ class DataParser:
             eqip_county_data = eqip_county_data.assign(entity_name="Environmental Quality Incentives Program (EQIP)")
 
             # Add state code to eqip using self.us_state_abbreviations
-            eqip_county_data = eqip_county_data.assign(state=eqip_county_data["state_name"].map(
-                {v: k for k, v in self.us_state_abbreviations.items()}))
+            eqip_county_data = eqip_county_data.assign(
+                state_code=eqip_county_data["state"].map(
+                    {v: k for k, v in self.us_state_abbreviations.items()}
+                )
+            )
 
             self.eqip_county_data = eqip_county_data
 
