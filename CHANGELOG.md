@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-  Title-II EQIP county data. [#102](https://github.com/policy-design-lab/data-ingestion/issues/102)
+
+
 ### Changed
 
 - Update crop insurance county-level data to include commodity details. [#99](https://github.com/policy-design-lab/data-ingestion/issues/99)
