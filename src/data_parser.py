@@ -110,14 +110,7 @@ class DataParser:
                     "full_practice_code": "practice_code",
                     "practice_code": "practice_code_processed",
                     "category_name": "practice_category",
-                    "payments": "net_farmer_benefit_amount",
-
-                    "state": "state_name",
-                    "StatutoryCategory": "practice_category",
-                    "Number of Contracts": "contract_count",
-                    "Number of Acres": "base_acres",
-                    "Total Financial Assistance Payments ($1000)": "amount",
-
+                    "payments": "amount",
                 },
                 "value_names_map": {
                     "CRP": "Conservation Reserve Program (CRP)",
@@ -267,6 +260,7 @@ class DataParser:
             self.eqip_data = None
             self.rcpp_data = None
             self.csp_data = None
+            self.eqip_county_data = None
 
             self.crp_csv_filepath = str(os.path.join(data_folder, kwargs["crp_csv_filename"]))
             self.acep_csv_filepath = str(os.path.join(data_folder, kwargs["acep_csv_filename"]))
@@ -664,10 +658,6 @@ class DataParser:
                             str(row["County FIPS"]).zfill(3),
                 axis=1
             ).astype("string")
-
-
-            # Filter only states in self.us_state_abbreviations
-            eqip_county_data = eqip_county_data[eqip_county_data["state"].isin(self.us_state_abbreviations.values())]
 
             # Remove leading and trailing whitespaces from practice_code column
             eqip_county_data["practice_code"] = eqip_county_data["practice_code"].str.strip()
