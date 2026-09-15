@@ -108,4 +108,19 @@ where title_id = 100
 -- order by total_payments desc;
 
 
+-- Commodity production and trade metrics from USDA FAS PSD data.
+-- country_code is the API-facing code, so China is CN even though PSD stores CH.
+-- needed for the commodity trade API endpoint
+-- select market_year, country_code, country_name, commodity_name,
+--        production_mt, production_bushels,
+--        exports_mt, exports_bushels,
+--        imports_mt, consumption_mt, ending_stocks_mt,
+--        import_percentage_worldwide
+-- from pdl.v_commodity_trade_by_country_year
+-- where commodity_name = 'soybeans'
+--   and country_code in ('US', 'CN', 'BR')
+--   and market_year = 2024
+-- order by country_name;
+
+
 
