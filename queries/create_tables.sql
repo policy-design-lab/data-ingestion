@@ -473,4 +473,115 @@ CREATE INDEX IF NOT EXISTS idx_commodity_market_obs_year_commodity_country
 CREATE INDEX IF NOT EXISTS idx_commodity_market_obs_commodity_year_attribute
     ON ${SCHEMA}.commodity_market_observations (commodity_code, market_year, attribute_id);
 
+
+-- US county-level planted acres (NASS/FSA-style source; not PSD)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.county_crop_planted_acres
+(
+    id               bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    county_fips_code character varying(5)     NOT NULL,
+    crop_code        character varying(20)    NOT NULL,
+    calendar_year    smallint                 NOT NULL,
+    planted_acres    numeric(12, 1)           NOT NULL,
+    data_source      character varying(50)    NOT NULL DEFAULT 'USDA_NASS',
+    loaded_at        timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_county_crop_planted_acres PRIMARY KEY (id),
+    CONSTRAINT uc_county_crop_planted_acres UNIQUE (county_fips_code, crop_code, calendar_year)
+);
+
+COMMENT ON TABLE ${SCHEMA}.county_crop_planted_acres
+    IS 'US county planted acres by crop and calendar year; crop_code is an API slug such as soybeans, not a PSD commodity code';
+
+
+-- Bilateral commodity export flows (origin to destination; not PSD totals)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.commodity_export_flows
+(
+    id                       bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    origin_country_code      character varying(3)     NOT NULL,
+    destination_country_code character varying(3)     NOT NULL,
+    commodity_code           character varying(10)    NOT NULL,
+    calendar_year            smallint                 NOT NULL,
+    amount                   numeric(18, 1)           NOT NULL,
+    data_source              character varying(50)    NOT NULL,
+    loaded_at                timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_commodity_export_flows PRIMARY KEY (id),
+    CONSTRAINT uc_commodity_export_flows UNIQUE (
+        origin_country_code, destination_country_code, commodity_code, calendar_year
+    )
+);
+
+COMMENT ON TABLE ${SCHEMA}.commodity_export_flows
+    IS 'Origin-to-destination export amounts in metric tons; destination ROW is Rest of World';
+
+
+-- Country socioeconomic indicators (World Bank WDI-style source)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.country_socioeconomic_indicators
+(
+    id               bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    country_code     character varying(3)     NOT NULL,
+    calendar_year    smallint                 NOT NULL,
+    gdp_per_capita   numeric,
+    total_population bigint,
+    urban_population bigint,
+    data_source      character varying(50)    NOT NULL DEFAULT 'WDI',
+    loaded_at        timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_country_socioeconomic_indicators PRIMARY KEY (id),
+    CONSTRAINT uc_country_socioeconomic_indicators UNIQUE (country_code, calendar_year)
+);
+
+COMMENT ON TABLE ${SCHEMA}.country_socioeconomic_indicators
+    IS 'Country-year socioeconomic series for /pdl/countries/{countrycode}/socioeconomic; store PSD country code and query via api_code';
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.county_crop_planted_acres
+    ADD CONSTRAINT fk_county_crop_planted_acres_county_fips_code FOREIGN KEY (county_fips_code)
+        REFERENCES ${SCHEMA}.counties (fips_code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_export_flows
+    ADD CONSTRAINT fk_commodity_export_flows_origin_country_code FOREIGN KEY (origin_country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_export_flows
+    ADD CONSTRAINT fk_commodity_export_flows_destination_country_code FOREIGN KEY (destination_country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_export_flows
+    ADD CONSTRAINT fk_commodity_export_flows_commodity_code FOREIGN KEY (commodity_code)
+        REFERENCES ${SCHEMA}.commodities (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.country_socioeconomic_indicators
+    ADD CONSTRAINT fk_country_socioeconomic_indicators_country_code FOREIGN KEY (country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+CREATE INDEX IF NOT EXISTS idx_county_crop_planted_acres_year_crop
+    ON ${SCHEMA}.county_crop_planted_acres (calendar_year, crop_code);
+
+CREATE INDEX IF NOT EXISTS idx_commodity_export_flows_year_commodity_origin
+    ON ${SCHEMA}.commodity_export_flows (calendar_year, commodity_code, origin_country_code);
+
+CREATE INDEX IF NOT EXISTS idx_country_socioeconomic_indicators_year
+    ON ${SCHEMA}.country_socioeconomic_indicators (calendar_year, country_code);
+
 END;

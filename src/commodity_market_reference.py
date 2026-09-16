@@ -160,8 +160,19 @@ def load_reference_tables(cursor, schema_name: str, reference_dir: Optional[Path
         "market_attributes": _load_attributes(cursor, schema_name, ref_dir / "attributes.xls"),
         "commodities": _load_commodities(cursor, schema_name, ref_dir / "commodities.xls"),
     }
+    _ensure_synthetic_countries(cursor, schema_name)
     logger.info("PSD reference data loaded: %s", counts)
     return counts
+
+
+def _ensure_synthetic_countries(cursor, schema_name: str) -> None:
+    """Inserts non-PSD country rows needed by bilateral export flows."""
+    sql = (
+        f"INSERT INTO {schema_name}.countries (code, name, api_code) VALUES (%s, %s, %s) "
+        "ON CONFLICT (code) DO UPDATE "
+        "SET name = EXCLUDED.name, api_code = EXCLUDED.api_code"
+    )
+    cursor.execute(sql, ("ROW", "Rest of World", "ROW"))
 
 
 def _load_countries(cursor, schema_name: str, path: Path) -> int:

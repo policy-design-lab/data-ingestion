@@ -123,4 +123,44 @@ where title_id = 100
 -- order by country_name;
 
 
+-- China pork and poultry domestic consumption by market year.
+-- needed for the livestock demand API endpoint
+-- select market_year, country_code, pork_demand, poultry_demand
+-- from pdl.v_livestock_demand_by_year
+-- where country_code = 'CN'
+-- order by market_year;
+
+
+-- US county planted acres for soybeans.
+-- needed for the planted-acres API endpoint
+-- select a.calendar_year,
+--        a.county_fips_code as id,
+--        'fips' as id_type,
+--        'county' as level,
+--        c.name as name,
+--        a.planted_acres as total_acres
+-- from pdl.county_crop_planted_acres a
+-- join pdl.counties c on c.fips_code = a.county_fips_code
+-- where a.crop_code = 'soybeans'
+--   and a.calendar_year = 2012
+-- order by a.county_fips_code;
+
+
+-- Bilateral soybean export destinations for US, Brazil, and Argentina.
+-- needed for /pdl/countries/exports
+-- select calendar_year, origin_country_code, origin_country_name, commodity_name,
+--        china, rest_of_world, top_destinations
+-- from pdl.v_commodity_exports_by_origin_year
+-- where commodity_name = 'soybeans'
+--   and origin_country_code in ('US', 'BR', 'AR')
+-- order by calendar_year, origin_country_name;
+
+
+-- Country socioeconomic indicators (GDP per capita, population).
+-- needed for /pdl/countries/{countrycode}/socioeconomic
+-- select s.calendar_year, s.gdp_per_capita, s.total_population, s.urban_population
+-- from pdl.country_socioeconomic_indicators s
+-- join pdl.countries c on c.code = s.country_code
+-- where coalesce(c.api_code, c.code) = 'CN'
+-- order by s.calendar_year;
 

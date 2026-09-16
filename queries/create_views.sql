@@ -141,3 +141,130 @@ FROM pivoted p
 LEFT JOIN world_imports w
   ON w.commodity_code = p.commodity_code
  AND w.market_year = p.market_year;
+
+
+-- China pork and poultry domestic consumption by market year.
+-- Uses the raw PSD value (typically 1000 MT), not value_mt. Poultry is Meat,
+-- Chicken (0115000) until ingest confirms broiler (0114200).
+DROP VIEW IF EXISTS ${SCHEMA}.v_livestock_demand_by_year;
+
+CREATE VIEW ${SCHEMA}.v_livestock_demand_by_year AS
+WITH latest_report AS (
+    SELECT DISTINCT ON (country_code, commodity_code, market_year)
+        country_code,
+        commodity_code,
+        market_year,
+        calendar_year,
+        month
+    FROM ${SCHEMA}.commodity_market_observations
+    WHERE commodity_code IN ('0113000', '0115000')
+    ORDER BY
+        country_code,
+        commodity_code,
+        market_year,
+        calendar_year DESC,
+        month DESC
+)
+SELECT
+    o.market_year,
+    COALESCE(c.api_code, c.code) AS country_code,
+    c.name                       AS country_name,
+    MAX(o.value) FILTER (WHERE o.commodity_code = '0113000') AS pork_demand,
+    MAX(o.value) FILTER (WHERE o.commodity_code = '0115000') AS poultry_demand
+FROM ${SCHEMA}.commodity_market_observations o
+JOIN latest_report lr
+  ON lr.country_code = o.country_code
+ AND lr.commodity_code = o.commodity_code
+ AND lr.market_year = o.market_year
+ AND lr.calendar_year = o.calendar_year
+ AND lr.month = o.month
+JOIN ${SCHEMA}.countries c ON c.code = o.country_code
+JOIN ${SCHEMA}.market_attributes a ON a.id = o.attribute_id
+WHERE a.metric_key = 'consumption'
+GROUP BY
+    o.market_year,
+    c.api_code,
+    c.code,
+    c.name;
+
+
+-- Origin-to-destination soybean export flows for /pdl/countries/exports.
+-- china is the amount to destination API code CN; rest_of_world is destination ROW.
+-- top_destinations lists up to three real partners excluding ROW, ordered by amount.
+DROP VIEW IF EXISTS ${SCHEMA}.v_commodity_exports_by_origin_year;
+
+CREATE VIEW ${SCHEMA}.v_commodity_exports_by_origin_year AS
+WITH ranked_destinations AS (
+    SELECT
+        f.origin_country_code,
+        f.commodity_code,
+        f.calendar_year,
+        d.name AS destination_name,
+        f.amount,
+        ROW_NUMBER() OVER (
+            PARTITION BY f.origin_country_code, f.commodity_code, f.calendar_year
+            ORDER BY f.amount DESC
+        ) AS destination_rank
+    FROM ${SCHEMA}.commodity_export_flows f
+    JOIN ${SCHEMA}.countries d ON d.code = f.destination_country_code
+    WHERE COALESCE(d.api_code, d.code) <> 'ROW'
+),
+top_destinations AS (
+    SELECT
+        origin_country_code,
+        commodity_code,
+        calendar_year,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'country', destination_name,
+                    'amount', amount
+                )
+                ORDER BY destination_rank
+            ),
+            '[]'::json
+        ) AS top_destinations
+    FROM ranked_destinations
+    WHERE destination_rank <= 3
+    GROUP BY origin_country_code, commodity_code, calendar_year
+),
+totals AS (
+    SELECT
+        f.calendar_year,
+        f.origin_country_code,
+        f.commodity_code,
+        COALESCE(o.api_code, o.code) AS origin_api_code,
+        o.name                       AS origin_country_name,
+        cm.api_slug                  AS commodity_name,
+        MAX(f.amount) FILTER (
+            WHERE COALESCE(d.api_code, d.code) = 'CN'
+        ) AS china,
+        MAX(f.amount) FILTER (
+            WHERE COALESCE(d.api_code, d.code) = 'ROW'
+        ) AS rest_of_world
+    FROM ${SCHEMA}.commodity_export_flows f
+    JOIN ${SCHEMA}.countries o ON o.code = f.origin_country_code
+    JOIN ${SCHEMA}.countries d ON d.code = f.destination_country_code
+    JOIN ${SCHEMA}.commodities cm ON cm.code = f.commodity_code
+    GROUP BY
+        f.calendar_year,
+        f.origin_country_code,
+        f.commodity_code,
+        o.api_code,
+        o.code,
+        o.name,
+        cm.api_slug
+)
+SELECT
+    t.calendar_year,
+    t.origin_api_code AS origin_country_code,
+    t.origin_country_name,
+    t.commodity_name,
+    t.china,
+    t.rest_of_world,
+    COALESCE(td.top_destinations, '[]'::json) AS top_destinations
+FROM totals t
+LEFT JOIN top_destinations td
+  ON td.origin_country_code = t.origin_country_code
+ AND td.commodity_code = t.commodity_code
+ AND td.calendar_year = t.calendar_year;
