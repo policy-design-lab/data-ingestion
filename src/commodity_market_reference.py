@@ -158,7 +158,7 @@ def load_reference_tables(cursor, schema_name: str, reference_dir: Optional[Path
         "countries": _load_countries(cursor, schema_name, ref_dir / "countries.xls"),
         "measurement_units": _load_units(cursor, schema_name, ref_dir / "units.xls"),
         "market_attributes": _load_attributes(cursor, schema_name, ref_dir / "attributes.xls"),
-        "commodities": _load_commodities(cursor, schema_name, ref_dir / "commodities.xls"),
+        "market_commodities": _load_commodities(cursor, schema_name, ref_dir / "commodities.xls"),
     }
     _ensure_synthetic_countries(cursor, schema_name)
     logger.info("PSD reference data loaded: %s", counts)
@@ -229,7 +229,7 @@ def _load_attributes(cursor, schema_name: str, path: Path) -> int:
 
 def _load_commodities(cursor, schema_name: str, path: Path) -> int:
     sql = (
-        f"INSERT INTO {schema_name}.commodities (code, name, api_slug, bushels_per_mt) "
+        f"INSERT INTO {schema_name}.market_commodities (code, name, api_slug, bushels_per_mt) "
         "VALUES (%s, %s, %s, %s) "
         "ON CONFLICT (code) DO UPDATE "
         "SET name = EXCLUDED.name, api_slug = EXCLUDED.api_slug, "

@@ -91,7 +91,7 @@ pivoted AS (
      AND lr.calendar_year = o.calendar_year
      AND lr.month = o.month
     JOIN ${SCHEMA}.countries c ON c.code = o.country_code
-    JOIN ${SCHEMA}.commodities cm ON cm.code = o.commodity_code
+    JOIN ${SCHEMA}.market_commodities cm ON cm.code = o.commodity_code
     JOIN ${SCHEMA}.market_attributes a ON a.id = o.attribute_id
     WHERE a.include_in_api
       AND o.value_mt IS NOT NULL
@@ -245,7 +245,7 @@ totals AS (
     FROM ${SCHEMA}.commodity_export_flows f
     JOIN ${SCHEMA}.countries o ON o.code = f.origin_country_code
     JOIN ${SCHEMA}.countries d ON d.code = f.destination_country_code
-    JOIN ${SCHEMA}.commodities cm ON cm.code = f.commodity_code
+    JOIN ${SCHEMA}.market_commodities cm ON cm.code = f.commodity_code
     GROUP BY
         f.calendar_year,
         f.origin_country_code,

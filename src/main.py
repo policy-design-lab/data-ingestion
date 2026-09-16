@@ -77,7 +77,7 @@ if __name__ == '__main__':
     crop_insurance_data_parser = DataParser(2014, 2024, "Crop Insurance",
                                             "../data/crop-insurance", "",
                                             ci_state_year_benefit_filename="ci_state_year_benefits 2014-2024.csv",
-                                            ci_state_county_year_benefit_filename="ci_state_county_year_benefits 2014-2024_with_ct_redistributed.csv"
+                                            ci_state_county_year_benefit_filename="State-County-Crop 2014-2024 All Acreage Crops.csv"
                                             )
     crop_insurance_data_parser.format_data()
 
@@ -111,6 +111,7 @@ if __name__ == '__main__':
         # Insert county-level crop insurance data
         if crop_insurance_data_parser.ci_county_data is not None:
             logger.info("Starting Title XI county-level data ingestion...")
+            database.insert_commodity_data(crop_insurance_data_parser.ci_commodity_data, schema_name)
             database.insert_county_data(crop_insurance_data_parser.ci_county_data, schema_name)
         logger.info("Title XI data ingestion complete.")
 

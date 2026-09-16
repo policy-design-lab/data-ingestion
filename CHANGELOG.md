@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update database schema to include tables and views for Soybean dashboard [#97](https://github.com/policy-design-lab/data-ingestion/issues/97)
 
+### Changed
+
+- Update crop insurance county-level data to include commodity details. [#99](https://github.com/policy-design-lab/data-ingestion/issues/99)
+
 ## [0.8.0] - 2026-04-09
 
 ### Added
