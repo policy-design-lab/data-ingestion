@@ -670,7 +670,7 @@ class DataParser:
             eqip_county_data = eqip_county_data[eqip_county_data["year"].between(self.start_year, self.end_year, inclusive="both")]
 
             # Exclude amount values that are NaN
-            eqip_county_data = eqip_county_data[eqip_county_data["net_farmer_benefit_amount"].notna()]
+            eqip_county_data = eqip_county_data[eqip_county_data["amount"].notna()]
 
             # Filter only states in self.us_state_abbreviations
             eqip_county_data = eqip_county_data[eqip_county_data["state"].isin(self.us_state_abbreviations.values())]
