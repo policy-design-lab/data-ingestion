@@ -370,7 +370,6 @@ class PDLDatabase:
         self.connection.commit()
         self.logger.info(f"Inserted/updated {len(rows)} commodities")
 
-
     def insert_county_data(self, data: pd.DataFrame, schema_name: str):
         """
         Insert county-level crop insurance data into payments_by_counties.

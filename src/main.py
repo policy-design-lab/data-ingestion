@@ -65,6 +65,7 @@ if __name__ == '__main__':
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
+                                      eqip_county_csv_filename="EQIP Farm Bill County.csv",
                                       csp_csv_filename="CSP Farm Bill.csv")
     title_ii_data_parser.format_data()
 
@@ -97,6 +98,12 @@ if __name__ == '__main__':
         # Title II data ingestion
         logger.info("Starting Title II data ingestion...")
         database.insert_data(title_ii_data_parser.program_data, schema_name)
+
+        if title_ii_data_parser.eqip_county_data is not None:
+            logger.info("Starting EQIP county data ingestion...")
+            database.insert_data(title_ii_data_parser.eqip_county_data, schema_name, "county")
+            logger.info(" EQIP county data ingestion complete.")
+
         logger.info("Title II data ingestion complete.")
 
         # Title IV data ingestion
