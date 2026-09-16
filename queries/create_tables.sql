@@ -345,6 +345,258 @@ ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
     NOT VALID;
 
 
+-- International commodity market data (USDA FAS PSD long-format source)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.countries
+(
+    code      character varying(3)   NOT NULL,
+    name      character varying(100) NOT NULL,
+    api_code  character varying(3),
+    region    character varying(50),
+    is_active boolean                NOT NULL DEFAULT true,
+    CONSTRAINT pk_countries PRIMARY KEY (code),
+    CONSTRAINT uc_countries_api_code UNIQUE (api_code)
+);
+
+COMMENT ON COLUMN ${SCHEMA}.countries.api_code
+    IS 'Code exposed in API responses when it differs from the PSD code, for example CH becomes CN for China';
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.market_commodities
+(
+    code           character varying(10)  NOT NULL,
+    name           character varying(150) NOT NULL,
+    api_slug       character varying(50)  NOT NULL,
+    bushels_per_mt numeric(12, 6),
+    parent_code    character varying(10),
+    CONSTRAINT pk_market_commodities PRIMARY KEY (code),
+    CONSTRAINT uc_market_commodity_api_slug UNIQUE (api_slug)
+);
+
+COMMENT ON TABLE ${SCHEMA}.market_commodities
+    IS 'USDA FAS PSD commodity lookup; distinct from crop-insurance commodities';
+
+COMMENT ON COLUMN ${SCHEMA}.market_commodities.bushels_per_mt
+    IS 'Per-commodity bushel conversion factor, NULL when bushels do not apply';
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.market_attributes
+(
+    id               smallint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 CACHE 1 ),
+    psd_attribute_id character varying(10)  NOT NULL,
+    name             character varying(100) NOT NULL,
+    metric_key       character varying(50)  NOT NULL,
+    include_in_api   boolean                NOT NULL DEFAULT false,
+    CONSTRAINT pk_market_attributes PRIMARY KEY (id),
+    CONSTRAINT uc_market_attributes_psd_id UNIQUE (psd_attribute_id)
+);
+
+COMMENT ON TABLE ${SCHEMA}.market_attributes
+    IS 'PSD Attribute_Id lookup, metric_key maps source attributes onto API field names';
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.measurement_units
+(
+    code               character varying(10) NOT NULL,
+    name               character varying(50) NOT NULL,
+    unit_family        character varying(20) NOT NULL,
+    multiplier_to_base numeric(18, 8)        NOT NULL,
+    CONSTRAINT pk_measurement_units PRIMARY KEY (code),
+    CONSTRAINT ck_measurement_units_family CHECK (unit_family IN ('mass', 'area', 'yield', 'count', 'ratio', 'other'))
+);
+
+COMMENT ON TABLE ${SCHEMA}.measurement_units
+    IS 'PSD Unit_Id lookup. multiplier_to_base converts raw values to base units of MT for mass, hectares for area, and MT per hectare for yield. Units whose conversion depends on the commodity, such as bushels, are classified as other and are not normalized';
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.commodity_market_observations
+(
+    id             bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    country_code   character varying(3)     NOT NULL,
+    commodity_code character varying(10)    NOT NULL,
+    market_year    smallint                 NOT NULL,
+    calendar_year  smallint                 NOT NULL,
+    month          smallint                 NOT NULL,
+    attribute_id   smallint                 NOT NULL,
+    unit_code      character varying(10)    NOT NULL,
+    value          numeric(18, 4)           NOT NULL,
+    value_mt       numeric(18, 4),
+    value_hectares numeric(18, 4),
+    value_per_ha   numeric(18, 4),
+    data_source    character varying(50)    NOT NULL DEFAULT 'USDA_PSD',
+    report_date    date,
+    loaded_at      timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_commodity_market_observations PRIMARY KEY (id),
+    CONSTRAINT uc_commodity_market_obs UNIQUE (
+        country_code, commodity_code, market_year, calendar_year, month, attribute_id, unit_code
+    ),
+    CONSTRAINT ck_commodity_market_obs_month CHECK (month >= 1 AND month <= 12)
+);
+
+COMMENT ON TABLE ${SCHEMA}.commodity_market_observations
+    IS 'Long-format PSD observations, one row per country, commodity, market year, report month, attribute, and unit';
+
+COMMENT ON COLUMN ${SCHEMA}.commodity_market_observations.value
+    IS 'Raw value exactly as reported by the source in unit_code';
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.market_commodities
+    ADD CONSTRAINT fk_market_commodities_parent_code FOREIGN KEY (parent_code)
+        REFERENCES ${SCHEMA}.market_commodities (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_market_observations
+    ADD CONSTRAINT fk_commodity_market_observations_country_code FOREIGN KEY (country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_market_observations
+    ADD CONSTRAINT fk_commodity_market_observations_commodity_code FOREIGN KEY (commodity_code)
+        REFERENCES ${SCHEMA}.market_commodities (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_market_observations
+    ADD CONSTRAINT fk_commodity_market_observations_attribute_id FOREIGN KEY (attribute_id)
+        REFERENCES ${SCHEMA}.market_attributes (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_market_observations
+    ADD CONSTRAINT fk_commodity_market_observations_unit_code FOREIGN KEY (unit_code)
+        REFERENCES ${SCHEMA}.measurement_units (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE RESTRICT
+        NOT VALID;
+
+
+CREATE UNIQUE INDEX IF NOT EXISTS uc_market_attributes_api_metric_key
+    ON ${SCHEMA}.market_attributes (metric_key)
+    WHERE include_in_api;
+
+CREATE INDEX IF NOT EXISTS idx_commodity_market_obs_year_commodity_country
+    ON ${SCHEMA}.commodity_market_observations (market_year, commodity_code, country_code);
+
+CREATE INDEX IF NOT EXISTS idx_commodity_market_obs_commodity_year_attribute
+    ON ${SCHEMA}.commodity_market_observations (commodity_code, market_year, attribute_id);
+
+
+-- US county-level planted acres (NASS/FSA-style source; not PSD)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.county_crop_planted_acres
+(
+    id               bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    county_fips_code character varying(5)     NOT NULL,
+    crop_code        character varying(20)    NOT NULL,
+    calendar_year    smallint                 NOT NULL,
+    planted_acres    numeric(12, 1)           NOT NULL,
+    data_source      character varying(50)    NOT NULL DEFAULT 'USDA_NASS',
+    loaded_at        timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_county_crop_planted_acres PRIMARY KEY (id),
+    CONSTRAINT uc_county_crop_planted_acres UNIQUE (county_fips_code, crop_code, calendar_year)
+);
+
+COMMENT ON TABLE ${SCHEMA}.county_crop_planted_acres
+    IS 'US county planted acres by crop and calendar year; crop_code is an API slug such as soybeans, not a PSD commodity code';
+
+
+-- Bilateral commodity export flows (origin to destination; not PSD totals)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.commodity_export_flows
+(
+    id                       bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    origin_country_code      character varying(3)     NOT NULL,
+    destination_country_code character varying(3)     NOT NULL,
+    commodity_code           character varying(10)    NOT NULL,
+    calendar_year            smallint                 NOT NULL,
+    amount                   numeric(18, 1)           NOT NULL,
+    data_source              character varying(50)    NOT NULL,
+    loaded_at                timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_commodity_export_flows PRIMARY KEY (id),
+    CONSTRAINT uc_commodity_export_flows UNIQUE (
+        origin_country_code, destination_country_code, commodity_code, calendar_year
+    )
+);
+
+COMMENT ON TABLE ${SCHEMA}.commodity_export_flows
+    IS 'Origin-to-destination export amounts in metric tons; destination ROW is Rest of World';
+
+
+-- Country socioeconomic indicators (World Bank WDI-style source)
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.country_socioeconomic_indicators
+(
+    id               bigint                   NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 100000000 CACHE 1 ),
+    country_code     character varying(3)     NOT NULL,
+    calendar_year    smallint                 NOT NULL,
+    gdp_per_capita   numeric,
+    total_population bigint,
+    urban_population bigint,
+    data_source      character varying(50)    NOT NULL DEFAULT 'WDI',
+    loaded_at        timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pk_country_socioeconomic_indicators PRIMARY KEY (id),
+    CONSTRAINT uc_country_socioeconomic_indicators UNIQUE (country_code, calendar_year)
+);
+
+COMMENT ON TABLE ${SCHEMA}.country_socioeconomic_indicators
+    IS 'Country-year socioeconomic series for /pdl/countries/{countrycode}/socioeconomic; store PSD country code and query via api_code';
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.county_crop_planted_acres
+    ADD CONSTRAINT fk_county_crop_planted_acres_county_fips_code FOREIGN KEY (county_fips_code)
+        REFERENCES ${SCHEMA}.counties (fips_code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_export_flows
+    ADD CONSTRAINT fk_commodity_export_flows_origin_country_code FOREIGN KEY (origin_country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_export_flows
+    ADD CONSTRAINT fk_commodity_export_flows_destination_country_code FOREIGN KEY (destination_country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.commodity_export_flows
+    ADD CONSTRAINT fk_commodity_export_flows_commodity_code FOREIGN KEY (commodity_code)
+        REFERENCES ${SCHEMA}.market_commodities (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.country_socioeconomic_indicators
+    ADD CONSTRAINT fk_country_socioeconomic_indicators_country_code FOREIGN KEY (country_code)
+        REFERENCES ${SCHEMA}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID;
+
+
+CREATE INDEX IF NOT EXISTS idx_county_crop_planted_acres_year_crop
+    ON ${SCHEMA}.county_crop_planted_acres (calendar_year, crop_code);
+
+CREATE INDEX IF NOT EXISTS idx_commodity_export_flows_year_commodity_origin
+    ON ${SCHEMA}.commodity_export_flows (calendar_year, commodity_code, origin_country_code);
+
+CREATE INDEX IF NOT EXISTS idx_country_socioeconomic_indicators_year
+    ON ${SCHEMA}.country_socioeconomic_indicators (calendar_year, country_code);
+
 ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
     ADD CONSTRAINT fk_payments_by_counties_commodity_code FOREIGN KEY (commodity_code)
     REFERENCES ${SCHEMA}.commodities (code) MATCH SIMPLE
