@@ -5,8 +5,8 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.titles
 (
-    id          smallint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 CACHE 1 ),
-    name        character varying(100) NOT NULL,
+    id smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 CACHE 1 ),
+    name character varying(100) NOT NULL,
     description text,
     CONSTRAINT pk_titles PRIMARY KEY (id),
     CONSTRAINT uc_title_name UNIQUE (name)
@@ -14,49 +14,104 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.titles
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.programs
 (
-    id          smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 CACHE 1 ),
-    title_id    smallint,
+    id smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 CACHE 1 ),
+    title_id smallint,
     subtitle_id smallint,
-    name        character varying(100),
+    name character varying(100),
     CONSTRAINT pk_programs PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.sub_programs
 (
-    id         smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 CACHE 1 ),
+    id smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 CACHE 1 ),
     program_id smallint NOT NULL,
-    name       character varying(100),
+    name character varying(100),
     CONSTRAINT pk_sub_programs PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments
 (
-    id                        bigint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000000 CACHE 1 ),
-    title_id                  smallint,
-    subtitle_id               smallint,
-    program_id                smallint,
-    sub_program_id            smallint,
-    sub_sub_program_id        smallint,
-    practice_category_id      smallint,
-    state_code                character varying(2) NOT NULL,
-    year                      smallint             NOT NULL,
-    payment                   numeric(14, 2),
-    recipient_count           bigint,
-    base_acres                numeric(10, 2),
-    farm_count                bigint,
-    contract_count            bigint,
-    premium_policy_count      bigint,
-    liability_amount          bigint,
-    premium_amount            bigint,
-    premium_subsidy_amount    bigint,
-    indemnity_amount          bigint,
-    farmer_premium_amount     bigint,
-    loss_ratio                numeric,
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000000 CACHE 1 ),
+    title_id smallint,
+    subtitle_id smallint,
+    program_id smallint,
+    sub_program_id smallint,
+    sub_sub_program_id smallint,
+    practice_category_id smallint,
+    state_code character varying(2) NOT NULL,
+    year smallint NOT NULL,
+    payment numeric(14, 2),
+    recipient_count bigint,
+    base_acres numeric(10, 2),
+    farm_count bigint,
+    contract_count bigint,
+    premium_policy_count bigint,
+    liability_amount bigint,
+    premium_amount bigint,
+    premium_subsidy_amount bigint,
+    indemnity_amount bigint,
+    farmer_premium_amount bigint,
+    loss_ratio numeric,
     net_farmer_benefit_amount bigint,
-    practice_code             character varying(100),
-    practice_code_variant     character varying(100),
+    practice_code character varying(100),
+    practice_code_variant character varying(100),
     CONSTRAINT pk_payments PRIMARY KEY (id),
     CONSTRAINT uc_payments UNIQUE (title_id, subtitle_id, program_id, sub_program_id, state_code, year)
+);
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.states
+(
+    code character varying(2) NOT NULL,
+    name character varying(100) NOT NULL,
+    CONSTRAINT pk_states PRIMARY KEY (code)
+);
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.subtitles
+(
+    id smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 ),
+    title_id smallint NOT NULL,
+    name character varying(100) NOT NULL,
+    CONSTRAINT pk_subtitles PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.practice_categories
+(
+    id smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 ),
+    name character varying NOT NULL,
+    display_name character varying,
+    category_grouping character varying,
+    program_id smallint NOT NULL,
+    is_statutory_category boolean NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.practices
+(
+    code character varying(100) NOT NULL,
+    name character varying(200) NOT NULL,
+    display_name character varying(200),
+    source character varying,
+    CONSTRAINT pk_practices PRIMARY KEY (code)
+);
+
+COMMENT ON TABLE ${SCHEMA}.practices
+    IS 'Conservation Practice Standards';
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.sub_sub_programs
+(
+    id smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 ),
+    sub_program_id smallint NOT NULL,
+    name character varying(100),
+    CONSTRAINT pk_sub_sub_programs PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.counties
+(
+    fips_code character varying(5) NOT NULL,
+    state_code character varying(2) NOT NULL,
+    name character varying(100) NOT NULL,
+    remarks character varying(100),
+    CONSTRAINT pk_counties_fips_code PRIMARY KEY (fips_code)
 );
 
 CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments_by_counties
@@ -85,175 +140,130 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.payments_by_counties
     net_farmer_benefit_amount bigint,
     practice_code character varying(100),
     practice_code_variant character varying(100),
+    commodity_code smallint,
     CONSTRAINT pk_payments_by_counties PRIMARY KEY (id),
-    CONSTRAINT uc_payments_by_counties UNIQUE (title_id, subtitle_id, program_id, sub_program_id, year, county_fips_code)
+    CONSTRAINT uc_payments_by_counties UNIQUE (title_id, subtitle_id, program_id, sub_program_id, county_fips_code, year, commodity_code)
 );
 
-CREATE TABLE IF NOT EXISTS ${SCHEMA}.states
+CREATE TABLE IF NOT EXISTS ${SCHEMA}.commodities
 (
-    code character varying(2)   NOT NULL,
-    name character varying(100) NOT NULL,
-    CONSTRAINT pk_states PRIMARY KEY (code)
-);
-
-CREATE TABLE IF NOT EXISTS ${SCHEMA}.subtitles
-(
-    id       smallint               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 ),
-    title_id smallint               NOT NULL,
-    name     character varying(100) NOT NULL,
-    CONSTRAINT pk_subtitles PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS ${SCHEMA}.counties
-(
-    fips_code character varying(5) NOT NULL,
-    state_code character varying(2) NOT NULL,
-    name character varying(100) NOT NULL,
-    remarks character varying(100),
-    CONSTRAINT pk_counties_fips_code PRIMARY KEY (fips_code)
-);
-
-CREATE TABLE IF NOT EXISTS ${SCHEMA}.practice_categories
-(
-    id                    smallint          NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 1000 ),
-    name                  character varying NOT NULL,
-    display_name          character varying,
-    category_grouping     character varying,
-    program_id            smallint          NOT NULL,
-    is_statutory_category boolean           NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS ${SCHEMA}.practices
-(
-    code         character varying(100) NOT NULL,
-    name         character varying(200) NOT NULL,
-    display_name character varying(200),
-    source       character varying,
-    CONSTRAINT pk_practices PRIMARY KEY (code)
-);
-
-COMMENT ON TABLE ${SCHEMA}.practices
-    IS 'Conservation Practice Standards';
-
-CREATE TABLE IF NOT EXISTS ${SCHEMA}.sub_sub_programs
-(
-    id             smallint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 100 MINVALUE 100 MAXVALUE 10000 ),
-    sub_program_id smallint NOT NULL,
-    name           character varying(100),
-    CONSTRAINT pk_sub_sub_programs PRIMARY KEY (id)
+    code smallint NOT NULL,
+    name character varying NOT NULL,
+    abbreviation character varying,
+    PRIMARY KEY (code)
 );
 
 ALTER TABLE IF EXISTS ${SCHEMA}.programs
-    ADD CONSTRAINT "fk_ titles_id" FOREIGN KEY (title_id)
-        REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_programs_titles_id FOREIGN KEY (title_id)
+    REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.programs
-    ADD CONSTRAINT "fk_ subtitles_id" FOREIGN KEY (subtitle_id)
-        REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_programs_subtitles_id FOREIGN KEY (subtitle_id)
+    REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.sub_programs
-    ADD CONSTRAINT fk_programs_id FOREIGN KEY (program_id)
-        REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_sub_programs_id FOREIGN KEY (program_id)
+    REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_programs_id FOREIGN KEY (program_id)
-        REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_programs_id FOREIGN KEY (program_id)
+    REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_sub_programs_id FOREIGN KEY (sub_program_id)
-        REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_sub_programs_id FOREIGN KEY (sub_program_id)
+    REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_states_id FOREIGN KEY (state_code)
-        REFERENCES ${SCHEMA}.states (code) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_states_code FOREIGN KEY (state_code)
+    REFERENCES ${SCHEMA}.states (code) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_titles_id FOREIGN KEY (title_id)
-        REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_titles_id FOREIGN KEY (title_id)
+    REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_subtitles_id FOREIGN KEY (subtitle_id)
-        REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_subtitles_id FOREIGN KEY (subtitle_id)
+    REFERENCES ${SCHEMA}.subtitles (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_practice_categories_id FOREIGN KEY (practice_category_id)
-        REFERENCES ${SCHEMA}.practice_categories (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_practice_categories_id FOREIGN KEY (practice_category_id)
+    REFERENCES ${SCHEMA}.practice_categories (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_practice_code FOREIGN KEY (practice_code)
-        REFERENCES ${SCHEMA}.practices (code) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_practices_code FOREIGN KEY (practice_code)
+    REFERENCES ${SCHEMA}.practices (code) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.payments
-    ADD CONSTRAINT fk_sub_sub_programs_id FOREIGN KEY (sub_sub_program_id)
-        REFERENCES ${SCHEMA}.sub_sub_programs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_payments_sub_sub_programs_id FOREIGN KEY (sub_sub_program_id)
+    REFERENCES ${SCHEMA}.sub_sub_programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.subtitles
-    ADD CONSTRAINT fk_titles_id FOREIGN KEY (title_id)
-        REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
+    ADD CONSTRAINT fk_subtitles_titles_id FOREIGN KEY (title_id)
+    REFERENCES ${SCHEMA}.titles (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.practice_categories
-    ADD CONSTRAINT fk_program_id FOREIGN KEY (program_id)
-        REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_practice_categories_programs_id FOREIGN KEY (program_id)
+    REFERENCES ${SCHEMA}.programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 
 ALTER TABLE IF EXISTS ${SCHEMA}.sub_sub_programs
-    ADD CONSTRAINT fk_sub_programs_id FOREIGN KEY (sub_program_id)
-        REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID;
+    ADD CONSTRAINT fk_sub_sub_programs_sub_programs_id FOREIGN KEY (sub_program_id)
+    REFERENCES ${SCHEMA}.sub_programs (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
 
 ALTER TABLE IF EXISTS ${SCHEMA}.counties
     ADD CONSTRAINT fk_counties_state_code FOREIGN KEY (state_code)
@@ -330,6 +340,14 @@ ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
 ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
     ADD CONSTRAINT fk_payments_by_counties_counties_fips_code FOREIGN KEY (county_fips_code)
     REFERENCES ${SCHEMA}.counties (fips_code) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS ${SCHEMA}.payments_by_counties
+    ADD CONSTRAINT fk_payments_by_counties_commodity_code FOREIGN KEY (commodity_code)
+    REFERENCES ${SCHEMA}.commodities (code) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
