@@ -261,6 +261,7 @@ class DataParser:
             self.rcpp_data = None
             self.csp_data = None
             self.eqip_county_data = None
+            self.csp_county_data = None
 
             self.crp_csv_filepath = str(os.path.join(data_folder, kwargs["crp_csv_filename"]))
             self.acep_csv_filepath = str(os.path.join(data_folder, kwargs["acep_csv_filename"]))
@@ -268,6 +269,7 @@ class DataParser:
             self.eqip_csv_filepath = str(os.path.join(data_folder, kwargs["eqip_csv_filename"]))
             self.eqip_county_csv_filepath = str(os.path.join(data_folder, kwargs["eqip_county_csv_filename"]))
             self.csp_csv_filepath = str(os.path.join(data_folder, kwargs["csp_csv_filename"]))
+            self.csp_county_csv_filepath = str(os.path.join(data_folder, kwargs["csp_county_csv_filename"]))
             pass
         elif self.title_name == "Crop Insurance":
             self.ci_data = None
@@ -726,6 +728,55 @@ class DataParser:
                 {v: k for k, v in self.us_state_abbreviations.items()}))
 
             self.csp_data = csp_data
+
+            # Import CSP County CSV files and convert to existing format
+            csp_county_data = pd.read_csv(self.csp_county_csv_filepath)
+
+            # Remove leading and trailing whitespaces from column names
+            csp_county_data.columns = csp_county_data.columns.str.strip()
+
+            # # TODO: temporarliy drop the rows without counties or County FIPS
+            # csp_county_data = csp_county_data.dropna(subset=["County"])
+            # csp_county_data = csp_county_data.dropna(subset=["County FIPS"])
+
+            csp_county_data["State FIPS"] = csp_county_data["State FIPS"].astype(int)
+            csp_county_data["County FIPS"] = csp_county_data["County FIPS"].astype(int)
+            csp_county_data["fips_code"] = csp_county_data.apply(
+                lambda row: str(row["State FIPS"]).zfill(2) +
+                            str(row["County FIPS"]).zfill(3),
+                axis=1
+            ).astype("string")
+
+            # Rename column names to make it more uniform
+            csp_county_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+
+            # Remove leading and trailing whitespaces from practice_code column
+            csp_county_data["practice_code"] = csp_county_data["practice_code"].str.strip()
+
+            # Replace value names
+            csp_county_data["practice_category"] = csp_county_data["practice_category"].replace(
+                self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            csp_county_data = csp_county_data[csp_county_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            csp_county_data = csp_county_data[csp_county_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            csp_county_data = csp_county_data[csp_county_data["state_name"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to csp
+            csp_county_data = csp_county_data.assign(entity_type="program")
+
+            # Add entity_name to csp
+            csp_county_data = csp_county_data.assign(entity_name="Conservation Stewardship Program (CSP)")
+
+            # Add state code to csp using self.us_state_abbreviations
+            csp_county_data = csp_county_data.assign(state_code=csp_county_data["state_name"].map(
+                {v: k for k, v in self.us_state_abbreviations.items()}))
+
+            self.csp_county_data = csp_county_data
 
             # Import CRP CSV files and convert to existing format
             crp_raw_data = pd.read_csv(self.crp_csv_filepath)

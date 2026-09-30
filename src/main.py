@@ -66,7 +66,8 @@ if __name__ == '__main__':
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
                                       eqip_county_csv_filename="EQIP Farm Bill County.csv",
-                                      csp_csv_filename="CSP Farm Bill.csv")
+                                      csp_csv_filename="CSP Farm Bill.csv",
+                                      csp_county_csv_filename="CSP Farm Bill County.csv")
     title_ii_data_parser.format_data()
 
     snap_data_parser = DataParser(2014, 2024, "Supplemental Nutrition Assistance Program (SNAP)",
