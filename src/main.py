@@ -66,7 +66,8 @@ if __name__ == '__main__':
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
                                       eqip_county_csv_filename="EQIP Farm Bill County.csv",
-                                      csp_csv_filename="CSP Farm Bill.csv")
+                                      csp_csv_filename="CSP Farm Bill.csv",
+                                      csp_county_csv_filename="CSP Farm Bill County.csv")
     title_ii_data_parser.format_data()
 
     snap_data_parser = DataParser(2014, 2024, "Supplemental Nutrition Assistance Program (SNAP)",
@@ -103,6 +104,11 @@ if __name__ == '__main__':
             logger.info("Starting EQIP county data ingestion...")
             database.insert_data(title_ii_data_parser.eqip_county_data, schema_name, "county")
             logger.info(" EQIP county data ingestion complete.")
+
+        if title_ii_data_parser.csp_county_data is not None:
+            logger.info("Starting CSP county data ingestion...")
+            database.insert_data(title_ii_data_parser.csp_county_data, schema_name, "county")
+            logger.info(" CSP county data ingestion complete.")
 
         logger.info("Title II data ingestion complete.")
 
