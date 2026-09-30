@@ -103,6 +103,15 @@ class DataParser:
                     "Total Financial Assistance Payments ($1000)": "amount",
 
                 },
+                "county_column_names_map": {
+                    "Pay_year": "year",
+                    "State": "state",
+                    "County": "county",
+                    "full_practice_code": "practice_code",
+                    "practice_code": "practice_code_processed",
+                    "category_name": "practice_category",
+                    "payments": "amount",
+                },
                 "value_names_map": {
                     "CRP": "Conservation Reserve Program (CRP)",
                     "ACEP": "Agricultural Conservation Easement Program (ACEP)",
@@ -251,11 +260,13 @@ class DataParser:
             self.eqip_data = None
             self.rcpp_data = None
             self.csp_data = None
+            self.eqip_county_data = None
 
             self.crp_csv_filepath = str(os.path.join(data_folder, kwargs["crp_csv_filename"]))
             self.acep_csv_filepath = str(os.path.join(data_folder, kwargs["acep_csv_filename"]))
             self.rcpp_csv_filepath = str(os.path.join(data_folder, kwargs["rcpp_csv_filename"]))
             self.eqip_csv_filepath = str(os.path.join(data_folder, kwargs["eqip_csv_filename"]))
+            self.eqip_county_csv_filepath = str(os.path.join(data_folder, kwargs["eqip_county_csv_filename"]))
             self.csp_csv_filepath = str(os.path.join(data_folder, kwargs["csp_csv_filename"]))
             pass
         elif self.title_name == "Crop Insurance":
@@ -627,6 +638,57 @@ class DataParser:
                 {v: k for k, v in self.us_state_abbreviations.items()}))
 
             self.eqip_data = eqip_data
+
+            # eqip county data
+            eqip_county_data = pd.read_csv(self.eqip_county_csv_filepath)
+            # TODO: temporarliy drop the rows without counties or County FIPS
+            eqip_county_data = eqip_county_data.dropna(subset=["County"])
+            eqip_county_data = eqip_county_data.dropna(subset=["County FIPS"])
+
+            # Remove leading and trailing whitespaces from column names
+            eqip_county_data.columns = eqip_county_data.columns.str.strip()
+
+            # Rename column names to make it more uniform
+            eqip_county_data.rename(columns=self.metadata[self.title_name]["county_column_names_map"], inplace=True)
+
+            eqip_county_data["State FIPS"] = eqip_county_data["State FIPS"].astype(int)
+            eqip_county_data["County FIPS"] = eqip_county_data["County FIPS"].astype(int)
+            eqip_county_data["fips_code"] = eqip_county_data.apply(
+                lambda row: str(row["State FIPS"]).zfill(2) +
+                            str(row["County FIPS"]).zfill(3),
+                axis=1
+            ).astype("string")
+
+            # Remove leading and trailing whitespaces from practice_code column
+            eqip_county_data["practice_code"] = eqip_county_data["practice_code"].str.strip()
+
+            # Replace value names
+            eqip_county_data["practice_category"] = eqip_county_data["practice_category"].replace(
+                self.metadata[self.title_name]["value_names_map"])
+
+            # Filter only relevant years data
+            eqip_county_data = eqip_county_data[eqip_county_data["year"].between(self.start_year, self.end_year, inclusive="both")]
+
+            # Exclude amount values that are NaN
+            eqip_county_data = eqip_county_data[eqip_county_data["amount"].notna()]
+
+            # Filter only states in self.us_state_abbreviations
+            eqip_county_data = eqip_county_data[eqip_county_data["state"].isin(self.us_state_abbreviations.values())]
+
+            # Add entity type to eqip
+            eqip_county_data = eqip_county_data.assign(entity_type="program")
+
+            # Add entity_name to eqip
+            eqip_county_data = eqip_county_data.assign(entity_name="Environmental Quality Incentives Program (EQIP)")
+
+            # Add state code to eqip using self.us_state_abbreviations
+            eqip_county_data = eqip_county_data.assign(
+                state_code=eqip_county_data["state"].map(
+                    {v: k for k, v in self.us_state_abbreviations.items()}
+                )
+            )
+
+            self.eqip_county_data = eqip_county_data
 
             # Import CSP CSV files and convert to existing format
             csp_data = pd.read_csv(self.csp_csv_filepath)
