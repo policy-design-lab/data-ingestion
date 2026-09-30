@@ -495,7 +495,7 @@ CREATE TABLE IF NOT EXISTS ${SCHEMA}.county_crop_planted_acres
     county_fips_code character varying(5)     NOT NULL,
     crop_code        character varying(20)    NOT NULL,
     calendar_year    smallint                 NOT NULL,
-    planted_acres    numeric(12, 1)           NOT NULL,
+    planted_acres    numeric(14, 2)           NOT NULL,
     data_source      character varying(50)    NOT NULL DEFAULT 'USDA_NASS',
     loaded_at        timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT pk_county_crop_planted_acres PRIMARY KEY (id),
