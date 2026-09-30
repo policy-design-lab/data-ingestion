@@ -105,6 +105,11 @@ if __name__ == '__main__':
             database.insert_data(title_ii_data_parser.eqip_county_data, schema_name, "county")
             logger.info(" EQIP county data ingestion complete.")
 
+        if title_ii_data_parser.csp_county_data is not None:
+            logger.info("Starting CSP county data ingestion...")
+            database.insert_data(title_ii_data_parser.csp_county_data, schema_name, "county")
+            logger.info(" CSP county data ingestion complete.")
+
         logger.info("Title II data ingestion complete.")
 
         # Title IV data ingestion
