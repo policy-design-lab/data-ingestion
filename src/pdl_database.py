@@ -2,6 +2,7 @@ import logging
 import re
 
 import pandas as pd
+from commodity_market_reference import load_reference_tables
 from utils.county_matcher import match_counties
 import psycopg2
 from psycopg2 import Error
@@ -21,6 +22,7 @@ class PDLDatabase:
         self.create_views_file = "../queries/create_views.sql"
         self.initialize_tables_file = "../queries/initialize_tables.sql"
         self.merged_practice_standards = "../data/common/merged_practice_standards.csv"
+        self.commodity_market_reference_dir = "../data/commodity-market/reference"
 
     def connect(self, db_name=None, db_user=None, db_password=None, db_host=None, db_port=None):
         try:
@@ -134,6 +136,10 @@ class PDLDatabase:
                 self.cursor.execute(sql_insert_query,
                                     (row['practice_code'], row['practice_name'], display_name, row['source']))
                 self.connection.commit()
+
+        # Initialize USDA FAS PSD reference lookups for commodity market data
+        load_reference_tables(self.cursor, schema_name, self.commodity_market_reference_dir)
+        self.connection.commit()
 
         self.logger.info("Tables initialized successfully")
 
