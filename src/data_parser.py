@@ -748,14 +748,10 @@ class DataParser:
             ).astype("string")
 
             # Rename column names to make it more uniform
-            csp_county_data.rename(columns=self.metadata[self.title_name]["column_names_map"], inplace=True)
+            csp_county_data.rename(columns=self.metadata[self.title_name]["county_column_names_map"], inplace=True)
 
             # Remove leading and trailing whitespaces from practice_code column
             csp_county_data["practice_code"] = csp_county_data["practice_code"].str.strip()
-
-            # Replace value names
-            csp_county_data["practice_category"] = csp_county_data["practice_category"].replace(
-                self.metadata[self.title_name]["value_names_map"])
 
             # Filter only relevant years data
             csp_county_data = csp_county_data[csp_county_data["year"].between(self.start_year, self.end_year, inclusive="both")]
@@ -764,8 +760,7 @@ class DataParser:
             csp_county_data = csp_county_data[csp_county_data["amount"].notna()]
 
             # Filter only states in self.us_state_abbreviations
-            csp_county_data = csp_county_data[csp_county_data["state_name"].isin(self.us_state_abbreviations.values())]
-
+            csp_county_data = csp_county_data[csp_county_data["state"].isin(self.us_state_abbreviations.values())]
             # Add entity type to csp
             csp_county_data = csp_county_data.assign(entity_type="program")
 
@@ -773,7 +768,7 @@ class DataParser:
             csp_county_data = csp_county_data.assign(entity_name="Conservation Stewardship Program (CSP)")
 
             # Add state code to csp using self.us_state_abbreviations
-            csp_county_data = csp_county_data.assign(state_code=csp_county_data["state_name"].map(
+            csp_county_data = csp_county_data.assign(state_code=csp_county_data["state"].map(
                 {v: k for k, v in self.us_state_abbreviations.items()}))
 
             self.csp_county_data = csp_county_data
