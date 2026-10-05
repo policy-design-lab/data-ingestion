@@ -735,10 +735,6 @@ class DataParser:
             # Remove leading and trailing whitespaces from column names
             csp_county_data.columns = csp_county_data.columns.str.strip()
 
-            # # TODO: temporarliy drop the rows without counties or County FIPS
-            # csp_county_data = csp_county_data.dropna(subset=["County"])
-            # csp_county_data = csp_county_data.dropna(subset=["County FIPS"])
-
             csp_county_data["State FIPS"] = csp_county_data["State FIPS"].astype(int)
             csp_county_data["County FIPS"] = csp_county_data["County FIPS"].astype(int)
             csp_county_data["fips_code"] = csp_county_data.apply(
