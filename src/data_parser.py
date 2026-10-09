@@ -107,6 +107,7 @@ class DataParser:
                     "Pay_year": "year",
                     "State": "state",
                     "County": "county",
+                    "StatutoryCategory": "practice_category",
                     "full_practice_code": "practice_code",
                     "practice_code": "practice_code_processed",
                     "category_name": "practice_category",
@@ -748,7 +749,8 @@ class DataParser:
 
             # Remove leading and trailing whitespaces from practice_code column
             csp_county_data["practice_code"] = csp_county_data["practice_code"].str.strip()
-
+            csp_county_data["practice_category"] = csp_county_data["practice_category"].replace(
+                self.metadata[self.title_name]["value_names_map"])
             # Filter only relevant years data
             csp_county_data = csp_county_data[csp_county_data["year"].between(self.start_year, self.end_year, inclusive="both")]
 
