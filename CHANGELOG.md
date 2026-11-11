@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.0] - 2026-09-22
 
+### Changed
+
+- Update Title-II EQIP and CSP state-level data using the February 3, 2026 data.  [#117](https://github.com/policy-design-lab/data-ingestion/issues/117)
+
 ### Added
 
 -  Title-II EQIP county data. [#102](https://github.com/policy-design-lab/data-ingestion/issues/102)
