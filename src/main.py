@@ -59,9 +59,9 @@ if __name__ == '__main__':
                                      )
     title_i_data_parser.format_data()
 
-    title_ii_data_parser = DataParser(2014, 2023, "Title 2: Conservation",
+    title_ii_data_parser = DataParser(2014, 2025, "Title 2: Conservation",
                                       "../data/title-ii", "",
-                                      crp_csv_filename="CRP-total compiled (January 28 2025).csv",
+                                      crp_csv_filename="CRP-total compiled (November 4 2026).csv",
                                       acep_csv_filename="ACEP.csv",
                                       rcpp_csv_filename="RCPP.csv",
                                       eqip_csv_filename="EQIP Farm Bill.csv",
