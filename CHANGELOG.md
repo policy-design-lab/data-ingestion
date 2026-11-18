@@ -14,8 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -  Title-II CSP county data. [#103](https://github.com/policy-design-lab/data-ingestion/issues/103)
--  Title-II EQIP county data. [#102](https://github.com/policy-design-lab/data-ingestion/issues/102)
 
+
+## [0.9.0] - 2026-09-22
+
+### Added
+
+-  Title-II EQIP county data. [#102](https://github.com/policy-design-lab/data-ingestion/issues/102)
 
 ### Changed
 
