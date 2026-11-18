@@ -732,6 +732,9 @@ class DataParser:
 
             # Import CSP County CSV files and convert to existing format
             csp_county_data = pd.read_csv(self.csp_county_csv_filepath)
+            # Temporarily drop rows without county name or County FIPS
+            csp_county_data = csp_county_data.dropna(subset=["County"])
+            csp_county_data = csp_county_data.dropna(subset=["County FIPS"])
 
             # Remove leading and trailing whitespaces from column names
             csp_county_data.columns = csp_county_data.columns.str.strip()
