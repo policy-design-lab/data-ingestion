@@ -13,7 +13,6 @@ practice_code,practice_name
 124,"Agricultural  Energy Management Plan, Landscape - Written"
 128,Agricultural Energy Management Plan - Written
 130,Drainage Water Management Plan - Written
-132,Soil Resources Planning - Written
 136,Agricultural Energy Design Plan - Written
 138,Conservation Plan Supporting Organic Transition
 140,Transition to Organic Design
@@ -33,12 +32,18 @@ practice_code,practice_name
 199,Conservation Plan
 201,Edge-of-Field Water Quality Monitoring-Data Collection and Evaluation
 202,Edge-of-Field Water Quality Monitoring-System Installation
+206,Feed and Forage Analysis
 207,Site Assessment and Soil Testing for Contaminants Activity
+209,PFAS Testing in Water or Soil
 216,Soil Health Testing
 217,Soil and Source Testing for Nutrient Management
+219,Prescribed Grazing Conservation Evaluation and Monitoring Activity
+221,Soil Organic Carbon Stock Monitoring
 222,Indigenous Stewardship Methods Evaluation
 223,Forest Management Assessment
 224,Aquifer Flow Test
+226,Waste Facility Site Suitability and Feasibility Assessment
+227,Evaluation of Existing Waste Storage Facility Components
 228,Agricultural Energy Assessment
 297,Feral Swine Damage Assessment
 309,Agrichemical Handling Facility
@@ -57,10 +62,10 @@ practice_code,practice_name
 328,Conservation Crop Rotation
 329,"Residue and Tillage Management, No Till"
 330,Contour Farming
-331,Contour Orchard and Other Perennial Crops
 332,Contour Buffer Strips
 333,Amending Soil Properties with Gypsum Products
 334,Controlled Traffic Farming
+336,Soil Carbon Amendment
 338,Prescribed Burning
 340,Cover Crop
 342,Critical Area Planting
@@ -70,6 +75,7 @@ practice_code,practice_name
 348,"Dam, Diversion"
 350,Sediment Basin
 351,Well Decommissioning
+353,Monitoring Well
 355,Groundwater Testing
 356,Dike and Levee
 359,Waste Treatment Lagoon
@@ -107,7 +113,6 @@ practice_code,practice_name
 412,Grassed Waterway
 420,Wildlife Habitat Planting
 422,Hedgerow Planting
-423,Hillside Ditch
 428,Irrigation Ditch Lining
 430,Irrigation Pipeline
 432,Dry Hydrant
@@ -139,12 +144,11 @@ practice_code,practice_name
 521D,"Pond Sealing or Lining, Compacted Clay Treatment"
 522,Pond Sealing or Lining - Concrete
 527,Sinkhole Treatment
-528,Prescribed Grazing
+528,Grazing Management
 533,Pumping Plant
 548,Grazing Land Mechanical Treatment
 550,Range Planting
 554,Drainage Water Management
-555,Rock Wall Terrace
 557,Row Arrangement
 558,Roof Runoff Structure
 560,Access Road
@@ -177,6 +181,7 @@ practice_code,practice_name
 612,Tree/Shrub Establishment
 614,Watering Facility
 620,Underground Outlet
+627,Wastewater Treatment – Milk House
 629,Waste Treatment
 630,Vertical Drain
 632,Waste Separation Facility
@@ -189,7 +194,7 @@ practice_code,practice_name
 643,Restoration of Rare or Declining Natural Communities
 644,Wetland Wildlife Habitat Management
 645,Upland Wildlife Habitat Management
-646,Shallow Water Development and Management
+646,Seasonal Water Management for Wildlife
 647,Early Successional Habitat Development-Mgt
 649,Structures for Wildlife
 650,Windbreak/Shelterbelt Renovation
@@ -207,24 +212,18 @@ practice_code,practice_name
 713,"Fueling Facility, Above Ground Storage"
 717,Livestock Shade Structure
 720,Control Traffic Farming
-724,Water Treatment Facility
 734,Fish and Wildlife Structure
-737,Reduced Water and Energy Coffee Conveyance System
 739,Hillside Bench
 740,"Pond Sealing and Lining, Soil Cement"
 747,Denitrifying Bioreactor
-751,Individual Terrace
-753,Infiltration Ditch
 755,Well Plugging
 756,Field Operations Emissions Reduction
 770,Livestock Confinement
-770,Livestock Confinement Facility
 775,Drainage Ditch Cover
-775,Drainage Ditch Covering
 782,Phosphorus Removal System
 798,Seasonal High Tunnel System for Crops
+800,Controlling Existing Flowing Wells
 801,AMENDING SOIL PROPERTIES WITH GYPSIFEROUS PRODUCTS
-803,Water Well Disinfection
 805,Amending Soil Properties with Lime
 808,Soil Carbon Amendment
 809,Conservation Harvest Management
@@ -234,14 +233,20 @@ practice_code,practice_name
 817,On-Farm Recharge
 818,Water Conservation System
 821,Low Tunnel Systems
+822,Nonruminant Livestock Outdoor Management of Vegetative Cover
 823,Organic Management
+827,Strategic Harvested Forage Management
+828,Wildlife Habitat Site Preparation
+910,TA Planning
+911,TA Design
+912,TA Application
+913,TA Check-Out
 E314A,Brush management to improve wildlife habitat
 E315A,Herbaceous weed treatment to create plant communities consistent with the ecological site
 E327A,Conservation cover for pollinators and beneficial insects
 E327B,Establish Monarch butterfly habitat
 E328A,Resource conserving crop rotation
 E328D,Leave standing grain crops unharvested to benefit wildlife
-E328F,Modifications to improve soil health and increase soil organic matter
 E329A,No till to reduce soil erosion
 E329D,No till system to increase soil health and soil organic matter content
 E334A,Controlled traffic farming to reduce compaction
@@ -293,7 +298,6 @@ E528N,Improved grazing management through monitoring activities
 E528Q,Use of body condition scoring for livestock on a monthly basis to keep track of herd health
 E528R,Management Intensive Rotational Grazing
 E533A,Advanced Pumping Plant Automation
-E533B,Complete pumping plant evaluation for energy savings
 E550A,Range planting for increasing/maintaining organic matter
 E550B,"Range planting for improving forage, browse, or cover for wildlife"
 E590A,Improving nutrient uptake efficiency and reducing risk of nutrient losses
@@ -308,11 +312,14 @@ E666D,Forest management to enhance understory vegetation
 E666E,Reduce height of the forest understory to limit wildfire risk
 E666F,Reduce forest stand density to create open stand structure
 E666G,Reduce forest density and manage understory along roads to limit wildfire risk and improve habitat
-E666H,Increase on-site carbon storage
 E666I,Crop tree management for mast production
 E666J,Facilitating oak forest regeneration
 E666K,Creating structural diversity with patch openings
 E666M,Maintaining structural diversity in dry Western forests
 E666N,Creating structural diversity in dry Western forests
 E666O,"Snags, den trees, and coarse woody debris for wildlife habitat"
+ERP,Equitable Relief Payment
+EUP,Erroneous Underpayment
+JNP,Judicial or NAD Payment
 MINPAY,Minimum Payment Adjustment
+OTP,Other Payment

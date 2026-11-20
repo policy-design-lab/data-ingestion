@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.0] - 2026-09-22
+## [Unreleased]
+
+### Changed
+
+- Update Title-II EQIP and CSP state-level data using the February 3, 2026 data.  [#117](https://github.com/policy-design-lab/data-ingestion/issues/117)
 
 ### Added
 
 -  Title-II CSP county data. [#103](https://github.com/policy-design-lab/data-ingestion/issues/103)
--  Title-II EQIP county data. [#102](https://github.com/policy-design-lab/data-ingestion/issues/102)
 
+
+## [0.9.0] - 2026-09-22
+
+### Added
+
+-  Title-II EQIP county data. [#102](https://github.com/policy-design-lab/data-ingestion/issues/102)
 
 ### Changed
 
